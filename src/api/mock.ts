@@ -7,8 +7,10 @@
  * so the whole control panel is demoable standalone. Pure TS — no DOM.
  */
 
+import { groundedHash } from "../okf/conceptDoc";
 import {
   ApiError,
+  type ConceptDocResponse,
   type EdgeSpec,
   type ExploreEvent,
   type Finding,
@@ -770,6 +772,22 @@ export const mockApi = {
       }
     }
     return { deleted: true, removed_edge_ids: removed };
+  },
+
+  async synthesizeConceptDoc(project: string, kb: string, nodeId: string): Promise<ConceptDocResponse> {
+    const data = getKb(project, kb);
+    const node = data.nodes.get(nodeId);
+    if (!node) throw new ApiError(404, `unknown node: ${nodeId}`);
+    return {
+      description: `${node.label} — a ${node.type} in this knowledge base.`,
+      body_markdown:
+        `## Overview\n\n${node.label} is a ${node.type} grounded in ` +
+        `${node.grounded_in.length} finding(s). This is a mock synthesized article ` +
+        `shown when no live engine is connected.\n`,
+      model: "mock/echo",
+      built_at: new Date().toISOString(),
+      grounded_hash: groundedHash(node.grounded_in),
+    };
   },
 
   async createEdges(project: string, kb: string, edges: EdgeSpec[]): Promise<{ inserted: number }> {

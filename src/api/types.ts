@@ -106,6 +106,14 @@ export interface FindingsResponse {
   findings: Finding[];
 }
 
+export interface ConceptDocResponse {
+  description: string;
+  body_markdown: string;
+  model: string;
+  built_at: string;
+  grounded_hash: string;
+}
+
 export interface SynopsisTopic {
   topic: string;
   gloss: string;

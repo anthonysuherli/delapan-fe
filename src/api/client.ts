@@ -12,6 +12,7 @@
 import { mockApi } from "./mock";
 import {
   ApiError,
+  type ConceptDocResponse,
   type EdgeSpec,
   type ExploreEvent,
   type Finding,
@@ -147,6 +148,20 @@ export function deleteNode(
   return call(
     () => http(`${kbPath(project, kb)}/graph/nodes/${encodeURIComponent(id)}`, { method: "DELETE" }),
     () => mockApi.deleteNode(project, kb, id),
+  );
+}
+
+export function synthesizeConceptDoc(
+  project: string,
+  kb: string,
+  nodeId: string,
+): Promise<ConceptDocResponse> {
+  return call(
+    () =>
+      http(`${kbPath(project, kb)}/graph/nodes/${encodeURIComponent(nodeId)}/concept-doc`, {
+        method: "POST",
+      }),
+    () => mockApi.synthesizeConceptDoc(project, kb, nodeId),
   );
 }
 
