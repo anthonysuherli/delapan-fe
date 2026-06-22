@@ -88,6 +88,7 @@ export function useHotkeys(): void {
       switch (e.key) {
         case "Escape":
           if (s.addNodeOpen) s.setAddNodeOpen(false);
+          else if (s.openConceptNodeId) s.openConcept(null);
           else if (s.openFindingId) s.openFinding(null);
           else if (s.edgeDraft) s.clearEdgeDraft();
           else if (s.connectFrom) s.cancelConnect();
@@ -102,6 +103,11 @@ export function useHotkeys(): void {
           const source = s.selectedNodes[0];
           if (s.connectFrom) s.cancelConnect();
           else if (source) s.startConnect(source);
+          return;
+        }
+        case "r":
+        case "R": {
+          if (s.selectedNodes.length === 1) s.openConcept(s.selectedNodes[0]);
           return;
         }
         case "Delete":

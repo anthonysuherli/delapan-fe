@@ -71,6 +71,7 @@ function EmptyState() {
 
 function NodeInspector({ id }: { id: string }) {
   const startConnect = useStore((s) => s.startConnect);
+  const openConcept = useStore((s) => s.openConcept);
   const schema = useStore((s) => s.schema);
   const attrs = graph.getNodeAttributes(id);
 
@@ -141,6 +142,9 @@ function NodeInspector({ id }: { id: string }) {
       </div>
 
       <div className="ins-actions">
+        <button className="btn" onClick={() => openConcept(id)}>
+          read <span className="kbd">R</span>
+        </button>
         <button className="btn" onClick={() => startConnect(id)}>
           ⌁ connect <span className="kbd">E</span>
         </button>

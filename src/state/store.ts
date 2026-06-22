@@ -58,6 +58,8 @@ interface AppState {
   selectedNodes: string[];
   selectedEdges: string[];
   openFindingId: string | null;
+  openConceptNodeId: string | null;
+  conceptBackStack: string[];
   connectFrom: string | null;
   edgeDraft: { source: string; target: string } | null;
   addNodeOpen: boolean;
@@ -84,6 +86,9 @@ interface AppState {
   dismissToast(id: number): void;
   fetchFinding(id: string): void;
   openFinding(id: string | null): void;
+  openConcept(id: string | null): void;
+  navigateConcept(id: string): void;
+  conceptBack(): void;
   startConnect(sourceId: string): void;
   cancelConnect(): void;
   proposeEdge(targetId: string): void;
@@ -130,6 +135,8 @@ export const useStore = create<AppState>((set, get) => ({
   selectedNodes: [],
   selectedEdges: [],
   openFindingId: null,
+  openConceptNodeId: null,
+  conceptBackStack: [],
   connectFrom: null,
   edgeDraft: null,
   addNodeOpen: false,
@@ -185,6 +192,8 @@ export const useStore = create<AppState>((set, get) => ({
       connectFrom: null,
       edgeDraft: null,
       openFindingId: null,
+      openConceptNodeId: null,
+      conceptBackStack: [],
       findingCache: {},
     });
     undoManager.clear();
@@ -331,6 +340,36 @@ export const useStore = create<AppState>((set, get) => ({
   openFinding(id) {
     if (id) get().fetchFinding(id);
     set({ openFindingId: id });
+  },
+
+  openConcept(nodeId) {
+    if (nodeId && graph.hasNode(nodeId)) {
+      graph.getNodeAttributes(nodeId).grounded_in.forEach((id) => get().fetchFinding(id));
+    }
+    set({ openConceptNodeId: nodeId, conceptBackStack: [] });
+  },
+
+  navigateConcept(nodeId) {
+    if (!graph.hasNode(nodeId)) return;
+    graph.getNodeAttributes(nodeId).grounded_in.forEach((id) => get().fetchFinding(id));
+    const cur = get().openConceptNodeId;
+    set({
+      openConceptNodeId: nodeId,
+      conceptBackStack: cur ? [...get().conceptBackStack, cur] : get().conceptBackStack,
+    });
+  },
+
+  conceptBack() {
+    const stack = get().conceptBackStack;
+    if (!stack.length) {
+      set({ openConceptNodeId: null });
+      return;
+    }
+    const prev = stack[stack.length - 1];
+    if (graph.hasNode(prev)) {
+      graph.getNodeAttributes(prev).grounded_in.forEach((id) => get().fetchFinding(id));
+    }
+    set({ openConceptNodeId: prev, conceptBackStack: stack.slice(0, -1) });
   },
 
   startConnect(sourceId) {
