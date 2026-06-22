@@ -798,3 +798,30 @@
 .toast-x:hover {
   color: var(--text);
 }
+
+/* ── OKF concept-doc reader ─────────────────────────────────────────── */
+.okf-reader { width: min(640px, 94vw); }
+.okf-head-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.okf-title { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.okf-lede { font-size: 14px; line-height: 1.5; margin: 0 0 10px; }
+.okf-toolbar { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
+.okf-switch { display: flex; gap: 4px; }
+.btn--on { outline: 1px solid var(--accent, #d9a441); }
+.okf-stale { font-size: 11px; color: var(--accent, #d9a441); margin: 4px 0 8px; }
+.okf-rel { min-width: 108px; font-size: 10px; color: var(--text-faint, #8a8a8a); }
+.okf-props { width: 100%; font-size: 12px; }
+.okf-props td { padding: 2px 0; vertical-align: top; }
+.okf-prop-k { color: var(--text-faint, #8a8a8a); padding-right: 12px; white-space: nowrap; }
+.okf-finding { display: block; width: 100%; text-align: left; cursor: pointer; color: inherit;
+  border: none; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px;
+  background: rgba(127, 127, 127, 0.08); }
+.okf-finding:hover { background: rgba(127, 127, 127, 0.16); }
+.okf-finding-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+.okf-finding-body { font-size: 12px; color: var(--text-faint, #8a8a8a); margin-bottom: 6px; line-height: 1.45; }
+.okf-prose { font-size: 13px; line-height: 1.55; }
+.okf-prose h2 { font-size: 14px; margin: 14px 0 6px; }
+.okf-prose h3 { font-size: 13px; margin: 12px 0 4px; }
+.okf-prose p { margin: 0 0 8px; }
+.okf-prose ul, .okf-prose ol { margin: 0 0 8px 18px; }
+.okf-prose code { font-family: var(--font-mono, monospace); font-size: 12px; }
+.okf-prose pre { overflow: auto; padding: 8px; border-radius: 6px; background: rgba(127, 127, 127, 0.14); }

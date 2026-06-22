@@ -5,6 +5,7 @@
 import { useEffect } from "react";
 import { GraphCanvas } from "./graph/GraphCanvas";
 import { AddNodeModal } from "./panels/AddNodeModal";
+import { ConceptDocReader } from "./panels/ConceptDocReader";
 import { FindingDrawer } from "./panels/FindingDrawer";
 import { Inspector } from "./panels/Inspector";
 import { LeftRail } from "./panels/LeftRail";
@@ -63,6 +64,7 @@ export default function App() {
       </div>
       <StatusBar />
       <FindingDrawer />
+      <ConceptDocReader />
       <AddNodeModal />
       <Toasts />
     </div>
