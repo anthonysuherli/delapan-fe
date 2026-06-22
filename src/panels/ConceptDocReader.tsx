@@ -10,7 +10,7 @@ import * as api from "../api/client";
 import { typeColor } from "../graph/colors";
 import { graph } from "../graph/graphStore";
 import { buildConceptDoc, type ConceptDoc } from "../okf/conceptDoc";
-import { renderMarkdown } from "../okf/markdown";
+import { renderMarkdown, safeHref } from "../okf/markdown";
 import { setNodeProperties } from "../state/mutations";
 import { useStore } from "../state/store";
 
@@ -113,8 +113,8 @@ export function ConceptDocReader() {
 
           <div className="drawer-meta">
             <span className="mono">{fm.timestamp ? new Date(fm.timestamp).toLocaleDateString() : "—"}</span>
-            {fm.resource && (
-              <a className="mono" href={fm.resource} target="_blank" rel="noreferrer">
+            {fm.resource && safeHref(fm.resource) && (
+              <a className="mono" href={safeHref(fm.resource)!} target="_blank" rel="noreferrer">
                 {host(fm.resource)} ↗
               </a>
             )}
@@ -183,7 +183,7 @@ export function ConceptDocReader() {
                 Sources <span className="sect-aux">{doc.sources.length}</span>
               </h2>
               {doc.sources.map((s, i) => (
-                <a key={`${s.url}-${i}`} className="prov-item" href={s.url} target="_blank" rel="noreferrer">
+                <a key={`${s.url}-${i}`} className="prov-item" href={safeHref(s.url) ?? "#"} target="_blank" rel="noreferrer">
                   <div className="prov-domain">{s.domain} ↗</div>
                   <div className="prov-query">query: {s.query}</div>
                 </a>

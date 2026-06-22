@@ -14,7 +14,7 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function safeHref(url: string): string | null {
+export function safeHref(url: string): string | null {
   const u = url.trim();
   return /^(https?:|mailto:)/i.test(u) ? u : null;
 }
