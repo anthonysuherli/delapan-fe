@@ -67,4 +67,21 @@ describe("buildConceptDoc", () => {
   it("returns null for an unknown node", () => {
     expect(buildConceptDoc("nope", {})).toBeNull();
   });
+
+  it("coerces non-string finding content without crashing", () => {
+    // The live API can deliver `content` as an object (free-form finding dict),
+    // even though the wire type says string. The builder must not assume string.
+    const objFinding = {
+      ...F1,
+      id: "f2",
+      content: { summary: "Day-one gains are deferred.", note: "see IFRS 17.43" },
+    } as unknown as Finding;
+    addNode("a", "concept", "X", ["f2"]);
+    const doc = buildConceptDoc("a", { f2: ready(objFinding) })!;
+    expect(doc.findings).toHaveLength(1);
+    expect(typeof doc.findings[0].content).toBe("string");
+    expect(doc.findings[0].content).toContain("Day-one gains are deferred.");
+    expect(typeof doc.frontmatter.description).toBe("string");
+    expect(doc.frontmatter.description).toContain("Day-one gains are deferred.");
+  });
 });

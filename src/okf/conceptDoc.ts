@@ -70,6 +70,20 @@ export function groundedHash(ids: string[]): string {
   return h.toString(16).padStart(8, "0");
 }
 
+/** Finding `content` is typed `string`, but the live API can deliver a free-form
+ * object. Coerce to readable text — string as-is, an object's values joined,
+ * anything else stringified — so downstream string ops never throw. */
+function contentToText(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (content && typeof content === "object") {
+    return Object.values(content as Record<string, unknown>)
+      .filter((v) => v != null && v !== "")
+      .map((v) => (typeof v === "string" ? v : JSON.stringify(v)))
+      .join("\n\n");
+  }
+  return content == null ? "" : String(content);
+}
+
 function ledeSentence(text: string): string {
   const clean = text.replace(/\s+/g, " ").trim();
   if (!clean) return "";
@@ -93,7 +107,7 @@ export function buildConceptDoc(
   const findings: ConceptDocFindingBlock[] = readyFindings.map((f) => ({
     id: f.id,
     title: f.title,
-    content: f.content,
+    content: contentToText(f.content),
     confidence: f.confidence,
     domains: [...new Set(f.provenance.map((p) => p.domain))],
   }));
@@ -117,7 +131,7 @@ export function buildConceptDoc(
       : typeof a.properties.summary === "string"
         ? a.properties.summary
         : null;
-  const description = propDesc ?? ledeSentence(top?.content ?? "");
+  const description = propDesc ?? ledeSentence(contentToText(top?.content));
 
   const timestamp =
     [a.created_at, ...readyFindings.map((f) => f.created_at)].filter(Boolean).sort().slice(-1)[0] ??
