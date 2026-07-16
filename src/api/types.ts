@@ -101,9 +101,24 @@ export interface Finding {
   created_at: string;
 }
 
+/** The findings LIST projection. The backend's list view selects only these
+ *  columns — it omits `content` and `provenance`, which `Finding` carries.
+ *  Use `getFinding` when you need the full row. */
+export interface FindingRow {
+  id: string;
+  title: string;
+  category: string;
+  confidence: number;
+  tags: string[];
+  created_at: string;
+}
+
 export interface FindingsResponse {
+  /** rows returned, bounded by `limit` */
   count: number;
-  findings: Finding[];
+  /** rows matching kb + category, ignoring `limit` */
+  total: number;
+  findings: FindingRow[];
 }
 
 export interface ConceptDocResponse {

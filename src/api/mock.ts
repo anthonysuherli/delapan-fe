@@ -14,6 +14,7 @@ import {
   type EdgeSpec,
   type ExploreEvent,
   type Finding,
+  type FindingRow,
   type FindingsResponse,
   type GraphEdge,
   type GraphNode,
@@ -823,8 +824,18 @@ export const mockApi = {
     const data = getKb(project, kb);
     let list = [...data.findings.values()];
     if (params.category) list = list.filter((f) => f.category === params.category);
+    const total = list.length;
     if (params.limit !== undefined) list = list.slice(0, params.limit);
-    return { count: list.length, findings: list };
+    // project to the list shape — the live backend omits content/provenance
+    const findings: FindingRow[] = list.map((f) => ({
+      id: f.id,
+      title: f.title,
+      category: f.category,
+      confidence: f.confidence,
+      tags: f.tags,
+      created_at: f.created_at,
+    }));
+    return { count: findings.length, total, findings };
   },
 
   async getFinding(project: string, kb: string, id: string): Promise<Finding> {
