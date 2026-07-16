@@ -213,9 +213,11 @@ export const useStore = create<AppState>((set, get) => ({
       findingCache: {},
       findings: null,
       findingsTotal: 0,
+      loadingFindings: false,
       findingsError: null,
       confidenceRange: null,
     });
+    if (get().view === "findings") get().loadFindings();
     undoManager.clear();
     clearAliases();
     try {
@@ -372,19 +374,23 @@ export const useStore = create<AppState>((set, get) => ({
     set({ loadingFindings: true, findingsError: null });
     api
       .getFindings(project, kb, { limit: 1000 })
-      .then((res) =>
+      .then((res) => {
+        // scope may have moved on while this was in flight — a stale response
+        // for an abandoned KB must not clobber the current scope's state.
+        if (get().project !== project || get().kb !== kb) return;
         set({
           findings: res.findings,
           findingsTotal: res.total,
           loadingFindings: false,
-        }),
-      )
-      .catch((err: unknown) =>
+        });
+      })
+      .catch((err: unknown) => {
+        if (get().project !== project || get().kb !== kb) return;
         set({
           findingsError: err instanceof Error ? err.message : String(err),
           loadingFindings: false,
-        }),
-      );
+        });
+      });
   },
 
   openFinding(id) {
