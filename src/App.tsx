@@ -7,6 +7,7 @@ import { GraphCanvas } from "./graph/GraphCanvas";
 import { AddNodeModal } from "./panels/AddNodeModal";
 import { ConceptDocReader } from "./panels/ConceptDocReader";
 import { FindingDrawer } from "./panels/FindingDrawer";
+import { FindingsView } from "./panels/FindingsView";
 import { Inspector } from "./panels/Inspector";
 import { LeftRail } from "./panels/LeftRail";
 import { StatusBar } from "./panels/StatusBar";
@@ -21,6 +22,7 @@ export default function App() {
   const bootError = useStore((s) => s.bootError);
   const boot = useStore((s) => s.boot);
   const travel = useStore((s) => s.travel);
+  const view = useStore((s) => s.view);
 
   useHotkeys();
 
@@ -57,8 +59,8 @@ export default function App() {
       <div className="shell-main">
         <LeftRail />
         <div style={{ position: "relative", minWidth: 0 }}>
-          <GraphCanvas />
-          {travel && <TravelHud />}
+          {view === "graph" ? <GraphCanvas /> : <FindingsView />}
+          {view === "graph" && travel && <TravelHud />}
         </div>
         <Inspector />
       </div>

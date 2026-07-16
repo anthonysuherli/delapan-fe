@@ -25,6 +25,8 @@ export function TopBar() {
   const selectedNodes = useStore((s) => s.selectedNodes);
   const setLastAction = useStore((s) => s.setLastAction);
   const pushToast = useStore((s) => s.pushToast);
+  const view = useStore((s) => s.view);
+  const setView = useStore((s) => s.setView);
 
   const toggleConnect = () => {
     if (connectFrom) {
@@ -46,6 +48,21 @@ export function TopBar() {
           DELAPAN<span className="tb-eight">_8</span>
         </span>
         <span className="tb-sub">knowledge graph control</span>
+      </div>
+
+      <div className="tb-seg" role="group" aria-label="view">
+        <button
+          className={`tb-seg-btn${view === "graph" ? " tb-seg-btn--on" : ""}`}
+          onClick={() => setView("graph")}
+        >
+          graph
+        </button>
+        <button
+          className={`tb-seg-btn${view === "findings" ? " tb-seg-btn--on" : ""}`}
+          onClick={() => setView("findings")}
+        >
+          findings
+        </button>
       </div>
 
       <GraphSearch />
