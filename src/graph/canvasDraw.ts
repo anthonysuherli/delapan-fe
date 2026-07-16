@@ -1,6 +1,6 @@
 /**
- * Custom 2D-canvas draw functions for sigma labels/hover — the defaults draw
- * a white hover card that clashes with the instrument-panel theme.
+ * Custom 2D-canvas draw functions for sigma labels/hover — the hover card is
+ * tinted to the instrument-panel theme instead of sigma's stock styling.
  */
 
 import type { Attributes } from "graphology-types";
@@ -17,7 +17,7 @@ export function drawNodeLabel<N extends Attributes, E extends Attributes, G exte
   if (!data.label) return;
   const size = settings.labelSize;
   context.font = `${settings.labelWeight} ${size}px ${settings.labelFont}`;
-  context.fillStyle = "#94a5b8";
+  context.fillStyle = "#465a70";
   context.fillText(data.label, data.x + data.size + 5, data.y + size / 3);
 }
 
@@ -36,8 +36,8 @@ export function drawNodeHover<N extends Attributes, E extends Attributes, G exte
   const padY = 5;
 
   context.beginPath();
-  context.fillStyle = "rgba(10, 14, 20, 0.92)";
-  context.strokeStyle = data.color ?? "#f5a83c";
+  context.fillStyle = "rgba(255, 255, 255, 0.95)";
+  context.strokeStyle = data.color ?? "#b45309";
   context.lineWidth = 1;
   const rx = x - padX;
   const ry = y - size / 2 - padY;
@@ -53,6 +53,6 @@ export function drawNodeHover<N extends Attributes, E extends Attributes, G exte
   context.fill();
   context.stroke();
 
-  context.fillStyle = "#dbe6f1";
+  context.fillStyle = "#1f2b3a";
   context.fillText(data.label, x, y + size / 3);
 }
