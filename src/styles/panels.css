@@ -825,3 +825,145 @@
 .okf-prose ul, .okf-prose ol { margin: 0 0 8px 18px; }
 .okf-prose code { font-family: var(--font-mono, monospace); font-size: 12px; }
 .okf-prose pre { overflow: auto; padding: 8px; border-radius: 6px; background: rgba(127, 127, 127, 0.14); }
+
+/* --- findings trust view ------------------------------------------------- */
+
+.fv {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg0);
+}
+
+.fv-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px 6px;
+}
+
+.fv-head .sect-title {
+  margin: 0;
+  flex: 1;
+}
+
+.fv-error {
+  margin: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--red);
+}
+
+.fv-empty {
+  padding: 18px 12px;
+}
+
+.fv-hist {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 96px;
+  padding: 0 12px 18px;
+  border-bottom: 1px solid var(--line);
+  user-select: none;
+}
+
+.fv-bar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  cursor: crosshair;
+}
+
+.fv-bar i {
+  display: block;
+  width: 100%;
+  min-height: 1px;
+  background: var(--line-bright);
+  border-radius: 1px 1px 0 0;
+  transition: background 120ms, opacity 120ms;
+}
+
+.fv-bar--verified i {
+  background: var(--accent);
+}
+
+.fv-bar--muted i {
+  opacity: 0.3;
+}
+
+.fv-axis {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.fv-table {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.fv-row {
+  display: grid;
+  grid-template-columns: 54px 34px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 12px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+}
+
+.fv-row:hover {
+  background: var(--bg2);
+}
+
+.fv-conf {
+  display: block;
+  height: 4px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fv-conf i {
+  display: block;
+  height: 100%;
+  background: var(--text-faint);
+}
+
+.fv-conf--verified i {
+  background: var(--accent);
+}
+
+.fv-conf-n {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.fv-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fv-cat {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
