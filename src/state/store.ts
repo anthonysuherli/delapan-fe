@@ -9,6 +9,7 @@ import { create } from "zustand";
 import * as api from "../api/client";
 import type {
   Finding,
+  FindingRow,
   GraphSchema,
   GraphStats,
   ProjectInfo,
@@ -55,6 +56,12 @@ interface AppState {
   schema: GraphSchema | null;
   synopsis: Synopsis | null;
   findingCache: Record<string, FindingCacheEntry>;
+  view: "graph" | "findings";
+  findings: FindingRow[] | null;
+  findingsTotal: number;
+  loadingFindings: boolean;
+  findingsError: string | null;
+  confidenceRange: [number, number] | null;
   selectedNodes: string[];
   selectedEdges: string[];
   openFindingId: string | null;
@@ -85,6 +92,9 @@ interface AppState {
   pushToast(kind: Toast["kind"], text: string, undoable?: boolean): void;
   dismissToast(id: number): void;
   fetchFinding(id: string): void;
+  setView(view: "graph" | "findings"): void;
+  setConfidenceRange(range: [number, number] | null): void;
+  loadFindings(): void;
   openFinding(id: string | null): void;
   openConcept(id: string | null): void;
   navigateConcept(id: string): void;
@@ -132,6 +142,12 @@ export const useStore = create<AppState>((set, get) => ({
   schema: null,
   synopsis: null,
   findingCache: {},
+  view: "graph",
+  findings: null,
+  findingsTotal: 0,
+  loadingFindings: false,
+  findingsError: null,
+  confidenceRange: null,
   selectedNodes: [],
   selectedEdges: [],
   openFindingId: null,
@@ -195,6 +211,10 @@ export const useStore = create<AppState>((set, get) => ({
       openConceptNodeId: null,
       conceptBackStack: [],
       findingCache: {},
+      findings: null,
+      findingsTotal: 0,
+      findingsError: null,
+      confidenceRange: null,
     });
     undoManager.clear();
     clearAliases();
@@ -333,6 +353,36 @@ export const useStore = create<AppState>((set, get) => ({
             ...get().findingCache,
             [id]: { status: "error", message: err instanceof Error ? err.message : String(err) },
           },
+        }),
+      );
+  },
+
+  setView(view) {
+    set({ view });
+    if (view === "findings" && !get().findings && !get().loadingFindings) get().loadFindings();
+  },
+
+  setConfidenceRange(range) {
+    set({ confidenceRange: range });
+  },
+
+  loadFindings() {
+    const { project, kb, loadingFindings } = get();
+    if (!project || !kb || loadingFindings) return;
+    set({ loadingFindings: true, findingsError: null });
+    api
+      .getFindings(project, kb, { limit: 1000 })
+      .then((res) =>
+        set({
+          findings: res.findings,
+          findingsTotal: res.total,
+          loadingFindings: false,
+        }),
+      )
+      .catch((err: unknown) =>
+        set({
+          findingsError: err instanceof Error ? err.message : String(err),
+          loadingFindings: false,
         }),
       );
   },
