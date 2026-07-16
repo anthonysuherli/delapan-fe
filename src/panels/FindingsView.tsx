@@ -100,20 +100,26 @@ function Histogram({
   range: [number, number] | null;
   onBrush: (r: [number, number] | null) => void;
 }) {
-  const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [dragFromIdx, setDragFromIdx] = useState<number | null>(null);
   const max = Math.max(...bins.map((b) => b.count), 1);
 
-  const commit = (a: number, b: number) => {
-    const lo = Math.min(a, b);
-    const hi = Math.max(a, b);
-    // a click (no drag) clears rather than selecting a zero-width range
-    if (hi - lo < 1 / bins.length / 2) onBrush(null);
-    else onBrush([lo, hi]);
+  const commit = (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx) {
+      onBrush(null); // plain click (mousedown+mouseup on the same bin) clears
+      return;
+    }
+    const i0 = Math.min(fromIdx, toIdx);
+    const i1 = Math.max(fromIdx, toIdx);
+    onBrush([bins[i0]!.lo, bins[i1]!.hi]);
   };
 
   return (
-    <div className="fv-hist" onMouseLeave={() => setDragFrom(null)}>
-      {bins.map((b) => {
+    <div
+      className="fv-hist"
+      onMouseUp={() => setDragFromIdx(null)}
+      onMouseLeave={() => setDragFromIdx(null)}
+    >
+      {bins.map((b, i) => {
         const active = !range || (b.hi > range[0] && b.lo < range[1]);
         const verified = b.lo >= VERIFIED_MIN;
         return (
@@ -121,10 +127,11 @@ function Histogram({
             key={b.lo}
             className={`fv-bar${verified ? " fv-bar--verified" : ""}${active ? "" : " fv-bar--muted"}`}
             title={`${b.lo.toFixed(2)}–${b.hi.toFixed(2)}: ${b.count}`}
-            onMouseDown={() => setDragFrom(b.lo)}
-            onMouseUp={() => {
-              commit(dragFrom ?? b.lo, b.hi);
-              setDragFrom(null);
+            onMouseDown={() => setDragFromIdx(i)}
+            onMouseUp={(e) => {
+              e.stopPropagation(); // handled here; the container's onMouseUp is only the dead-zone fallback
+              if (dragFromIdx !== null) commit(dragFromIdx, i);
+              setDragFromIdx(null);
             }}
           >
             <i style={{ height: `${(b.count / max) * 100}%` }} />
