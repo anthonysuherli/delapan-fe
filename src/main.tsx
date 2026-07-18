@@ -1,9 +1,13 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { TrackingApp } from "./tracking/TrackingApp";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/panels.css";
 import "./styles/canvas.css";
+import "./styles/tracking.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+const path = window.location.pathname.replace(/\/$/, "") || "/";
+const root = createRoot(document.getElementById("root")!);
+root.render(path === "/tracking" ? <TrackingApp /> : <App />);
