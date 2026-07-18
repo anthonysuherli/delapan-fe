@@ -6,12 +6,15 @@
 export interface KbInfo {
   kb: string;
   kb_id: string;
-  last_activity: string | null;
+  finding_count: number;
+  last_finding_at: string | null;
+  archived_at: string | null;
 }
 
 export interface ProjectInfo {
   project: string;
   project_id: string;
+  archived_at: string | null;
   kbs: KbInfo[];
 }
 

@@ -667,12 +667,30 @@ export const mockApi = {
         {
           project: "delapan",
           project_id: "proj_delapan",
-          kbs: [{ kb: "rag-ecosystem", kb_id: "kb_rag", last_activity: "2026-06-10T18:42:00Z" }],
+          archived_at: null,
+          kbs: [
+            {
+              kb: "rag-ecosystem",
+              kb_id: "kb_rag",
+              finding_count: 42,
+              last_finding_at: "2026-06-10T18:42:00Z",
+              archived_at: null,
+            },
+          ],
         },
         {
           project: "br8n",
           project_id: "proj_br8n",
-          kbs: [{ kb: "dev-context", kb_id: "kb_devctx", last_activity: "2026-06-08T11:03:00Z" }],
+          archived_at: null,
+          kbs: [
+            {
+              kb: "dev-context",
+              kb_id: "kb_devctx",
+              finding_count: 17,
+              last_finding_at: "2026-06-08T11:03:00Z",
+              archived_at: null,
+            },
+          ],
         },
       ],
     };

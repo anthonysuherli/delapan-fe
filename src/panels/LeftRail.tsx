@@ -73,8 +73,8 @@ function ScopeSection() {
             ))}
           </select>
         </div>
-        {kbInfo?.last_activity && (
-          <div className="lr-kb-meta">last activity {new Date(kbInfo.last_activity).toLocaleString()}</div>
+        {kbInfo?.last_finding_at && (
+          <div className="lr-kb-meta">last activity {new Date(kbInfo.last_finding_at).toLocaleString()}</div>
         )}
       </div>
     </section>
