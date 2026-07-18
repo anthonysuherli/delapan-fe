@@ -7,6 +7,7 @@ import { typeColor } from "../graph/colors";
 import { graph, graphTouched } from "../graph/graphStore";
 import { runLayout } from "../graph/layout";
 import { useStore } from "../state/store";
+import { Logomark } from "./Logomark";
 
 interface Match {
   id: string;
@@ -42,12 +43,13 @@ export function TopBar() {
   };
 
   return (
-    <header className="tb">
+    <header className="tb dlpn-boot-top">
       <div className="tb-brand">
-        <span className="tb-wordmark">
-          DELAPAN<span className="tb-eight">_8</span>
-        </span>
-        <span className="tb-sub">knowledge graph control</span>
+        <Logomark size={34} />
+        <div className="tb-brand-text">
+          <span className="tb-wordmark">delapan</span>
+          <span className="tb-sub">knowledge graph control</span>
+        </div>
       </div>
 
       <div className="tb-seg" role="group" aria-label="view">

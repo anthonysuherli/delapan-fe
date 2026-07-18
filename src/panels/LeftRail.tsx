@@ -3,13 +3,48 @@
  * emergent + drift), synopsis topics, coverage probe, explore launcher.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as api from "../api/client";
 import { ApiError, type Coverage, type ExplorePhase } from "../api/types";
 import { typeColor } from "../graph/colors";
 import { graph } from "../graph/graphStore";
 import { extractNodeTypes, localByRelation, localByType } from "../state/derive";
 import { useStore } from "../state/store";
+
+/** Tween a displayed integer toward `target` (ease-out-cubic), from wherever it
+ *  currently sits — 0 on first mount. Instant under reduced motion. */
+function useCountUp(target: number, duration = 1100, delay = 0): number {
+  const [value, setValue] = useState(0);
+  const fromRef = useRef(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      fromRef.current = target;
+      setValue(target);
+      return;
+    }
+    if (fromRef.current === target) return;
+    const from = fromRef.current;
+    let raf = 0;
+    let start = 0;
+    const step = (now: number) => {
+      if (!start) start = now;
+      const p = Math.min(1, (now - start) / duration);
+      const current = Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3)));
+      fromRef.current = current;
+      setValue(current);
+      if (p < 1) raf = requestAnimationFrame(step);
+      else fromRef.current = target;
+    };
+    const timer = window.setTimeout(() => {
+      raf = requestAnimationFrame(step);
+    }, delay);
+    return () => {
+      window.clearTimeout(timer);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [target, duration, delay]);
+  return value;
+}
 
 export function LeftRail() {
   return (
@@ -95,6 +130,8 @@ function StatsSection() {
   const nodeTotal = stats?.node_count ?? order;
   const edgeTotal = stats?.edge_count ?? size;
   const capped = order < nodeTotal || size < edgeTotal;
+  const nodesShown = useCountUp(nodeTotal, 1100, 350);
+  const edgesShown = useCountUp(edgeTotal, 1100, 450);
 
   const typeEntries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
   const maxType = typeEntries[0]?.[1] ?? 1;
@@ -109,11 +146,11 @@ function StatsSection() {
       </h2>
       <div className="lr-stats-counts">
         <div className="lr-counter">
-          <b>{nodeTotal}</b>
+          <b>{nodesShown}</b>
           <span>nodes</span>
         </div>
         <div className="lr-counter">
-          <b>{edgeTotal}</b>
+          <b>{edgesShown}</b>
           <span>edges</span>
         </div>
       </div>
@@ -281,7 +318,7 @@ function CoverageProbe() {
         </button>
       </div>
       {state.kind === "done" && (
-        <div className="lr-verdict">
+        <div key={state.preamble} className="lr-verdict dlpn-in-rise">
           <div className={`lr-verdict-band ${state.coverage}`}>
             {state.coverage}
             <small>
@@ -371,8 +408,8 @@ function ExploreSection() {
             if (phase === "completed" && reached < i) return null;
             return (
               <div
-                key={phase}
-                className={`lr-phase${active ? " lr-phase--active" : done ? " lr-phase--done" : ""}`}
+                key={`${phase}-on`}
+                className={`lr-phase dlpn-in-slide${active ? " lr-phase--active" : done ? " lr-phase--done" : ""}`}
               >
                 <span className="lr-phase-tick">{active ? "▸" : done ? "✓" : "·"}</span>
                 {phase}
@@ -381,7 +418,7 @@ function ExploreSection() {
             );
           })}
           {run.error && (
-            <div className="lr-phase lr-phase--error">
+            <div className="lr-phase lr-phase--error dlpn-in-slide">
               <span className="lr-phase-tick">✕</span>
               {run.error}
             </div>

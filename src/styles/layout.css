@@ -25,27 +25,29 @@
 
 .tb-brand {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 9px;
   margin-right: 4px;
   user-select: none;
 }
 
-.tb-wordmark {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--text);
+.tb-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
 }
 
-.tb-wordmark .tb-eight {
-  color: var(--accent);
+.tb-wordmark {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text);
 }
 
 .tb-sub {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 8px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text-faint);
@@ -152,6 +154,7 @@
   border-radius: 50%;
   background: var(--green);
   box-shadow: 0 0 6px var(--green);
+  animation: blink 1.8s ease-in-out infinite;
 }
 
 .sb-dot--mock {

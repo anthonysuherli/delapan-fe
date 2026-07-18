@@ -70,7 +70,14 @@ export function FindingDrawer() {
               <div className="drawer-prov">
                 <h4>Provenance · {entry.data.provenance.length}</h4>
                 {entry.data.provenance.map((p, i) => (
-                  <a key={i} className="prov-item" href={p.url} target="_blank" rel="noreferrer">
+                  <a
+                    key={i}
+                    className="prov-item dlpn-in-rise"
+                    style={{ animationDelay: `${i * 90}ms` }}
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <div className="prov-domain">{p.domain} ↗</div>
                     <div className="prov-query">query: {p.query}</div>
                   </a>

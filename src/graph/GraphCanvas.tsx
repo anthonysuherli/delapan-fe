@@ -15,6 +15,7 @@ import { localRelationNames } from "../state/derive";
 import { drawNodeHover, drawNodeLabel } from "./canvasDraw";
 import { ACCENT, DIM_EDGE, DIM_NODE, lighten, VISITED_MIX } from "./colors";
 import { graph, onGraphTouched, type EdgeAttrs, type NodeAttrs } from "./graphStore";
+import { initGraphMotion, resyncGraphMotion, stopGraphMotion } from "./motion";
 import { sigmaRef, type AppSigma } from "./sigmaRef";
 
 export function GraphCanvas() {
@@ -97,6 +98,14 @@ export function GraphCanvas() {
           out.highlighted = true;
           out.zIndex = 3;
         }
+        // ego-network dim: on a single selection, everything but the selected
+        // node + its direct neighbors drops back.
+        const ego = s.selectedNodes.length === 1 && !s.connectFrom ? s.selectedNodes[0] : null;
+        if (ego && node !== ego && !graph.areNeighbors(ego, node)) {
+          out.color = DIM_NODE;
+          out.label = "";
+          out.zIndex = 0;
+        }
         const hover = hoverRef.current;
         if (hover && node !== hover && !graph.areNeighbors(hover, node) && !s.selectedNodes.includes(node)) {
           out.color = DIM_NODE;
@@ -136,6 +145,16 @@ export function GraphCanvas() {
           out.size = data.size * 1.7;
           out.zIndex = 3;
           out.label = graph.getEdgeAttributes(edge).label;
+        }
+        // ego-network dim: edges not incident to the single selected node fade.
+        const ego = s.selectedNodes.length === 1 && !s.connectFrom ? s.selectedNodes[0] : null;
+        if (ego && !s.selectedEdges.includes(edge)) {
+          if (src === ego || tgt === ego) {
+            out.zIndex = 2;
+          } else {
+            out.color = DIM_EDGE;
+            out.zIndex = 0;
+          }
         }
         const hover = hoverRef.current;
         if (hover) {
@@ -203,20 +222,58 @@ export function GraphCanvas() {
     setSigma(instance);
     return () => {
       sigmaRef.current = null;
+      stopGraphMotion();
       instance.kill();
       setSigma(null);
     };
   }, []);
+
+  // boot settle + ambient drift: (re)start when a scope finishes loading
+  useEffect(() => {
+    if (!sigma || loadingGraph || graph.order === 0) return;
+    initGraphMotion();
+  }, [sigma, loadingGraph, project, kb]);
+
+  // camera-ease to the selected node (single selection), ease home on clear
+  const primary = selectedNodes.length === 1 ? selectedNodes[0] : null;
+  const followedRef = useRef(false);
+  useEffect(() => {
+    if (!sigma || travel) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const camera = sigma.getCamera();
+    if (primary && graph.hasNode(primary)) {
+      // a fresh fly-to (search / travel / endpoint jump) owns this move
+      const f = useStore.getState().flyTo;
+      if (f && f.nodeId === primary && Date.now() - f.at < 700) {
+        followedRef.current = true;
+        return;
+      }
+      const data = sigma.getNodeDisplayData(primary);
+      if (!data) return;
+      followedRef.current = true;
+      void camera.animate(
+        { x: data.x, y: data.y, ratio: Math.min(camera.ratio, 0.86) },
+        { duration: 680, easing: "cubicInOut" },
+      );
+    } else if (!primary && followedRef.current) {
+      followedRef.current = false;
+      void camera.animate({ x: 0.5, y: 0.5, ratio: 1 }, { duration: 680, easing: "cubicInOut" });
+    }
+  }, [sigma, primary, travel]);
 
   // re-evaluate reducers when interaction state changes
   useEffect(() => {
     sigma?.refresh({ skipIndexation: true });
   }, [sigma, selectedNodes, selectedEdges, travel, connectFrom]);
 
-  // domain data changed (mutations, rebuild) → full refresh
+  // domain data changed (mutations, rebuild, layout) → re-sync drift base so it
+  // doesn't fight the change, then full refresh
   useEffect(() => {
     if (!sigma) return;
-    return onGraphTouched(() => sigma.refresh());
+    return onGraphTouched(() => {
+      resyncGraphMotion();
+      sigma.refresh();
+    });
   }, [sigma]);
 
   // camera: fly-to requests (search, new node, travel enter/teleport)
@@ -293,9 +350,27 @@ function CanvasOverlays({ sigma }: { sigma: AppSigma }) {
   return (
     <div className="cv-overlays">
       <SelectionReticle sigma={sigma} />
+      <SelectionPulse sigma={sigma} />
       <TravelLayer sigma={sigma} />
       <RelationPopover sigma={sigma} />
     </div>
+  );
+}
+
+// one-shot amber ring that expands from the selected node — remounts (and so
+// replays) whenever the primary selection id changes.
+function SelectionPulse({ sigma }: { sigma: AppSigma }) {
+  const selectedNodes = useStore((s) => s.selectedNodes);
+  const travel = useStore((s) => s.travel);
+  const primary = selectedNodes.length === 1 ? selectedNodes[0] : null;
+  if (travel || !primary) return null;
+  const pos = nodeViewport(sigma, primary);
+  if (!pos) return null;
+  const display = sigma.getNodeDisplayData(primary);
+  const ratio = Math.max(sigma.getCamera().ratio, 0.01);
+  const d = Math.min(Math.max(((display?.size ?? 6) * 2) / Math.sqrt(ratio) + 12, 22), 80);
+  return (
+    <span key={primary} className="dlpn-ring" style={{ left: pos.x, top: pos.y, width: d, height: d }} />
   );
 }
 

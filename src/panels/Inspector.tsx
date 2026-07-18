@@ -29,13 +29,17 @@ export function Inspector() {
   const edges = selectedEdges.filter((id) => graph.hasEdge(id));
   const total = nodes.length + edges.length;
 
+  const bodyKey = nodes[0] ?? edges[0] ?? "empty";
+
   return (
-    <aside className="ins">
+    <aside className="ins dlpn-boot-ins">
       <div className="ins-scroll">
-        {total === 0 && <EmptyState />}
-        {total === 1 && nodes.length === 1 && <NodeInspector key={nodes[0]} id={nodes[0]} />}
-        {total === 1 && edges.length === 1 && <EdgeInspector key={edges[0]} id={edges[0]} />}
-        {total > 1 && <BulkInspector nodes={nodes} edges={edges} />}
+        <div className="ins-body" key={bodyKey}>
+          {total === 0 && <EmptyState />}
+          {total === 1 && nodes.length === 1 && <NodeInspector id={nodes[0]} />}
+          {total === 1 && edges.length === 1 && <EdgeInspector id={edges[0]} />}
+          {total > 1 && <BulkInspector nodes={nodes} edges={edges} />}
+        </div>
       </div>
     </aside>
   );
@@ -490,11 +494,12 @@ export function EvidenceList({ ids }: { ids: string[] }) {
 
   return (
     <div>
-      {ids.map((id) => {
+      {ids.map((id, i) => {
+        const delay = { animationDelay: `${i * 90}ms` };
         const entry = findingCache[id];
         if (!entry || entry.status === "loading") {
           return (
-            <div key={id} className="ev-item">
+            <div key={id} className="ev-item dlpn-in-rise" style={delay}>
               <div className="ev-meta">
                 <span className="spin" /> loading {id}…
               </div>
@@ -503,7 +508,7 @@ export function EvidenceList({ ids }: { ids: string[] }) {
         }
         if (entry.status === "error") {
           return (
-            <div key={id} className="ev-item">
+            <div key={id} className="ev-item dlpn-in-rise" style={delay}>
               <div className="ev-missing">finding {id} unavailable — {entry.message}</div>
             </div>
           );
@@ -511,7 +516,7 @@ export function EvidenceList({ ids }: { ids: string[] }) {
         const f = entry.data;
         const domains = [...new Set(f.provenance.map((p) => p.domain))];
         return (
-          <button key={id} className="ev-item" onClick={() => openFinding(id)}>
+          <button key={id} className="ev-item dlpn-in-rise" style={delay} onClick={() => openFinding(id)}>
             <div className="ev-title">{f.title}</div>
             <div className="ev-meta">
               <span className="ev-conf" title={`confidence ${f.confidence.toFixed(2)}`}>

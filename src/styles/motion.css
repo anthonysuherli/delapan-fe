@@ -1,0 +1,214 @@
+/* Motion foundation — boot assembly, streamed-log reveals, selection pulse,
+   ambient instrument texture. Graph settle + drift are sigma-driven (see
+   src/graph/motion.ts); everything here is CSS keyframes + transitions.
+
+   All ambient/boot motion is gated behind prefers-reduced-motion: no-preference
+   at the bottom of this file. Keep it that way. */
+
+:root {
+  --ease-mech: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --t-rise: 500ms; /* panel stagger-rise */
+  --t-settle: 800ms; /* graph node settle-in (sigma) */
+  --t-camera: 680ms; /* sigma camera ease on select */
+  --t-ring: 1100ms; /* selection pulse ring */
+  --t-count: 1100ms; /* counter 0→target tween */
+  --t-scan: 1400ms; /* one-shot boot scan line */
+  --t-step: 320ms; /* phase-log step slide-in */
+  --grain-dur: 8000ms;
+}
+
+/* --- shared keyframes ------------------------------------------------------ */
+
+@keyframes dlpn-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dlpn-slidein {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dlpn-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dlpn-ring {
+  from {
+    transform: translate(-50%, -50%) scale(0.35);
+    opacity: 0.75;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes dlpn-scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(1400%);
+    opacity: 0;
+  }
+}
+
+@keyframes dlpn-grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3%, 2%);
+  }
+  50% {
+    transform: translate(2%, -2%);
+  }
+  75% {
+    transform: translate(-1%, 3%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* --- boot assembly (one-shot on shell mount) ------------------------------- */
+
+.dlpn-boot-top {
+  animation: dlpn-rise var(--t-rise) var(--ease-mech) both;
+}
+.dlpn-boot-canvas {
+  animation: dlpn-rise var(--t-rise) 160ms var(--ease-mech) both;
+}
+.dlpn-boot-ins {
+  animation: dlpn-rise var(--t-rise) 240ms var(--ease-mech) both;
+}
+
+/* left-rail sections cascade individually */
+.lr > .sect {
+  animation: dlpn-rise var(--t-rise) var(--ease-mech) both;
+}
+.lr > .sect:nth-child(1) {
+  animation-delay: 60ms;
+}
+.lr > .sect:nth-child(2) {
+  animation-delay: 130ms;
+}
+.lr > .sect:nth-child(3) {
+  animation-delay: 200ms;
+}
+.lr > .sect:nth-child(4) {
+  animation-delay: 270ms;
+}
+.lr > .sect:nth-child(5) {
+  animation-delay: 340ms;
+}
+.lr > .sect:nth-child(6) {
+  animation-delay: 410ms;
+}
+
+/* one-shot amber scan sweep over the shell */
+.shell-scan {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 60px;
+  z-index: 320;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(217, 119, 6, 0) 0%,
+    rgba(217, 119, 6, 0.14) 55%,
+    rgba(217, 119, 6, 0.5) 100%
+  );
+  border-bottom: 1px solid rgba(217, 119, 6, 0.6);
+  animation: dlpn-scan var(--t-scan) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* --- reusable entrance helpers -------------------------------------------- */
+
+.dlpn-in-rise {
+  animation: dlpn-rise 350ms var(--ease-mech) both;
+}
+.dlpn-in-slide {
+  animation: dlpn-slidein var(--t-step) var(--ease-mech) both;
+}
+
+/* inspector body slides in, keyed on the selected element */
+.ins-body {
+  animation: dlpn-slidein 300ms var(--ease-mech) both;
+}
+
+/* --- selection pulse ring (canvas overlay) -------------------------------- */
+
+.dlpn-ring {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: dlpn-ring var(--t-ring) ease-out forwards;
+}
+
+/* --- ambient instrument texture ------------------------------------------- */
+
+.blink {
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+/* the shared film-grain layer (body::after) gains a slow drift */
+body::after {
+  animation: dlpn-grain var(--grain-dur) steps(6) infinite;
+}
+
+/* --- reduced motion: kill ambient loops + boot/settle --------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .dlpn-boot-top,
+  .dlpn-boot-canvas,
+  .dlpn-boot-ins,
+  .lr > .sect,
+  .dlpn-in-rise,
+  .dlpn-in-slide,
+  .ins-body {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .shell-scan,
+  .dlpn-ring {
+    display: none;
+  }
+  .blink,
+  .sb-dot,
+  .sb-dot--mock,
+  .lr-drift-note,
+  body::after {
+    animation: none;
+  }
+}

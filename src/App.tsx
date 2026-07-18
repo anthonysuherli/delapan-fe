@@ -2,7 +2,7 @@
  * Shell: top bar / [left rail | canvas | inspector] / status bar.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GraphCanvas } from "./graph/GraphCanvas";
 import { AddNodeModal } from "./panels/AddNodeModal";
 import { ConceptDocReader } from "./panels/ConceptDocReader";
@@ -23,6 +23,7 @@ export default function App() {
   const boot = useStore((s) => s.boot);
   const travel = useStore((s) => s.travel);
   const view = useStore((s) => s.view);
+  const [showScan, setShowScan] = useState(true);
 
   useHotkeys();
 
@@ -30,6 +31,13 @@ export default function App() {
     void boot();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // one-shot boot scan sweep — unmount once it has swept
+  useEffect(() => {
+    if (booting || bootError) return;
+    const t = window.setTimeout(() => setShowScan(false), 1400);
+    return () => window.clearTimeout(t);
+  }, [booting, bootError]);
 
   if (booting || bootError) {
     return (
@@ -58,7 +66,7 @@ export default function App() {
       <TopBar />
       <div className="shell-main">
         <LeftRail />
-        <div style={{ position: "relative", minWidth: 0 }}>
+        <div className="dlpn-boot-canvas" style={{ position: "relative", minWidth: 0 }}>
           {view === "graph" ? <GraphCanvas /> : <FindingsView />}
           {view === "graph" && travel && <TravelHud />}
         </div>
@@ -69,6 +77,7 @@ export default function App() {
       <ConceptDocReader />
       <AddNodeModal />
       <Toasts />
+      {showScan && <div className="shell-scan" />}
     </div>
   );
 }

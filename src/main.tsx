@@ -7,6 +7,7 @@ import "./styles/layout.css";
 import "./styles/panels.css";
 import "./styles/canvas.css";
 import "./styles/tracking.css";
+import "./styles/motion.css";
 
 const path = window.location.pathname.replace(/\/$/, "") || "/";
 const root = createRoot(document.getElementById("root")!);
