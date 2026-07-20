@@ -1,3 +1,6 @@
 {
-  "rewrites": [{ "source": "/tracking", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/tracking", "destination": "/index.html" },
+    { "source": "/duet", "destination": "/index.html" }
+  ]
 }

@@ -1,0 +1,894 @@
+<meta charset="utf-8">
+<title>Duet — the Midline for two</title>
+<style>
+  :root{
+    --bg:#F6F6F3; --surface:#FFFFFF; --ink:#1D2126; --muted:#606771; --faint:#8B929B;
+    --p1:#0F766E; --p1-soft:rgba(15,118,110,.11);
+    --p2:#B4530A; --p2-soft:rgba(180,83,10,.11);
+    --line:#E2E3DD; --track:#EAEAE5; --chip:#EFEFEA;
+    --warn:#9A6700; --warn-soft:rgba(154,103,0,.10);
+    --shadow:0 1px 2px rgba(29,33,38,.05), 0 10px 30px rgba(29,33,38,.055);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#101419; --surface:#181D24; --ink:#E6E9ED; --muted:#98A0AA; --faint:#6E7782;
+    --p1:#33C3B1; --p1-soft:rgba(51,195,177,.13);
+    --p2:#E2A55C; --p2-soft:rgba(226,165,92,.13);
+    --line:#272E37; --track:#212831; --chip:#1F262E;
+    --warn:#D9A441; --warn-soft:rgba(217,164,65,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.32), 0 10px 30px rgba(0,0,0,.26);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#101419; --surface:#181D24; --ink:#E6E9ED; --muted:#98A0AA; --faint:#6E7782;
+    --p1:#33C3B1; --p1-soft:rgba(51,195,177,.13);
+    --p2:#E2A55C; --p2-soft:rgba(226,165,92,.13);
+    --line:#272E37; --track:#212831; --chip:#1F262E;
+    --warn:#D9A441; --warn-soft:rgba(217,164,65,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.32), 0 10px 30px rgba(0,0,0,.26);
+  }
+  :root[data-theme="light"]{
+    --bg:#F6F6F3; --surface:#FFFFFF; --ink:#1D2126; --muted:#606771; --faint:#8B929B;
+    --p1:#0F766E; --p1-soft:rgba(15,118,110,.11);
+    --p2:#B4530A; --p2-soft:rgba(180,83,10,.11);
+    --line:#E2E3DD; --track:#EAEAE5; --chip:#EFEFEA;
+    --warn:#9A6700; --warn-soft:rgba(154,103,0,.10);
+    --shadow:0 1px 2px rgba(29,33,38,.05), 0 10px 30px rgba(29,33,38,.055);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:26px 18px 72px;background:var(--bg);color:var(--ink);line-height:1.5;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .sf{font-family:Charter,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+  .mn{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+  .wrap{max-width:1080px;margin:0 auto}
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;
+    padding-bottom:14px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+  h1{margin:0;font-size:1.5rem;letter-spacing:-.015em;font-weight:600}
+  h1 em{font-style:italic;font-weight:400;color:var(--muted);font-size:.95rem;letter-spacing:0;display:block;margin-top:3px}
+  .eyebrow{font-size:.68rem;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);font-weight:600}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}aside{order:-1}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:26px}
+  aside.card{padding:20px}
+
+  .lede{font-size:1.06rem;line-height:1.6;max-width:60ch;margin:0 0 4px}
+  .lede b{font-weight:600}
+  .btn{font:inherit;font-weight:600;font-size:.95rem;padding:11px 24px;border-radius:9px;cursor:pointer;
+    border:1.5px solid var(--p1);background:var(--p1);color:#fff;transition:opacity .12s}
+  .btn:hover{opacity:.88}
+  .btn.ghost{background:transparent;color:var(--p1)}
+  .btn.two{border-color:var(--p2);background:var(--p2)}
+  :focus-visible{outline:2.5px solid var(--p2);outline-offset:2px;border-radius:4px}
+  .note{font-size:.79rem;color:var(--muted);line-height:1.5;margin-top:16px;max-width:62ch}
+
+  /* setup */
+  .names{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 6px}
+  @media (max-width:600px){.names{grid-template-columns:1fr}}
+  .names label{display:block}
+  .names span{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+  .names label:first-child span{color:var(--p1)}
+  .names label:last-child span{color:var(--p2)}
+  .names input{width:100%;font:inherit;font-size:1rem;padding:11px 13px;border:1.5px solid var(--line);
+    border-radius:9px;background:transparent;color:var(--ink)}
+  .names input:focus{border-color:var(--p1);outline:none}
+  .names label:last-child input:focus{border-color:var(--p2)}
+  .rig{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 20px}
+  @media (max-width:600px){.rig{grid-template-columns:1fr}}
+  .rig button{text-align:left;padding:13px 14px;border:1.5px solid var(--line);border-radius:9px;
+    background:transparent;color:var(--ink);font:inherit;cursor:pointer;transition:border-color .12s,background .12s}
+  .rig button[aria-pressed="true"]{border-color:var(--p1);background:var(--p1-soft)}
+  .rig b{display:block;font-size:.92rem;margin-bottom:3px}
+  .rig small{display:block;color:var(--muted);font-size:.76rem;line-height:1.4}
+
+  /* handoff */
+  .hand{text-align:center;padding:34px 10px 26px}
+  .hand .who{font-size:2rem;font-weight:600;letter-spacing:-.01em;margin:10px 0 4px}
+  .hand p{color:var(--muted);max-width:46ch;margin:10px auto 22px;font-size:.92rem;line-height:1.6}
+
+  /* question */
+  .qhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .qhead .mn{font-size:.75rem;color:var(--faint)}
+  .probe{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;
+    padding:2px 9px;border-radius:5px;background:var(--chip);color:var(--muted)}
+  .pchip{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;padding:2px 9px;border-radius:5px}
+  .pchip.a{background:var(--p1-soft);color:var(--p1)}
+  .pchip.b{background:var(--p2-soft);color:var(--p2)}
+  .qtext{font-size:1.16rem;line-height:1.45;margin:0 0 18px;color:var(--muted);text-wrap:balance}
+  .opts{display:flex;flex-direction:column;gap:11px}
+  .opt{display:flex;gap:13px;align-items:flex-start;text-align:left;padding:16px 17px;
+    border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);
+    font:inherit;font-size:1.02rem;line-height:1.45;cursor:pointer;transition:border-color .12s,background .12s}
+  .opt:hover{border-color:var(--ac);background:var(--acs)}
+  .opt .k{flex:none;font-size:.7rem;font-weight:700;color:var(--faint);border:1px solid var(--line);
+    border-radius:5px;padding:1px 7px;margin-top:3px}
+  .lik{display:flex;gap:7px;flex-wrap:wrap}
+  .lik button{flex:1 1 0;min-width:92px;padding:13px 8px;border:1.5px solid var(--line);border-radius:9px;
+    background:transparent;color:var(--ink);font:inherit;font-size:.8rem;line-height:1.3;cursor:pointer;
+    transition:border-color .12s,background .12s}
+  .lik button:hover{border-color:var(--ac);background:var(--acs)}
+  .qfoot{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+    margin-top:20px;padding-top:15px;border-top:1px solid var(--line)}
+  .qfoot span{font-size:.76rem;color:var(--faint)}
+  .lnk{background:none;border:none;padding:0;color:var(--muted);font:inherit;font-size:.79rem;
+    cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .lnk:hover{color:var(--ink)}
+
+  /* gauges (individual turn) */
+  aside h2{font-size:.68rem;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);
+    font-weight:600;margin:0 0 14px}
+  .gauges{display:flex;flex-direction:column;gap:15px}
+  .g .r1{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:8px}
+  .g .lt{font-size:.79rem;font-weight:700;letter-spacing:.02em}
+  .g .rd{font-size:.73rem;color:var(--muted)}
+  .g .rd b{color:var(--ink);font-weight:600}
+  .trk{position:relative;height:11px;background:var(--track);border-radius:6px;overflow:hidden}
+  .mid{position:absolute;left:calc(50% - .75px);top:0;bottom:0;width:1.5px;background:var(--line);z-index:2}
+  .fil{position:absolute;top:0;bottom:0;transition:left .34s cubic-bezier(.4,0,.2,1),width .34s cubic-bezier(.4,0,.2,1)}
+  .band{position:absolute;top:0;bottom:0;opacity:.22;transition:left .34s,width .34s}
+  @media (prefers-reduced-motion:reduce){.fil,.band{transition:none}}
+  .ends{display:flex;justify-content:space-between;margin-top:4px;font-size:.68rem;color:var(--faint)}
+  .st{margin-top:6px;font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;
+    display:inline-block;padding:1.5px 8px;border-radius:5px;background:var(--chip);color:var(--faint)}
+  .st.done{background:var(--p1-soft);color:var(--p1)}
+  .st.bal{background:var(--warn-soft);color:var(--warn)}
+  .log{margin-top:20px;padding-top:15px;border-top:1px solid var(--line)}
+  .logs{max-height:250px;overflow-y:auto}
+  .logs p{margin:0 0 9px;font-size:.755rem;line-height:1.5;color:var(--muted)}
+  .logs p b{color:var(--ink);font-weight:600}
+  .logs p .mn{font-size:.72rem}
+
+  /* steps list (sidebar during handoffs) */
+  .steps{display:flex;flex-direction:column;gap:10px}
+  .steps .s{display:flex;gap:10px;align-items:baseline;font-size:.84rem;color:var(--muted)}
+  .steps .s b{color:var(--ink);font-weight:600}
+  .steps .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--track);position:relative;top:0}
+  .steps .s.done .dot{background:var(--p1)}
+  .steps .s.now .dot{background:var(--warn)}
+
+  /* joint report */
+  .duo{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;margin:6px 0 2px}
+  .duo .nm{font-size:1.7rem;font-weight:600;letter-spacing:-.01em}
+  .duo .nm.a{color:var(--p1)} .duo .nm.b{color:var(--p2)}
+  .duo .amp{font-size:1.2rem;color:var(--faint);font-style:italic}
+  .axis{margin:0;padding:20px 0;border-top:1px solid var(--line)}
+  .axis:first-of-type{border-top:none}
+  .axis .ah{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .axis .ah b{font-size:1.02rem;font-weight:600}
+  .axis .aq{font-size:.85rem;color:var(--muted);font-style:italic}
+  .vchip{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;
+    padding:2px 9px;border-radius:5px;background:var(--chip);color:var(--muted)}
+  .vchip.diff{background:var(--warn-soft);color:var(--warn)}
+  .vchip.same{background:var(--p1-soft);color:var(--p1)}
+  .trk2{position:relative;height:24px;background:var(--track);border-radius:7px;overflow:hidden;margin:12px 0 4px}
+  .trk2 .mid{left:calc(50% - .75px)}
+  .lane{position:absolute;left:0;right:0;height:10px}
+  .lane.a{top:1.5px} .lane.b{bottom:1.5px}
+  .lane .bnd{position:absolute;top:0;bottom:0;border-radius:5px;opacity:.28}
+  .lane.a .bnd{background:var(--p1)} .lane.b .bnd{background:var(--p2)}
+  .lane .mk{position:absolute;top:0;bottom:0;width:3.5px;border-radius:2px}
+  .lane.a .mk{background:var(--p1)} .lane.b .mk{background:var(--p2)}
+  .fr{margin:10px 0 0;font-size:.83rem;line-height:1.55;color:var(--muted)}
+  .fr b{color:var(--ink);font-weight:600}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  @media (max-width:700px){.cards{grid-template-columns:1fr}}
+  .sug{border:1px solid var(--line);border-radius:10px;padding:15px 16px;font-size:.86rem;line-height:1.6}
+  .sug .to{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;display:block;margin-bottom:7px}
+  .sug.a{background:var(--p1-soft);border-color:transparent} .sug.a .to{color:var(--p1)}
+  .sug.b{background:var(--p2-soft);border-color:transparent} .sug.b .to{color:var(--p2)}
+  .sug.n{background:var(--chip);border-color:transparent} .sug.n .to{color:var(--muted)}
+  .sug p{margin:0 0 8px} .sug p:last-child{margin:0}
+  .codebox{display:flex;gap:8px;align-items:stretch;margin:8px 0 2px}
+  .codebox input{flex:1;min-width:0;font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.76rem;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:transparent;color:var(--ink)}
+  .codebox .btn{padding:10px 16px;font-size:.85rem;flex:none}
+  .swaperr{color:var(--warn);font-size:.8rem;margin:6px 0 0}
+  .flag{margin-top:18px;padding:13px 15px;border-radius:9px;background:var(--warn-soft);
+    border:1px solid var(--warn);font-size:.82rem;line-height:1.5}
+  .flag b{color:var(--warn)}
+  details{margin-top:22px;padding-top:15px;border-top:1px solid var(--line)}
+  summary{cursor:pointer;font-size:.82rem;font-weight:600;color:var(--muted)}
+  summary:hover{color:var(--ink)}
+  details .body{margin-top:12px;font-size:.83rem;line-height:1.65;color:var(--muted);max-width:66ch}
+  details .body p{margin:0 0 11px}
+  details .body b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Duet<em class="sf">The Midline for two — each of you measured separately, then the space between</em></h1>
+    <span class="eyebrow mn" id="status">ready</span>
+  </header>
+  <div class="grid">
+    <main class="card" id="main" aria-live="polite"></main>
+    <aside class="card" id="aside">
+      <div id="aside-body"></div>
+      <div class="log"><h2>What the interviewer is doing</h2><div class="logs" id="logs"></div></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ══════════════════════════════════════════════════════════════════════════
+   ENGINE — unchanged from The Midline: one joint posterior per person over
+   the 4-D trait space (21^4 cells), correlated prior, forced-choice blocks +
+   Likert under GRM, three stop rules, prequential person-fit lz.
+   ══════════════════════════════════════════════════════════════════════════ */
+const DIMS=[
+  {id:'EI',n:'Energy',    q:'Where does each of you get energy back?', hi:'recharges with people', lo:'recharges alone',          hiS:'people',   loS:'alone'},
+  {id:'SN',n:'Information',q:'What does each of you treat as real?',    hi:'starts from what is',   lo:'starts from what could be',hiS:'concrete', loS:'possible'},
+  {id:'TF',n:'Decisions', q:'What does each of you weigh first?',      hi:'weighs the principle',  lo:'weighs the people',        hiS:'principle',loS:'people'},
+  {id:'JP',n:'Structure', q:'How settled does life need to be?',       hi:'wants it settled',      lo:'wants it open',            hiS:'settled',  loS:'open'},
+];
+const DI={EI:0,SN:1,TF:2,JP:3};
+const G=21,LO=-3,HI=3;
+const AX=Array.from({length:G},(_,i)=>LO+(HI-LO)*i/(G-1));
+const NC=G*G*G*G, STR=[G*G*G,G*G,G,1];
+const cd=(k,d)=>Math.floor(k/STR[d])%G;
+const RHO=[[1,.05,.05,.05],[.05,1,-.05,.42],[.05,-.05,1,.10],[.05,.42,.10,1]];
+
+function inv4(M){const n=4,A=M.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+  for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;
+    [A[c],A[p]]=[A[p],A[c]];const d=A[c][c];for(let j=0;j<2*n;j++)A[c][j]/=d;
+    for(let r=0;r<n;r++){if(r===c)continue;const f=A[r][c];for(let j=0;j<2*n;j++)A[r][j]-=f*A[c][j];}}
+  return A.map(r=>r.slice(n));}
+function nrm(w){let s=0;for(let i=0;i<w.length;i++)s+=w[i];for(let i=0;i<w.length;i++)w[i]/=s;return w;}
+function prior(){const P=inv4(RHO),w=new Float64Array(NC);let k=0;
+  for(let i0=0;i0<G;i0++)for(let i1=0;i1<G;i1++)for(let i2=0;i2<G;i2++)for(let i3=0;i3<G;i3++){
+    const x=[AX[i0],AX[i1],AX[i2],AX[i3]];let q=0;
+    for(let r=0;r<4;r++)for(let c=0;c<4;c++)q+=x[r]*P[r][c]*x[c];
+    w[k++]=Math.exp(-.5*q);} return nrm(w);}
+
+const S2=Math.SQRT2;
+function ncdf(z){const s=z<0?-1:1;z=Math.abs(z)/S2;const t=1/(1+.3275911*z);
+  const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-z*z);
+  return .5*(1+s*y);}
+const sig=x=>1/(1+Math.exp(-x));
+const TAU=[-1.4,-.5,.5,1.4];
+
+const P_=(d,k,t,a,l,s)=>({d,key:k,text:t,disc:a,loc:l,des:s});
+const POOL=[
+ P_('EI', 1,"Being in a busy room lifts my energy",1.5,0,3.0),
+ P_('EI', 1,"I work out what I think by saying it out loud",1.3,-.2,3.0),
+ P_('EI', 1,"I introduce myself to strangers easily",1.4,.4,3.3),
+ P_('EI', 1,"I'd take the group dinner over the quiet night in",1.3,.3,2.9),
+ P_('EI', 1,"I reach for the phone rather than write it out",1.0,-.4,2.8),
+ P_('EI', 1,"An empty weekend feels like something to fill",1.1,.5,2.7),
+ P_('EI',-1,"I need real solitude to feel like myself again",1.5,0,3.0),
+ P_('EI',-1,"I'd rather go deep with one person than work a room",1.3,-.3,3.2),
+ P_('EI',-1,"I do my best thinking alone and undisturbed",1.4,-.2,3.3),
+ P_('EI',-1,"Long stretches of quiet are when I'm most productive",1.3,.1,3.2),
+ P_('EI',-1,"I answer better in writing than on the spot",1.1,0,2.9),
+ P_('EI',-1,"An empty weekend is the best kind",1.2,.4,2.9),
+ P_('SN', 1,"I trust what's been observed over what's been theorised",1.5,0,3.2),
+ P_('SN', 1,"I get the details exactly right",1.3,-.2,3.4),
+ P_('SN', 1,"Give me the proven method and I'll follow it",1.2,.3,2.9),
+ P_('SN', 1,"I notice concrete details others walk past",1.1,.4,3.2),
+ P_('SN', 1,"I'd rather discuss what actually happened",1.3,0,3.0),
+ P_('SN', 1,"I plan forward from what's real right now",1.2,-.2,3.1),
+ P_('SN',-1,"I'm drawn to what could be more than what is",1.6,-.1,3.2),
+ P_('SN',-1,"I see patterns before I can explain them",1.4,0,3.3),
+ P_('SN',-1,"Give me the gist and I'll invent the rest",1.2,.3,2.9),
+ P_('SN',-1,"Metaphors feel truer to me than literal description",1.2,.2,3.0),
+ P_('SN',-1,"I'd rather discuss what it all means",1.3,0,3.0),
+ P_('SN',-1,"I start from an imagined future and work backwards",1.2,.3,3.0),
+ P_('TF', 1,"I decide with my head and check with my heart after",1.5,0,3.0),
+ P_('TF', 1,"Fairness means the same rules applied to everyone",1.4,.1,3.2),
+ P_('TF', 1,"I give the accurate critique even when it stings",1.4,-.2,3.0),
+ P_('TF', 1,"I'm moved by an argument with airtight logic",1.3,.2,3.1),
+ P_('TF', 1,"When someone's upset I start looking for the fix",1.3,0,2.9),
+ P_('TF', 1,"Debate sharpens ideas and I enjoy it",1.1,.4,2.9),
+ P_('TF',-1,"I decide with my heart and check with my head after",1.5,0,3.0),
+ P_('TF',-1,"Fairness means weighing each person's circumstances",1.4,0,3.3),
+ P_('TF',-1,"I protect the relationship while giving hard news",1.3,-.1,3.2),
+ P_('TF',-1,"I'm moved by what a decision costs the people in it",1.3,.1,3.2),
+ P_('TF',-1,"When someone's upset I make sure they feel heard",1.4,-.1,3.3),
+ P_('TF',-1,"Harmony matters more to me than winning the point",1.2,.2,3.1),
+ P_('JP', 1,"I want decisions closed",1.5,0,2.9),
+ P_('JP', 1,"I finish well before the deadline",1.4,-.1,3.4),
+ P_('JP', 1,"I travel with the key things booked",1.4,.1,3.0),
+ P_('JP', 1,"I live by my lists",1.2,-.2,3.1),
+ P_('JP', 1,"Plans changing late genuinely bothers me",1.3,.2,2.6),
+ P_('JP', 1,"The satisfaction is in finishing",1.2,-.1,3.1),
+ P_('JP',-1,"I want options open",1.5,0,2.9),
+ P_('JP',-1,"My best work comes in the final push",1.3,0,2.9),
+ P_('JP',-1,"I travel with a direction and no itinerary",1.4,.1,3.0),
+ P_('JP',-1,"I write lists and cheerfully ignore them",1.2,.3,2.7),
+ P_('JP',-1,"Plans falling through opens the evening up",1.3,.2,2.9),
+ P_('JP',-1,"The satisfaction is in starting",1.2,.2,2.9),
+];
+const LIKERT=[
+ {d:'EI',key: 1,disc:1.4,loc:0,  text:"Extended time alone drains me more than extended time with people."},
+ {d:'EI',key:-1,disc:1.2,loc:0,  text:"I need to be alone to recover after a full social day."},
+ {d:'SN',key:-1,disc:1.6,loc:-.1,text:"I'm more interested in what could be than in what is."},
+ {d:'SN',key: 1,disc:1.2,loc:.3, text:"I'd rather master a proven method than invent a new one."},
+ {d:'TF',key: 1,disc:1.3,loc:.2, text:"Being right matters more to me than being liked."},
+ {d:'TF',key:-1,disc:1.2,loc:-.1,text:"Other people's moods strongly colour my own decisions."},
+ {d:'JP',key: 1,disc:1.3,loc:0,  text:"Not knowing what happens next is genuinely uncomfortable for me."},
+ {d:'JP',key:-1,disc:1.4,loc:.1, text:"I keep my options open as long as I possibly can."},
+];
+const LL=["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"];
+
+const BLOCKS=(()=>{const o=[];for(let i=0;i<POOL.length;i++)for(let j=i+1;j<POOL.length;j++){
+  const A=POOL[i],B=POOL[j];
+  if(A.d===B.d)continue; if(Math.abs(A.des-B.des)>.45)continue; o.push({A,B});} return o;})();
+
+function bTable(b){const T=[];for(let x=0;x<G;x++){const r=new Float64Array(G);
+  const uA=b.A.disc*b.A.key*AX[x]-b.A.loc;
+  for(let y=0;y<G;y++){const uB=b.B.disc*b.B.key*AX[y]-b.B.loc;
+    r[y]=Math.min(Math.max(ncdf((uA-uB)/S2),1e-6),1-1e-6);} T.push(r);} return T;}
+function lTable(it){const T=[];for(let x=0;x<G;x++){
+  const p=TAU.map(t=>sig(1.7*it.disc*(it.key*AX[x]-(it.loc+t))));
+  T.push([1-p[0],p[0]-p[1],p[1]-p[2],p[2]-p[3],p[3]].map(v=>Math.max(v,1e-6)));} return T;}
+
+function marg(w,d){const m=new Float64Array(G);for(let k=0;k<NC;k++)m[cd(k,d)]+=w[k];return m;}
+function marg2(w,d1,d2){const m=[];for(let i=0;i<G;i++)m.push(new Float64Array(G));
+  for(let k=0;k<NC;k++)m[cd(k,d1)][cd(k,d2)]+=w[k];return m;}
+function pPole(m){let s=0;for(let i=0;i<G;i++){if(AX[i]>1e-9)s+=m[i];else if(Math.abs(AX[i])<1e-9)s+=m[i]/2;}return s;}
+function mean(m){let s=0;for(let i=0;i<G;i++)s+=m[i]*AX[i];return s;}
+function sd(m){const u=mean(m);let v=0;for(let i=0;i<G;i++)v+=m[i]*(AX[i]-u)**2;return Math.sqrt(v);}
+
+function applyB(w,b,pickA){const T=bTable(b),d1=DI[b.A.d],d2=DI[b.B.d],o=new Float64Array(NC);
+  for(let k=0;k<NC;k++){const p=T[cd(k,d1)][cd(k,d2)];o[k]=w[k]*(pickA?p:1-p);} return nrm(o);}
+function applyL(w,it,c){const T=lTable(it),d=DI[it.d],o=new Float64Array(NC);
+  for(let k=0;k<NC;k++)o[k]=w[k]*T[cd(k,d)][c];return nrm(o);}
+function pOutA(w,b){const T=bTable(b),M=marg2(w,DI[b.A.d],DI[b.B.d]);let p=0;
+  for(let x=0;x<G;x++)for(let y=0;y<G;y++)p+=M[x][y]*T[x][y];return p;}
+function pOutL(w,it){const T=lTable(it),m=marg(w,DI[it.d]),o=[0,0,0,0,0];
+  for(let x=0;x<G;x++)for(let c=0;c<5;c++)o[c]+=m[x]*T[x][c];return o;}
+function lzTerms(ps,obs){let E=0,V=0;
+  ps.forEach(p=>{const lp=Math.log(Math.max(p,1e-9));E+=p*lp;V+=p*lp*lp;});
+  V-=E*E; return{l:Math.log(Math.max(ps[obs],1e-9)),E,V:Math.max(V,1e-9)};}
+function gain(w,b){const d1=DI[b.A.d],d2=DI[b.B.d],T=bTable(b),M=marg2(w,d1,d2),pA=pOutA(w,b);
+  const n1=sd(marg(w,d1)),n2=sd(marg(w,d2));
+  const post=pk=>{const m1=new Float64Array(G),m2=new Float64Array(G);
+    for(let x=0;x<G;x++)for(let y=0;y<G;y++){const l=pk?T[x][y]:1-T[x][y];
+      m1[x]+=M[x][y]*l;m2[y]+=M[x][y]*l;} return [sd(nrm(m1)),sd(nrm(m2))];};
+  const [a1,a2]=post(true),[b1,b2]=post(false);
+  return {d1,d2,g1:n1-(pA*a1+(1-pA)*b1),g2:n2-(pA*a2+(1-pA)*b2)};}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DYAD MATH — the two posteriors are independent (different people answered),
+   so pair quantities come from the product of the per-axis marginals.
+   ══════════════════════════════════════════════════════════════════════════ */
+const GAP=0.8;                       // a gap below this is lived as "similar"
+function pairStats(mA,mB){
+  let pGap=0,pAhi=0,gap=0;
+  for(let i=0;i<G;i++)for(let j=0;j<G;j++){
+    const w=mA[i]*mB[j],d=AX[i]-AX[j];
+    if(Math.abs(d)>GAP)pGap+=w;
+    if(d>1e-9)pAhi+=w; else if(Math.abs(d)<1e-9)pAhi+=w/2;
+    gap+=w*d;
+  }
+  return {pGap,pAhi,gap};
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RELATIONSHIP SECTION — five rating items per partner. One satisfaction
+   item (tone only, never displayed as a number) and one felt-friction item
+   per axis, so the report can compare what you FEEL with what was MEASURED.
+   ══════════════════════════════════════════════════════════════════════════ */
+const REL=[
+  {id:'sat',axis:null,text:"Taken as a whole, ours is a happy relationship."},
+  {id:'EI', axis:0,text:"We often want different amounts of people-time."},
+  {id:'SN', axis:1,text:"One of us anchors in practical reality while the other chases possibilities."},
+  {id:'TF', axis:2,text:"In hard conversations, one of us reaches for logic while the other reaches for feelings."},
+  {id:'JP', axis:3,text:"One of us wants plans pinned down while the other wants room to improvise."},
+];
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TRANSLATION CONTENT — keyed to axis and side, never to a type label.
+   "about" = what the OTHER partner should know about someone on that side.
+   ══════════════════════════════════════════════════════════════════════════ */
+const TX={
+  EI:{
+    aboutHi:n=>`<p><b>Talking is how ${n} thinks.</b> They don't reach conclusions and then share them — the sharing is the reaching. Don't hold them to the first draft they say out loud.</p><p>When they want to fill a free evening with people, it's appetite, not avoidance of you.</p>`,
+    aboutLo:n=>`<p><b>Quiet is recovery, not distance.</b> When ${n} goes silent after a social stretch, they're refilling, not withdrawing from you. Let the quiet happen without narrating it.</p><p>The gift you can give: leave the party while they still have something left.</p>`,
+    bothHi:`<p><b>Strength:</b> your home fills with people easily, and energy begets plans.</p><p><b>Blind spot:</b> neither of you defaults to stillness. Book the quiet on purpose, or the relationship only ever happens in company.</p>`,
+    bothLo:`<p><b>Strength:</b> you both understand recovery — quiet together is a load-bearing part of this relationship.</p><p><b>Blind spot:</b> the outside world under-visits. Someone has to say yes for both of you; trade that job.</p>`,
+    bothMid:`<p>You both flex on this line, which means your wants will drift week to week — ask, don't assume the other is where you are.</p>`,
+  },
+  SN:{
+    aboutHi:n=>`<p><b>Ground your case in specifics.</b> ${n} trusts what can be pointed at — when you bring a possibility, bring the first concrete step with it.</p><p>Their "it won't work" usually means "I can't see the steps yet", not "no".</p>`,
+    aboutLo:n=>`<p><b>Half-formed ideas are not proposals.</b> When ${n} floats something wild, they're usually exploring, not committing — ask "are we dreaming or deciding?" before you start pricing it.</p><p>Their leaps land somewhere real more often than the path suggests.</p>`,
+    bothHi:`<p><b>Strength:</b> plans get executed and the practical load is genuinely shared.</p><p><b>Blind spot:</b> the horizon doesn't plan itself from next week's list. Put one evening a year against the five-year question.</p>`,
+    bothLo:`<p><b>Strength:</b> ideas everywhere — you will never bore each other.</p><p><b>Blind spot:</b> somebody still has to renew the insurance. Name who owns the ground floor this month.</p>`,
+    bothMid:`<p>You both move between the concrete and the possible. Flag which register a conversation is in before assuming the other is in it too.</p>`,
+  },
+  TF:{
+    aboutHi:n=>`<p><b>The critique is the care.</b> When ${n} answers your problem with a fix, that is their sympathy dialect. If you need to be heard first, say "not solving yet — just listen"; literal instructions land better than hurt silence.</p><p>Their directness is precision, not temperature.</p>`,
+    aboutLo:n=>`<p><b>The feeling is data.</b> When ${n} says a decision feels wrong, that's information about real costs — usually to people — that the framework didn't price. Ask what it's costing whom.</p><p>Deliver hard news like it's news to a person, not a finding to a committee.</p>`,
+    bothHi:`<p><b>Strength:</b> disagreements stay about the thing, and you can argue without bleeding.</p><p><b>Blind spot:</b> feelings nobody put on the table. Someone can lose the argument and still be right about the hurt — check.</p>`,
+    bothLo:`<p><b>Strength:</b> you protect each other reflexively; warmth is the default setting.</p><p><b>Blind spot:</b> some conflicts need having, not smoothing. The unsaid thing compounds interest.</p>`,
+    bothMid:`<p>You both switch between principle and person depending on the day. Say which one you're weighing out loud — it saves the crossed wires.</p>`,
+  },
+  JP:{
+    aboutHi:n=>`<p><b>An open decision costs ${n} something, hourly.</b> What reads as rigidity is them paying rent on every unmade plan. Close what can be closed early — the itinerary is a gift, not a cage.</p><p>When plans must change, bring the new plan, not just the cancellation.</p>`,
+    aboutLo:n=>`<p><b>Options are oxygen.</b> ${n}'s late-and-brilliant isn't procrastination failing; it's their actual process arriving on time. Agree on which commitments are hard-walled — and keep those few.</p><p>Surprise inside a settled frame is where you'll both be happy.</p>`,
+    bothHi:`<p><b>Strength:</b> the logistics of life run themselves; nothing falls through the cracks.</p><p><b>Blind spot:</b> the calendar shouldn't own you both. Leave one door unplanned each week.</p>`,
+    bothLo:`<p><b>Strength:</b> spontaneity is your shared native language, and change costs you little.</p><p><b>Blind spot:</b> the boring recurring things belong to no one by default. Assign them, or they ambush you.</p>`,
+    bothMid:`<p>You both live comfortably between planned and open — just don't let every decision default to "later" because neither of you is the closer.</p>`,
+  },
+};
+const degreeLine=(far,near,q)=>`<p>You're on the same side of this line — the difference is dosage. <b>${far}</b> needs a stronger dose of ${q} than <b>${near}</b> does. Scale it, don't translate it.</p>`;
+const flexLine=(flex,fixed)=>`<p><b>${flex}</b> genuinely ranges across this line while <b>${fixed}</b> has a home side. The flexibility is real — but it isn't free. Don't let the flexible one silently do all the adapting.</p>`;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SESSION
+   ══════════════════════════════════════════════════════════════════════════ */
+const RIGOR={
+  quick:   {label:"Quick",     thr:.85,min:3,budget:18,sdF:.62,gF:.016,blurb:"85% per dimension. About 8–11 questions each."},
+  standard:{label:"Standard",  thr:.90,min:3,budget:28,sdF:.55,gF:.012,blurb:"90% per dimension. About 10–14 questions each."},
+  high:    {label:"High rigor",thr:.95,min:4,budget:40,sdF:.48,gF:.008,blurb:"95% per dimension. About 14–20 questions each."},
+};
+let SESS=null, CUR=null;
+
+function newPerson(name,R){return{name,R,w:prior(),dim:DIMS.map(()=>({n:0,st:'open'})),
+  usedS:new Set(),usedL:new Set(),nAsk:0,nLik:0,fitL:0,fitE:0,fitV:0,rel:null,relIdx:0}; }
+function lzNow(P){return P.fitV>0?(P.fitL-P.fitE)/Math.sqrt(P.fitV):0;}
+
+/* A profile is what the joint report consumes — and ALL that ever leaves a
+   device in two-device mode: per-axis marginals, stop states, the five
+   relationship answers, question count, person-fit. Never raw answers. */
+function profileOf(P){return{name:P.name,m:DIMS.map((_,d)=>marg(P.w,d)),
+  st:P.dim.map(x=>x.st),rel:P.rel,nAsk:P.nAsk,lz:lzNow(P)};}
+
+const CODEV=1, ST_CODES=['open','classified','balanced','futile','exhausted'];
+function packProfile(P){
+  const bytes=[CODEV];
+  const nb=[...unescape(encodeURIComponent(P.name.slice(0,18)))].map(c=>c.charCodeAt(0));
+  bytes.push(nb.length,...nb);
+  bytes.push(Math.min(255,P.nAsk));
+  bytes.push(Math.round((Math.max(-12.5,Math.min(12.5,P.lz))+12.5)*10));
+  P.st.forEach(s=>bytes.push(Math.max(0,ST_CODES.indexOf(s))));
+  (P.rel||[null,null,null,null,null]).forEach(r=>bytes.push(r==null?255:r));
+  P.m.forEach(m=>{const mx=Math.max(...m)||1;
+    for(let i=0;i<G;i++)bytes.push(Math.round(m[i]/mx*255));});
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function unpackProfile(code){
+  try{
+    const s=atob(code.trim().replace(/-/g,'+').replace(/_/g,'/'));
+    const bytes=[...s].map(c=>c.charCodeAt(0));
+    let i=0;
+    if(bytes[i++]!==CODEV)return null;
+    const nl=bytes[i++];
+    const name=decodeURIComponent(escape(String.fromCharCode(...bytes.slice(i,i+nl))))||'Partner'; i+=nl;
+    const nAsk=bytes[i++], lz=bytes[i++]/10-12.5;
+    const st=[0,1,2,3].map(()=>ST_CODES[bytes[i++]]||'open');
+    const rel=[0,1,2,3,4].map(()=>{const v=bytes[i++];return v===255?null:Math.min(4,v);});
+    const m=[];
+    for(let d=0;d<4;d++){const a=new Float64Array(G);let sum=0;
+      for(let g=0;g<G;g++){a[g]=bytes[i++];sum+=a[g];}
+      if(!sum||!Number.isFinite(sum))return null;
+      for(let g=0;g<G;g++)a[g]/=sum; m.push(a);}
+    if(i!==bytes.length)return null;
+    return {name,m,st,rel,nAsk,lz};
+  }catch(e){return null;}
+}
+/* deterministic lane assignment so both phones render the identical report */
+function orderProfiles(x,y){
+  const c=x.name.localeCompare(y.name,undefined,{sensitivity:'base'});
+  if(c<0)return[x,y]; if(c>0)return[y,x];
+  return packProfile(x)<=packProfile(y)?[x,y]:[y,x];
+}
+
+const $=i=>document.getElementById(i);
+const pct=p=>Math.round(p*100)+'%';
+function say(h){$('logs').insertAdjacentHTML('afterbegin',`<p>${h}</p>`);}
+function clearLog(msg){$('logs').innerHTML=msg?`<p>${msg}</p>`:'';}
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const pcol=who=>who==='A'?'var(--p1)':'var(--p2)';
+const psoft=who=>who==='A'?'var(--p1-soft)':'var(--p2-soft)';
+function setAccent(who){$('main').style.setProperty('--ac',pcol(who));$('main').style.setProperty('--acs',psoft(who));}
+
+/* ---- sidebar ---- */
+function drawGauges(P,who){
+  $('aside-body').innerHTML=`<h2><span class="pchip ${who==='A'?'a':'b'}">${esc(P.name)}</span>&nbsp; joint posterior</h2><div class="gauges" id="gauges"></div>`;
+  const el=$('gauges');
+  DIMS.forEach((D,d)=>{
+    const m=marg(P.w,d), p=pPole(m), lean=p>=.5, c=Math.max(p,1-p);
+    const s=P.dim[d].st, sdv=sd(m), mu=mean(m);
+    const half=Math.abs(p-.5)*100;
+    const css=lean?`left:50%;width:${half}%;background:${pcol(who)}`
+                  :`left:${50-half}%;width:${half}%;background:${pcol(who)}`;
+    const bl=Math.max(0,(mu-sdv+3)/6*100), br=Math.min(100,(mu+sdv+3)/6*100);
+    const chip = s==='classified'?`<span class="st done">settled at ${pct(c)}</span>`
+      : s==='balanced'?`<span class="st bal">genuinely balanced</span>`
+      : s==='futile'||s==='exhausted'?`<span class="st bal">no further signal</span>`
+      : `<span class="st">open · ${P.dim[d].n} item${P.dim[d].n===1?'':'s'}</span>`;
+    el.insertAdjacentHTML('beforeend',`<div class="g">
+      <div class="r1"><span class="lt">${D.n}</span>
+        <span class="rd mn"><b>${pct(c)}</b> ${lean?D.hiS:D.loS}</span></div>
+      <div class="trk"><div class="band" style="left:${bl}%;width:${br-bl}%;background:${pcol(who)}"></div>
+        <div class="mid"></div><div class="fil" style="${css}"></div></div>
+      <div class="ends"><span>${D.lo}</span><span>${D.hi}</span></div>
+      ${chip}</div>`);
+  });
+}
+function drawSteps(stage){
+  const duo=SESS&&SESS.mode==='duo';
+  const A=SESS?esc(SESS.A.name):'Partner one', B=duo?'':(SESS?esc(SESS.B.name):'Partner two');
+  const items=duo
+    ?[[`${A} — interview & relationship`,'A'],['Swap codes with your partner','S'],['Read the report together','R']]
+    :[[`${A} — interview & relationship`,'A'],[`${B} — interview & relationship`,'B'],['Read the report together','R']];
+  const order=duo?['A','S','R']:['A','B','R'], at=stage==='done'?order.length:order.indexOf(stage);
+  $('aside-body').innerHTML=`<h2>The plan</h2><div class="steps">${items.map(([t,k],i)=>
+    `<div class="s ${i<at?'done':i===at?'now':''}"><span class="dot"></span><span>${i<at?'<b>'+t+'</b> — done':i===at?'<b>'+t+'</b> — now':t}</span></div>`).join('')}</div>`;
+}
+
+/* ---- adaptive interview (parameterised over person) ---- */
+function settleChecks(P){
+  const msgs=[];
+  DIMS.forEach((D,d)=>{
+    const st=P.dim[d]; if(st.st!=='open')return;
+    const m=marg(P.w,d),p=pPole(m),c=Math.max(p,1-p),v=sd(m),mu=mean(m);
+    if(st.n>=P.R.min&&c>=P.R.thr){st.st='classified';
+      msgs.push(`<b>${D.n} settled</b> at <span class="mn">${pct(c)}</span> after ${st.n} items. Dropping it from the queue.`);}
+    else if(st.n>=P.R.min&&v<=P.R.sdF&&Math.abs(mu)<.30){st.st='balanced';
+      msgs.push(`<b>${D.n}: genuinely balanced.</b> Tight posterior <span class="mn">(sd ${v.toFixed(2)})</span> sitting on the midline — that is the finding, not a failure.`);}
+  });
+  return msgs;
+}
+function nextQuestion(P){
+  const open=DIMS.map((_,d)=>d).filter(d=>P.dim[d].st==='open');
+  if(!open.length||P.nAsk>=P.R.budget)return null;
+  open.sort((a,b)=>{const ca=Math.max(pPole(marg(P.w,a)),1-pPole(marg(P.w,a)));
+                    const cb=Math.max(pPole(marg(P.w,b)),1-pPole(marg(P.w,b)));return ca-cb;});
+  const t=open[0];
+  if(P.nAsk>=4&&P.nLik/Math.max(P.nAsk,1)<.20){
+    const c=LIKERT.filter(i=>DI[i.d]===t&&!P.usedL.has(i.text));
+    if(c.length)return{kind:'lik',item:c[0],target:t};
+  }
+  let cands=BLOCKS.filter(b=>(DI[b.A.d]===t||DI[b.B.d]===t)&&!P.usedS.has(b.A.text)&&!P.usedS.has(b.B.text));
+  const both=cands.filter(b=>P.dim[DI[b.A.d]===t?DI[b.B.d]:DI[b.A.d]].st==='open');
+  const dual=both.length>0; if(dual)cands=both;
+  if(!cands.length){P.dim[t].st='exhausted';return nextQuestion(P);}
+  let best=null,bs=-1;
+  for(const b of cands.slice(0,40)){const g=gain(P.w,b);
+    const gt=g.d1===t?g.g1:g.g2, go=g.d1===t?g.g2:g.g1;
+    const sc=gt+.5*go; if(sc>bs){bs=sc;best={b,gt,go};}}
+  if(!best||best.gt<P.R.gF){P.dim[t].st='futile';return nextQuestion(P);}
+  return{kind:'blk',blk:best.b,target:t,gt:best.gt,dual};
+}
+
+function stepInterview(who){
+  const P=SESS[who];
+  drawGauges(P,who);
+  settleChecks(P).forEach(say);
+  drawGauges(P,who);
+  const q=nextQuestion(P);
+  if(!q){relStep(who);return;}
+  CUR=q;
+  const D=DIMS[q.target];
+  const m=marg(P.w,q.target),p=pPole(m),c=Math.max(p,1-p);
+  if(q.kind==='lik'){
+    say(`Probing <b>${D.n}</b> with a rating item to hold the format mix above 20%.`);
+  }else{
+    const other=DIMS[DI[q.blk.A.d]===q.target?DI[q.blk.B.d]:DI[q.blk.A.d]];
+    say(`${P.dim[q.target].n===0?`<b>${D.n}</b> is untouched — opening it.`:`Jumping to <b>${D.n}</b>, the least resolved at <span class="mn">${pct(c)}</span>.`}${q.dual?` This block also reads <b>${other.n}</b>.`:''}`);
+  }
+  $('status').textContent=`${P.name.toLowerCase()} · question ${P.nAsk+1}`;
+  setAccent(who);
+  let body;
+  if(q.kind==='blk'){
+    const flip=Math.random()<.5;
+    const pair=flip?[[q.blk.B,false],[q.blk.A,true]]:[[q.blk.A,true],[q.blk.B,false]];
+    body=`<p class="qtext sf">Which sits closer to how you actually are — not how you'd like to be?</p>
+      <div class="opts">${pair.map(([s,isA],i)=>
+        `<button class="opt" data-a="${isA}"><span class="k">${i+1}</span><span class="sf">${s.text}</span></button>`).join('')}</div>`;
+  }else{
+    body=`<p class="qtext sf">How much do you agree?</p>
+      <p style="font-size:1.1rem;line-height:1.45;margin:0 0 16px" class="sf">${q.item.text}</p>
+      <div class="lik">${LL.map((l,i)=>`<button data-c="${i}">${l}</button>`).join('')}</div>`;
+  }
+  $('main').innerHTML=`
+    <div class="qhead">
+      <span class="pchip ${who==='A'?'a':'b'}">${esc(P.name)}</span>
+      <span class="mn">Question ${P.nAsk+1} <span style="color:var(--line)">/</span> budget ${P.R.budget}</span>
+      <span class="probe">probing ${D.n.toLowerCase()}</span>
+    </div>
+    ${body}
+    <div class="qfoot">
+      <span>Press ${q.kind==='blk'?'1 or 2':'1–5'} to answer. Only ${esc(P.name)} should be looking.</span>
+      ${P.nAsk>=5?'<button class="lnk" id="stop">Stop here and use what\'s known</button>':''}
+    </div>`;
+  document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>answerBlock(who,b.dataset.a==='true'));
+  document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>answerLik(who,+b.dataset.c));
+  const s=$('stop'); if(s)s.onclick=()=>{say('<b>Stopped early.</b> Using the posterior as it stands.');relStep(who);};
+  document.onkeydown=e=>{const n=+e.key;if(!n)return;
+    const bs=[...document.querySelectorAll('[data-a],[data-c]')];
+    if(bs[n-1])bs[n-1].click();};
+}
+function answerBlock(who,pickedA){
+  document.onkeydown=null;
+  const P=SESS[who], b=CUR.blk, pA=pOutA(P.w,b);
+  const f=lzTerms([pA,1-pA],pickedA?0:1); P.fitL+=f.l;P.fitE+=f.E;P.fitV+=f.V;
+  P.usedS.add(b.A.text);P.usedS.add(b.B.text);
+  P.w=applyB(P.w,b,pickedA);
+  P.nAsk++; P.dim[DI[b.A.d]].n++; P.dim[DI[b.B.d]].n++;
+  stepInterview(who);
+}
+function answerLik(who,c){
+  document.onkeydown=null;
+  const P=SESS[who], it=CUR.item; P.usedL.add(it.text);
+  const f=lzTerms(pOutL(P.w,it),c); P.fitL+=f.l;P.fitE+=f.E;P.fitV+=f.V;
+  P.w=applyL(P.w,it,c); P.nAsk++; P.nLik++; P.dim[CUR.target].n++;
+  stepInterview(who);
+}
+
+/* ---- relationship section (short, per partner) ---- */
+function relStep(who){
+  const P=SESS[who];
+  if(!P.rel)P.rel=new Array(REL.length).fill(null);
+  const i=P.relIdx;
+  if(i>=REL.length){handoffOrReveal(who);return;}
+  if(i===0)say(`<b>Interview done for ${esc(P.name)}.</b> Five quick questions about the relationship itself — these are never scored into a compatibility number; they tell the report where the friction is <i>felt</i>.`);
+  setAccent(who);
+  $('status').textContent=`${P.name.toLowerCase()} · about you two`;
+  const r=REL[i];
+  $('main').innerHTML=`
+    <div class="qhead">
+      <span class="pchip ${who==='A'?'a':'b'}">${esc(P.name)}</span>
+      <span class="mn">About you two · ${i+1} <span style="color:var(--line)">/</span> ${REL.length}</span>
+      <span class="probe">relationship</span>
+    </div>
+    <p class="qtext sf">How much do you agree?</p>
+    <p style="font-size:1.1rem;line-height:1.45;margin:0 0 16px" class="sf">${r.text}</p>
+    <div class="lik">${LL.map((l,j)=>`<button data-c="${j}">${l}</button>`).join('')}</div>
+    <div class="qfoot"><span>Your partner never sees this answer — only the combined pattern.</span></div>`;
+  document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{P.rel[i]=+b.dataset.c;P.relIdx++;relStep(who);});
+  document.onkeydown=e=>{const n=+e.key;if(!n||n>5)return;P.rel[i]=n-1;P.relIdx++;document.onkeydown=null;relStep(who);};
+}
+
+/* ---- flow ---- */
+function handoffOrReveal(who){
+  document.onkeydown=null;
+  if(SESS.mode==='duo'){swapScreen();return;}
+  if(who==='A'){
+    clearLog(`${esc(SESS.A.name)}'s answers are put away. Nothing on screen reveals them.`);
+    drawSteps('B');
+    setAccent('B');
+    $('status').textContent='handoff';
+    $('main').innerHTML=`<div class="hand">
+      <span class="eyebrow">Pass the device</span>
+      <div class="who" style="color:var(--p2)">${esc(SESS.B.name)}</div>
+      <p>${esc(SESS.A.name)}'s answers and results are hidden until the joint report. Same deal for you: answer for the average of your life, not for today — and not for who you'd like to be.</p>
+      <button class="btn two" id="go">I'm ${esc(SESS.B.name)} — begin</button></div>`;
+    $('go').onclick=()=>{clearLog(`<b>${esc(SESS.B.name)} started.</b>`);stepInterview('B');};
+  }else{
+    clearLog('Both interviews are in. Computing the space between.');
+    drawSteps('R');
+    $('status').textContent='ready to reveal';
+    $('main').innerHTML=`<div class="hand">
+      <span class="eyebrow">Last handoff</span>
+      <div class="who">Sit together</div>
+      <p>The report reads best side by side. It contains no score and no verdict — two measured profiles, where they sit apart, and how to translate across the gaps.</p>
+      <button class="btn" id="go">Show us the report</button></div>`;
+    $('go').onclick=()=>jointReport(profileOf(SESS.A),profileOf(SESS.B));
+  }
+}
+
+/* ---- two-device swap ---- */
+function swapScreen(){
+  const myProf=profileOf(SESS.A), myCode=packProfile(myProf);
+  drawSteps('S'); setAccent('A');
+  clearLog(`<b>${esc(SESS.A.name)}'s half is done.</b> The code carries only the summarised profile — positions and uncertainty on the four lines plus the five relationship answers. The question-by-question answers never leave this device.`);
+  $('status').textContent='swap codes';
+  $('main').innerHTML=`
+    <span class="eyebrow">Swap codes</span>
+    <p class="lede sf" style="margin-top:10px">Send your code to your partner however you normally text each other, and paste theirs below. Both phones will show the <b>same</b> joint report.</p>
+    <span class="eyebrow" style="display:block;margin-top:18px">Your code</span>
+    <div class="codebox"><input id="mycode" readonly value="${myCode}"><button class="btn ghost" id="copy">Copy</button></div>
+    <span class="eyebrow" style="display:block;margin-top:18px">Your partner's code</span>
+    <div class="codebox"><input id="theirs" placeholder="Paste it here" autocomplete="off" spellcheck="false"><button class="btn" id="build">Joint report</button></div>
+    <p class="swaperr" id="swaperr" hidden></p>
+    <p class="note">If your partner hasn't finished their half yet, leave this page open — nothing is lost. The code is not a score; it can't be read without the other half and this page.</p>`;
+  $('copy').onclick=async()=>{const b=$('copy');
+    try{await navigator.clipboard.writeText(myCode);}
+    catch(e){$('mycode').select();try{document.execCommand('copy');}catch(_){/* long-press fallback */}}
+    b.textContent='Copied';setTimeout(()=>{b.textContent='Copy';},1600);};
+  $('build').onclick=()=>{
+    const val=$('theirs').value.trim(), err=$('swaperr');
+    const fail=m=>{err.hidden=false;err.textContent=m;};
+    if(!val)return fail("Paste your partner's code first.");
+    if(val===myCode)return fail("That's your own code — you need your partner's.");
+    const rp=unpackProfile(val);
+    if(!rp)return fail("That code doesn't look right — make sure you copied the whole thing.");
+    const [pa,pb]=orderProfiles(myProf,rp);
+    jointReport(pa,pb);
+  };
+}
+
+/* ---- joint report ---- */
+function axisVerdict(P,Q,d){                 // P, Q are profiles
+  const mA=P.m[d], mB=Q.m[d];
+  const ps=pairStats(mA,mB);
+  const muA=mean(mA),muB=mean(mB),sdA=sd(mA),sdB=sd(mB);
+  const stA=P.st[d], stB=Q.st[d];
+  /* "same"/"diff" are judged against the SELF-noise floor: the gap probability
+     that two copies of the same posterior would show at these widths. A fixed
+     cutoff can't work — wider stops (budget/futile) raise the floor above it,
+     making "same" unreachable for genuinely identical profiles. */
+  const selfGap=Math.max(pairStats(mA,mA).pGap,pairStats(mB,mB).pGap);
+  let kind, sub=null;
+  if(ps.pGap>=.65&&ps.pGap>=selfGap+.12){kind='diff'; sub=(muA>0)===(muB>0)?'degree':'cross';}
+  else if(ps.pGap<=.45||ps.pGap<=selfGap+.06)kind='same';
+  else kind='soft';
+  const flex=(stA==='balanced')!==(stB==='balanced');
+  return {d,D:DIMS[d],mA,mB,muA,muB,sdA,sdB,ps,kind,sub,flex,stA,stB};
+}
+function frictionRead(v,relAvg,asym){
+  const felt=relAvg>=2.5, quietly=relAvg<=1.5;
+  const asymLine=asym?` One of you feels this line more than the other does — worth saying out loud which way.`:'';
+  if(v.kind==='diff'&&felt)return{chip:'felt & measured',txt:`<b>The friction you report here is temperamental.</b> It's real, it isn't anyone's fault, and it won't age away. The translation below is the work.${asymLine}`};
+  if(v.kind==='diff'&&quietly)return{chip:'measured, not felt',txt:`<b>A real difference you've apparently made peace with</b> — likely one of your working strengths. The cards below name what you may have already figured out.${asymLine}`};
+  if(v.kind==='diff')return{chip:'measured',txt:`A genuine difference that you report only mild friction over.${asymLine}`};
+  if(v.kind==='same'&&felt)return{chip:'felt, not measured',txt:`<b>You report friction here, but you measure as similar.</b> The clash is probably situational — workload, season of life, one loud incident — rather than wiring. That's a different conversation than this report.${asymLine}`};
+  if(v.kind==='same')return{chip:'aligned & quiet',txt:`Aligned, and neither of you reports friction. Nothing to manage here.${asymLine}`};
+  if(felt)return{chip:'felt · unresolved',txt:`You report friction here but the interviews couldn't establish a clear temperament gap — treat the cards below as provisional.${asymLine}`};
+  return{chip:'unresolved',txt:`The interviews couldn't establish whether you genuinely differ here, and neither of you reports much friction. Leave it.${asymLine}`};
+}
+function axisCards(v,A,B){
+  const an=esc(A.name), bn=esc(B.name), t=TX[v.D.id];
+  const out=[];
+  if(v.kind==='diff'&&v.sub==='cross'){
+    // each partner gets a card about the OTHER's side
+    const aHi=v.muA>0;
+    out.push({cls:'a',to:`For ${an} — reading ${bn}`,html:(aHi?t.aboutLo:t.aboutHi)(bn)});
+    out.push({cls:'b',to:`For ${bn} — reading ${an}`,html:(aHi?t.aboutHi:t.aboutLo)(an)});
+  }else if(v.kind==='diff'&&v.sub==='degree'){
+    const hiSide=v.muA>0; // both on same side; who is further out?
+    const farA=Math.abs(v.muA)>Math.abs(v.muB);
+    const q={EI:hiSide?'company':'solitude',SN:hiSide?'concreteness':'possibility',TF:hiSide?'directness':'accord',JP:hiSide?'closure':'openness'}[v.D.id];
+    out.push({cls:'n',to:'Same side, different dose',html:degreeLine(farA?an:bn,farA?bn:an,q)});
+    out.push({cls:'n',to:'Shared side',html:hiSide?t.bothHi:t.bothLo});
+  }else if(v.kind==='same'){
+    const mu=(v.muA+v.muB)/2;
+    const html=Math.abs(mu)<.45?t.bothMid:mu>0?t.bothHi:t.bothLo;
+    out.push({cls:'n',to:'Shared ground',html});
+  }
+  if(v.flex){
+    const flexP=v.stA==='balanced'?an:bn, fixedP=v.stA==='balanced'?bn:an;
+    out.push({cls:'n',to:'One fixed, one flexible',html:flexLine(flexP,fixedP)});
+  }
+  return out;
+}
+/* ---- host bridge: delapan.ai embeds this page in an iframe. Inert when the
+   page runs standalone (artifact / file). Only summarised profiles cross. ---- */
+const EMB=(()=>{try{return window.parent!==window;}catch(e){return true;}})();
+function postHost(msg){if(EMB){try{window.parent.postMessage({source:'duet',...msg},'*');}catch(e){/* host gone */}}}
+window.addEventListener('message',ev=>{
+  const d=ev.data;
+  if(!d||d.source!=='duet-host'||d.type!=='load')return;
+  const pa=unpackProfile(String(d.codeA||'')), pb=unpackProfile(String(d.codeB||''));
+  if(!pa||!pb)return;
+  const [x,y]=orderProfiles(pa,pb);
+  SESS={mode:'loaded',A:{name:x.name},B:{name:y.name}};
+  clearLog(`<b>Saved report loaded.</b> ${esc(x.name)} & ${esc(y.name)}.`);
+  jointReport(x,y);
+});
+
+function jointReport(A,B){                   // A, B are profiles
+  $('status').textContent='report';
+  setAccent('A');
+  const verdicts=DIMS.map((_,d)=>axisVerdict(A,B,d));
+  // felt friction per axis: average of the two partners' answers to that axis item
+  const relOf=(P,axis)=>{const idx=REL.findIndex(r=>r.axis===axis);return P.rel&&P.rel[idx]!=null?P.rel[idx]:null;};
+  const fr=verdicts.map(v=>{
+    const a=relOf(A,v.d), b=relOf(B,v.d), known=a!=null&&b!=null;
+    const avg=known?(a+b)/2:0, asym=known&&Math.abs(a-b)>=2;
+    return {v,avg,read:frictionRead(v,avg,asym)};
+  });
+  // attention ordering: felt friction and measured gap both raise priority
+  fr.sort((x,y)=>(y.avg/4*.55+y.v.ps.pGap*.45)-(x.avg/4*.55+x.v.ps.pGap*.45));
+  const satA=A.rel?A.rel[0]:null, satB=B.rel?B.rel[0]:null;
+  const lowSat=satA!=null&&satB!=null&&satA<=1&&satB<=1;
+  const lzA=A.lz, lzB=B.lz;
+  const flags=[];
+  if(A.nAsk>=8&&lzA<-1.65)flags.push(`${esc(A.name)}'s answers didn't fit any single profile well <span class="mn">(lz ${lzA.toFixed(2)})</span> — often genuine mixedness, sometimes answering from different life contexts. Read their side more loosely.`);
+  if(B.nAsk>=8&&lzB<-1.65)flags.push(`${esc(B.name)}'s answers didn't fit any single profile well <span class="mn">(lz ${lzB.toFixed(2)})</span> — read their side more loosely.`);
+
+  const trk=(v)=>{
+    const px=mu=>Math.max(1.5,Math.min(96.5,(mu+3)/6*100));
+    const bandA=[Math.max(0,(v.muA-v.sdA+3)/6*100),Math.min(100,(v.muA+v.sdA+3)/6*100)];
+    const bandB=[Math.max(0,(v.muB-v.sdB+3)/6*100),Math.min(100,(v.muB+v.sdB+3)/6*100)];
+    return `<div class="trk2">
+      <div class="lane a"><div class="bnd" style="left:${bandA[0]}%;width:${bandA[1]-bandA[0]}%"></div><div class="mk" style="left:${px(v.muA)}%"></div></div>
+      <div class="mid"></div>
+      <div class="lane b"><div class="bnd" style="left:${bandB[0]}%;width:${bandB[1]-bandB[0]}%"></div><div class="mk" style="left:${px(v.muB)}%"></div></div>
+    </div>
+    <div class="ends"><span>${v.D.lo}</span><span>${v.D.hi}</span></div>`;
+  };
+  const chipCls={'felt & measured':'diff','measured, not felt':'diff','measured':'diff','felt, not measured':'',
+                 'aligned & quiet':'same','felt · unresolved':'','unresolved':''};
+
+  $('main').innerHTML=`
+    <span class="eyebrow">The joint report · no score, on purpose</span>
+    <div class="duo"><span class="nm a">${esc(A.name)}</span><span class="amp sf">&</span><span class="nm b">${esc(B.name)}</span></div>
+    <p class="note" style="margin-top:4px">Two measured profiles and a translation layer. Decades of couple research agree on one thing worth repeating here: <b>how similar two personalities are barely predicts how happy the couple is</b> — what predicts it is how the two of you handle the differences you have. So there is no compatibility percentage below. There's something more useful: where you actually sit apart, whether you feel it, and how to read each other across each gap. Lines are ordered by how much attention they deserve right now.</p>
+    ${lowSat?`<div class="flag"><b>Before the details.</b> You both rated the relationship low on the happiness item. A personality report can name frictions, but it is not the tool for that — a good couples therapist is. Read on for the translation layer, and take this flag seriously.</div>`:''}
+    ${flags.map(f=>`<div class="flag"><b>Consistency flag.</b> ${f}</div>`).join('')}
+
+    ${fr.map(({v,read})=>`<section class="axis">
+      <div class="ah"><span><b>${v.D.n}</b> <span class="aq sf">${v.D.q}</span></span>
+        <span class="vchip ${chipCls[read.chip]||''}">${read.chip}</span></div>
+      ${trk(v)}
+      <p class="fr">${v.kind==='diff'
+          ? `<b>${pct(v.ps.pGap)} chance this is a genuine difference.</b>`
+          : v.kind==='same'
+          ? `Likely similar — only <b>${pct(v.ps.pGap)}</b> chance of a real gap.`
+          : `Not resolved — <b>${pct(v.ps.pGap)}</b> chance of a real gap; more certainty would need longer interviews.`}
+        ${read.txt}</p>
+      ${(()=>{const cs=axisCards(v,A,B);return cs.length?`<div class="cards">${cs.map(c=>
+        `<div class="sug ${c.cls}"><span class="to">${c.to}</span>${c.html}</div>`).join('')}</div>`:'';})()}
+    </section>`).join('')}
+
+    <details>
+      <summary>How this works, what the words mean, and what it can't tell you</summary>
+      <div class="body">
+        <p><b>Each of you was measured separately</b> by the same adaptive interview: one probability distribution per person over a four-dimensional temperament space (about 194,000 cells), updated by every answer, with questions chosen for whichever dimension was least resolved and three honest stopping rules — settled, genuinely balanced, or no further signal. Forced-choice pairs are matched on how flattering they sound, which is what resists answering as the person you'd like to be.</p>
+        <p><b>The four lines</b> are the classic temperament dichotomies — energy, information, decisions, structure — reported as positions on continua rather than as letters or types, because the letters flatten exactly the thing a couple needs: how far from the midline each of you actually sits, and how sure the measurement is. A marker near the midline with a tight band is a real result that no four-letter label can carry.</p>
+        <p><b>The space between</b> is computed from both distributions at once: the percentage shown per line is the probability that your two positions genuinely differ by a lived-experience margin, not a comparison of two point scores. The relationship questions are never averaged into a score — they only tell the report whether each measured gap is also a <i>felt</i> gap, which changes what the gap means.</p>
+        <p><b>Why no compatibility number:</b> dyadic studies that follow real couples (actor–partner interdependence and response-surface designs) find personality similarity explains roughly 0.1–0.6% of the variance in relationship well-being once each person's own temperament is accounted for — and where fit does matter, it depends on the specific combination of levels, not on matching. Any single number would be theatre. The useful output is the translation layer — advice about reading each other, not a verdict about whether you should be together.</p>
+        <p><b>Two-device mode</b> exchanges one short code between phones. The code carries each profile's summarised positions and uncertainty on the four lines plus the five relationship answers — never the question-by-question answers — and both phones compute the identical report locally. Nothing is sent anywhere.</p>
+        <p><b>The honest limitation:</b> item parameters are principled estimates, not values calibrated on a normed sample, and everything here is self-report from inside the relationship on one particular day. Treat the report as a well-structured conversation starter with its uncertainty shown — not a psychometric verdict, and not counselling.</p>
+      </div>
+    </details>
+    ${SESS.mode==='duo'?`<p class="note" style="margin-top:16px">Your partner still needs your code? <span class="mn" style="word-break:break-all">${packProfile(profileOf(SESS.A))}</span></p>`:''}
+    <div class="qfoot"><button class="btn ghost" id="again">Start over with a fresh pair</button>
+      <span>Retaking it a month from now tells you more than rereading it.</span></div>`;
+  $('again').onclick=start;
+  drawSteps('done');
+  say(`<b>Joint report issued</b> after ${A.nAsk}+${B.nAsk} interview questions and ${REL.length*2} relationship items.`);
+  if(SESS.mode!=='loaded')postHost({type:'report',nameA:A.name,nameB:B.name,codeA:packProfile(A),codeB:packProfile(B)});
+}
+
+/* ---- start ---- */
+function start(){
+  SESS=null;CUR=null;
+  clearLog('Nothing measured yet.');
+  drawSteps('A');
+  $('status').textContent='ready';
+  $('main').style.setProperty('--ac','var(--p1)');$('main').style.setProperty('--acs','var(--p1-soft)');
+  $('main').innerHTML=`
+    <span class="eyebrow">Before you start</span>
+    <p class="lede sf" style="margin-top:10px">Two short adaptive interviews — taken separately, hidden from each other until the end — a handful of questions about the relationship itself, then one joint report: where you genuinely sit apart, whether you feel it, and how to read each other across the gaps. <b>No score. No verdict. No letters.</b></p>
+    <span class="eyebrow" style="display:block;margin-top:16px">One device or two?</span>
+    <div class="rig" style="grid-template-columns:repeat(2,1fr)" role="radiogroup" aria-label="Mode">
+      <button role="radio" aria-checked="true" aria-pressed="true" data-m="pass"><b>One device</b><small>Pass this device back and forth; the report appears at the end.</small></button>
+      <button role="radio" aria-checked="false" aria-pressed="false" data-m="duo"><b>Two devices</b><small>Each of you runs this page on your own phone, then you swap short codes to unlock the same joint report on both.</small></button>
+    </div>
+    <div class="names">
+      <label><span id="na-label">Partner one</span><input id="na" maxlength="18" placeholder="First name" autocomplete="off"></label>
+      <label id="nb-wrap"><span>Partner two</span><input id="nb" maxlength="18" placeholder="First name" autocomplete="off"></label>
+    </div>
+    <span class="eyebrow" style="display:block;margin-top:14px">How sure should each interview be?</span>
+    <div class="rig" role="radiogroup" aria-label="Rigor">
+      ${Object.entries(RIGOR).map(([k,r])=>`<button role="radio" aria-checked="${k==='quick'}" aria-pressed="${k==='quick'}" data-r="${k}">
+        <b>${r.label}</b><small>${r.blurb}</small></button>`).join('')}
+    </div>
+    <button class="btn" id="go">Begin — partner one first</button>
+    <p class="note">Answer for the average of your life, not for today — and answer as yourself, not as the partner you suspect you're supposed to be. The other's answers stay hidden until the joint report.</p>`;
+  let rk='quick', md='pass';
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rk=b.dataset.r;
+    document.querySelectorAll('[data-r]').forEach(x=>{x.setAttribute('aria-pressed',x===b);x.setAttribute('aria-checked',x===b);});});
+  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{md=b.dataset.m;
+    document.querySelectorAll('[data-m]').forEach(x=>{x.setAttribute('aria-pressed',x===b);x.setAttribute('aria-checked',x===b);});
+    $('nb-wrap').style.display=md==='duo'?'none':'';
+    $('na-label').textContent=md==='duo'?'Your first name':'Partner one';
+    $('go').textContent=md==='duo'?'Begin — just you':'Begin — partner one first';});
+  $('go').onclick=()=>{
+    const na=($('na').value.trim()||(md==='duo'?'Me':'Partner one')).slice(0,18);
+    if(md==='duo'){
+      SESS={mode:'duo',A:newPerson(na,RIGOR[rk])};
+      clearLog(`<b>${esc(na)} started on this device.</b> Your partner runs the same page on theirs — order doesn't matter. ${RIGOR[rk].label}: settle each dimension at ${pct(RIGOR[rk].thr)}, ceiling ${RIGOR[rk].budget} questions.`);
+    }else{
+      const nb=($('nb').value.trim()||'Partner two').slice(0,18);
+      SESS={mode:'pass',A:newPerson(na,RIGOR[rk]),B:newPerson(nb,RIGOR[rk])};
+      clearLog(`<b>${esc(na)} started.</b> ${RIGOR[rk].label}: settle each dimension at ${pct(RIGOR[rk].thr)}, ceiling ${RIGOR[rk].budget} questions each. ${BLOCKS.length} candidate blocks.`);
+    }
+    stepInterview('A');
+  };
+}
+start();
+postHost({type:'ready'});
+</script>

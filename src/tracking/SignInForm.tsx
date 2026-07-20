@@ -3,9 +3,15 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface SignInFormProps {
   supabase: SupabaseClient;
+  title?: string;
+  subtitle?: string;
 }
 
-export function SignInForm({ supabase }: SignInFormProps) {
+export function SignInForm({
+  supabase,
+  title = "Project tracking",
+  subtitle = "Sign in with the private tracker account.",
+}: SignInFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +35,8 @@ export function SignInForm({ supabase }: SignInFormProps) {
         <div className="tracking-wordmark">
           DELAPAN<span>_8</span>
         </div>
-        <h1>Project tracking</h1>
-        <p>Sign in with the private tracker account.</p>
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
 
         <label>
           Email
