@@ -248,12 +248,3 @@ select.inp {
   }
 }
 
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 6px 2px rgba(217, 119, 6, 0.45);
-  }
-  50% {
-    box-shadow: 0 0 16px 5px rgba(217, 119, 6, 0.7);
-  }
-}
