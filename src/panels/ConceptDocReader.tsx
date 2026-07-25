@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import * as api from "../api/client";
-import { typeColor } from "../graph/colors";
+import { typeColor, typeGlyph } from "../graph/colors";
 import { graph } from "../graph/graphStore";
 import { buildConceptDoc, type ConceptDoc } from "../okf/conceptDoc";
 import { renderMarkdown, safeHref } from "../okf/markdown";
@@ -167,7 +167,9 @@ export function ConceptDocReader() {
               {doc.related.map((r, i) => (
                 <button key={`${r.neighborId}-${i}`} className="ins-endpoint" onClick={() => navigateConcept(r.neighborId)}>
                   <span className="okf-rel mono">{r.direction === "out" ? r.relation : `← ${r.relation}`}</span>
-                  <span className="type-dot" style={{ background: typeColor(r.neighborType) }} />
+                  <span className="type-mark" style={{ color: typeColor(r.neighborType) }}>
+                    {typeGlyph(r.neighborType)}
+                  </span>
                   {r.neighborLabel}
                   <span className="arrow" style={{ marginLeft: "auto" }}>
                     →
