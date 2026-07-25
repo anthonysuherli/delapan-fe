@@ -10,6 +10,7 @@
  */
 
 import { mockApi } from "./mock";
+import { getSupabaseClient } from "../tracking/supabaseClient";
 import {
   ApiError,
   type ConceptDocResponse,
@@ -31,6 +32,18 @@ import {
 
 const env = import.meta.env as Record<string, string | undefined>;
 const BASE = env.VITE_API_BASE ?? "http://127.0.0.1:8001";
+
+/** Bearer header for the current Supabase session, or {} when signed out.
+ *  Read fresh per request — supabase-js auto-refreshes the access token. */
+export async function authHeaders(): Promise<Record<string, string>> {
+  try {
+    const { data } = await getSupabaseClient().auth.getSession();
+    const token = data.session?.access_token;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+}
 
 export type ApiMode = "live" | "mock";
 
@@ -59,8 +72,8 @@ function isNetworkError(err: unknown): boolean {
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...init,
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
   });
   if (!res.ok) {
     let detail = res.statusText;
@@ -226,7 +239,7 @@ async function* liveExplore(
 ): AsyncGenerator<ExploreEvent> {
   const res = await fetch(`${BASE}${kbPath(project, kb)}/explore`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(body),
   });
   if (!res.ok || !res.body) throw new ApiError(res.status, res.statusText);
