@@ -11,6 +11,7 @@
 
 import { mockApi } from "./mock";
 import { getSupabaseClient } from "../tracking/supabaseClient";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   ApiError,
   type ConceptDocResponse,
@@ -43,6 +44,12 @@ export async function authHeaders(): Promise<Record<string, string>> {
   } catch {
     return {};
   }
+}
+
+/** A 401 means the JWT is missing/expired/invalid — drop the session so the
+ *  AuthGate re-renders the login screen. Fire-and-forget; never rethrow here. */
+export function on401SignOut(status: number, client: Pick<SupabaseClient, "auth">): void {
+  if (status === 401) void client.auth.signOut();
 }
 
 export type ApiMode = "live" | "mock";
@@ -83,6 +90,7 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       /* keep statusText */
     }
+    on401SignOut(res.status, getSupabaseClient());
     throw new ApiError(res.status, detail);
   }
   if (res.status === 204) return undefined as T;

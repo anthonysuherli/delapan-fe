@@ -5,7 +5,7 @@ vi.mock("../tracking/supabaseClient", () => ({
   getSupabaseClient: () => ({ auth: { getSession } }),
 }));
 
-import { authHeaders } from "./client";
+import { authHeaders, on401SignOut } from "./client";
 
 describe("authHeaders", () => {
   beforeEach(() => vi.resetAllMocks());
@@ -23,5 +23,18 @@ describe("authHeaders", () => {
   it("never throws when the client is unconfigured", async () => {
     getSession.mockRejectedValue(new Error("not configured"));
     expect(await authHeaders()).toEqual({});
+  });
+});
+
+describe("on401SignOut", () => {
+  it("calls signOut only for 401", async () => {
+    const signOut = vi.fn().mockResolvedValue({ error: null });
+    // @ts-expect-error partial client for test
+    on401SignOut(401, { auth: { signOut } });
+    expect(signOut).toHaveBeenCalledOnce();
+    signOut.mockReset();
+    // @ts-expect-error partial client for test
+    on401SignOut(500, { auth: { signOut } });
+    expect(signOut).not.toHaveBeenCalled();
   });
 });
