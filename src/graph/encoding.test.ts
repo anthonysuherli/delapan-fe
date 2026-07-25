@@ -81,4 +81,20 @@ describe("channel assignment is stable", () => {
     );
     expect(known.has(typeColor("some-new-type"))).toBe(false);
   });
+
+  it("memoizes dynamically assigned types across repeated lookups", () => {
+    const type = "unknown-dynamic-type";
+    const firstColor = typeColor(type);
+    const firstGlyph = typeGlyph(type);
+
+    // Verify it lands in a real ring slot, not remainder
+    expect(firstColor).not.toBe(REST_COLOR);
+    expect(firstGlyph).not.toBe(REST_GLYPH);
+
+    // Verify repeated lookups return the same memoized values
+    for (let i = 0; i < 5; i++) {
+      expect(typeColor(type)).toBe(firstColor);
+      expect(typeGlyph(type)).toBe(firstGlyph);
+    }
+  });
 });
