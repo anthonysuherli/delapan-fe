@@ -153,24 +153,10 @@
   height: 7px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: blink 1.8s ease-in-out infinite;
 }
 
 .sb-dot--mock {
-  background: var(--accent);
-  box-shadow: 0 0 6px var(--accent);
-  animation: blink 2.4s ease-in-out infinite;
-}
-
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
+  background: var(--chrome-accent);
 }
 
 .sb-mock-badge {

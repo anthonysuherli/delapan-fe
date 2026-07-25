@@ -177,7 +177,6 @@
   background: rgba(220, 38, 38, 0.06);
   border: 1px dashed rgba(220, 38, 38, 0.4);
   border-radius: var(--radius);
-  animation: blink 2.4s ease-in-out infinite;
 }
 
 /* synopsis */

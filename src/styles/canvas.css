@@ -182,7 +182,6 @@
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #fbbf6e, var(--accent-bright) 60%, #92400e);
   border: 1.5px solid #92400e;
-  animation: pulse-glow 1.6s ease-in-out infinite;
   z-index: 12;
 }
 
@@ -192,19 +191,6 @@
   inset: -7px;
   border: 1px solid rgba(180, 83, 9, 0.5);
   border-radius: 50%;
-  animation: avatar-ring 1.6s ease-in-out infinite;
-}
-
-@keyframes avatar-ring {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.25);
-    opacity: 0.25;
-  }
 }
 
 /* neighbor hotkey badges */
