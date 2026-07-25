@@ -1,7 +1,13 @@
 /* the console — post-login home. Hairlines, no shadows, 4px grid, flush left. */
 
 .cons {
-  min-height: 100vh;
+  /* base.css sets `body { overflow: hidden }` for the full-screen graph app,
+     and that propagates to the viewport — so a full-page surface has to do its
+     own scrolling or its lower half is simply unreachable. Same shape as
+     .tracking-shell. height:100% rather than 100vh also dodges mobile Safari
+     counting the URL bar. */
+  height: 100%;
+  overflow: auto;
   background: var(--bg0);
   color: var(--text);
 }

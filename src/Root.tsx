@@ -17,6 +17,19 @@ import { SignInForm } from "./tracking/SignInForm";
 import { getSupabaseClient } from "./tracking/supabaseClient";
 import { TrackingApp } from "./tracking/TrackingApp";
 
+/**
+ * Built once, at module scope. ConfiguredRoot re-renders on every auth event —
+ * and supabase-js fires SIGNED_IN on tab refocus — so constructing this inside
+ * the render body would mint a new <App/> each time and destroy React's
+ * reference-equality bailout, re-rendering the whole graph panel on every
+ * alt-tab. main.tsx built it at module scope before this branch; keep that.
+ */
+const PANEL = (
+  <AuthGate>
+    <App />
+  </AuthGate>
+);
+
 export function Root() {
   // Mirrors AuthGate's own guard: getSupabaseClient() throws when the env vars
   // are absent, and that must render a message rather than a white screen.
@@ -38,13 +51,7 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
-  if (surface === "panel") {
-    return (
-      <AuthGate>
-        <App />
-      </AuthGate>
-    );
-  }
+  if (surface === "panel") return PANEL;
 
   // "/" — wait for the session to resolve before choosing, so an already
   // signed-in visitor never sees the sign-in form flash.
