@@ -988,3 +988,18 @@
   letter-spacing: 0.08em;
   color: var(--text-faint);
 }
+
+/* honesty of materials: name what a figure IS. emitted = extracted from a real
+   source; derived = computed from findings; projected = an estimate. */
+.prov {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.lr-verdict-glyph {
+  margin-right: var(--u);
+}

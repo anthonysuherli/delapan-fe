@@ -142,7 +142,8 @@ function NodeInspector({ id }: { id: string }) {
 
       <div className="sect">
         <h2 className="sect-title">
-          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>{" "}
+          <span className="prov">emitted</span>
         </h2>
         <EvidenceList ids={attrs.grounded_in} />
       </div>
@@ -279,7 +280,8 @@ function EdgeInspector({ id }: { id: string }) {
 
       <div className="sect">
         <h2 className="sect-title">
-          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>{" "}
+          <span className="prov">emitted</span>
         </h2>
         <EvidenceList ids={attrs.grounded_in} />
       </div>
@@ -493,7 +495,11 @@ export function EvidenceList({ ids }: { ids: string[] }) {
   }, [ids, fetchFinding]);
 
   if (ids.length === 0) {
-    return <div className="placeholder">ungrounded — no evidence attached</div>;
+    return (
+      <div className="placeholder">
+        ungrounded — no evidence attached <span className="prov">unattributed</span>
+      </div>
+    );
   }
 
   return (
