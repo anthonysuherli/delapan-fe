@@ -250,7 +250,10 @@ async function* liveExplore(
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(body),
   });
-  if (!res.ok || !res.body) throw new ApiError(res.status, res.statusText);
+  if (!res.ok || !res.body) {
+    if (res.status === 401) on401SignOut(res.status, getSupabaseClient());
+    throw new ApiError(res.status, res.statusText);
+  }
 
   const reader = res.body.getReader();
   const decoder = new TextDecoder();

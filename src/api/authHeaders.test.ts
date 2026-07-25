@@ -1,7 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const { getSession, state } = vi.hoisted(() => ({
+const { getSession, signOut, state } = vi.hoisted(() => ({
   getSession: vi.fn(),
+  signOut: vi.fn().mockResolvedValue({ error: null }),
   state: { throwOnGetClient: false },
 }));
 vi.mock("../tracking/supabaseClient", () => ({
@@ -9,11 +10,11 @@ vi.mock("../tracking/supabaseClient", () => ({
     if (state.throwOnGetClient) {
       throw new Error("Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to use /tracking.");
     }
-    return { auth: { getSession } };
+    return { auth: { getSession, signOut } };
   },
 }));
 
-import { authHeaders, on401SignOut, getProjects } from "./client";
+import { authHeaders, on401SignOut, getProjects, explore } from "./client";
 import { ApiError } from "./types";
 
 describe("authHeaders", () => {
@@ -71,6 +72,35 @@ describe("http() non-401 errors", () => {
       expect((error as ApiError).status).toBe(500);
     } finally {
       state.throwOnGetClient = false;
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
+describe("explore() 401", () => {
+  it("signs out and rejects with ApiError on a 401 from the explore SSE stream", async () => {
+    getSession.mockResolvedValue({ data: { session: null } });
+    signOut.mockClear();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+        body: null,
+      }),
+    );
+    try {
+      let error: unknown;
+      try {
+        await explore("p", "k", { prompt: "x" }).next();
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).status).toBe(401);
+      expect(signOut).toHaveBeenCalledOnce();
+    } finally {
       vi.unstubAllGlobals();
     }
   });
