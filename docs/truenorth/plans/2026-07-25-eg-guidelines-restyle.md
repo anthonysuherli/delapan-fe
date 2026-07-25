@@ -274,10 +274,10 @@ The hexes now live in two places — `encoding.ts` (for TS) and `tokens.css` (fo
 
 ```ts
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 
 describe("tokens.css mirrors the module", () => {
-  const css = readFileSync(join(__dirname, "../styles/tokens.css"), "utf8");
+  // package.json is "type": "module" — __dirname does not exist here.
+  const css = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
 
   it("declares one --data-N token per ring slot, in order", () => {
     RING.forEach((hue, i) => {
@@ -454,14 +454,23 @@ git commit -m "refactor(tokens): split into chrome/data/state layers, amber leav
 ### Task 3: Render the glyph on the canvas
 
 **Files:**
-- Modify: `src/graph/canvasDraw.ts` (whole file, 59 lines)
-- Modify: `src/graph/GraphCanvas.tsx` (pass `nodeType` through to the label renderer)
+- Modify: `src/graph/canvasDraw.ts` (whole file, 59 lines) — **this is the only file this task touches**
 
 **Interfaces:**
 - Consumes: `typeGlyph` from `../graph/encoding`.
 - Produces: nothing new; `drawNodeLabel` / `drawNodeHover` keep their sigma-required signatures.
 
-Sigma passes the node's *display* data to the label renderer, which does not include our custom `nodeType`. `drawNodeLabel` therefore reads it off the same object — sigma's `nodeReducer` output is spread into display data, so returning `nodeType` from the reducer makes it available here.
+**`nodeType` already arrives — do not edit `GraphCanvas.tsx`.** Verified against the installed
+sigma bundle (`node_modules/sigma/dist/sigma.esm.js:2239`), which calls:
+
+```js
+drawLabel(context, _objectSpread2(_objectSpread2({ key: node }, data), {}, { size, x, y }), this.settings)
+```
+
+where `data` is `nodeDataCache[node]` — the `nodeReducer`'s return value. Our reducer opens with
+`const out: Partial<NodeDisplayData> = { ...data };` (`GraphCanvas.tsx:64`), spreading every
+graphology node attribute, `nodeType` included. So the field is already on the object handed to the
+label renderer; only the **type** needs widening on our side. No reducer change, no `as` cast.
 
 - [ ] **Step 1: Widen the label data type and draw the glyph**
 
@@ -548,25 +557,15 @@ export function drawNodeHover<N extends Attributes, E extends Attributes, G exte
 
 The two literal hexes that were inline (`"#465a70"`, `"#b45309"`) are now named constants at the top of the module, and the hover stroke falls back to ink rather than to chrome amber — a hover ring is not a brand surface.
 
-- [ ] **Step 2: Pass `nodeType` through the reducer**
-
-In `src/graph/GraphCanvas.tsx`, find the `nodeReducer` (starts at **line 62**). It returns a `Partial<NodeDisplayData>`. Add `nodeType` to every returned object so the label renderer can read it. The minimal edit is to spread it into the base return — locate the reducer's `return { ... }` statements and ensure each includes:
-
-```ts
-nodeType: data.nodeType,
-```
-
-If the reducer has a single return with conditional spreads, add the line once at the top level of the returned object literal. Do **not** change any other reducer field — selection, hover, and travel styling stay exactly as they are.
-
-- [ ] **Step 3: Type-check**
+- [ ] **Step 2: Type-check**
 
 ```bash
 npm run build
 ```
 
-Expected: PASS. If `nodeType` is rejected as not assignable to `Partial<NodeDisplayData>`, cast the reducer's return with `as Partial<NodeDisplayData>` at that single site — sigma's display type is closed, and this is the documented way to carry an extra field to a custom renderer.
+Expected: PASS, with no edit to `GraphCanvas.tsx`.
 
-- [ ] **Step 4: Verify visually**
+- [ ] **Step 3: Verify visually**
 
 ```bash
 npm run dev
@@ -574,10 +573,10 @@ npm run dev
 
 Open `http://localhost:5173`. Every node label must read as `<glyph> <name>` — e.g. `■ some-concept`. Hover a node: the card shows the same glyph. **Judgement call:** if the glyph is illegible noise at default zoom, fall back to a bracketed letter code (`[c]`, `[t]`) by changing `withGlyph` only — the rest of the plan is unaffected. Record which you chose in the commit message.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add src/graph/canvasDraw.ts src/graph/GraphCanvas.tsx
+git add src/graph/canvasDraw.ts
 git commit -m "feat(canvas): prefix node labels with the type glyph"
 ```
 
