@@ -1,0 +1,147 @@
+/* the console — post-login home. Hairlines, no shadows, 4px grid, flush left. */
+
+.cons {
+  min-height: 100vh;
+  background: var(--bg0);
+  color: var(--text);
+}
+
+.cons-head {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u4) var(--u6);
+  border-bottom: 1px solid var(--line);
+}
+
+.cons-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.cons-wordmark {
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  color: var(--brand-ink);
+}
+
+.cons-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+
+.cons-body {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: var(--u8) var(--u6);
+}
+
+.cons-greet {
+  margin: 0 0 var(--u6);
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+.cons-resume {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u);
+  padding: var(--u4) var(--u6);
+  margin-bottom: var(--u8);
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--chrome-accent);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms, background 120ms;
+}
+
+.cons-resume:hover {
+  background: var(--bg2);
+}
+
+.cons-resume-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.cons-resume-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.cons-section {
+  margin: 0 0 var(--u3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.cons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--u4);
+  margin-bottom: var(--u8);
+}
+
+.cons-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u);
+  padding: var(--u4);
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms, background 120ms;
+}
+
+.cons-tile:hover {
+  background: var(--bg2);
+  border-color: var(--line-bright);
+}
+
+.cons-tile-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cons-tile-ext {
+  color: var(--text-faint);
+}
+
+.cons-tile-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.cons-account {
+  padding-top: var(--u6);
+  border-top: 1px solid var(--line);
+}
+
+.cons-account-email {
+  margin: 0 0 var(--u3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
