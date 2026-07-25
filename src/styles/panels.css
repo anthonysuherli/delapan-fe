@@ -75,6 +75,9 @@
   min-width: 11px;
   font-size: 10px;
   line-height: 1;
+  /* centres the glyph inside its own fixed box so legend rows align — this is
+     glyph alignment, not prose alignment, so the flush-left rule does not apply. */
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
@@ -305,6 +308,7 @@
 
 .lr-phase-tick {
   width: 8px;
+  text-align: center;
 }
 
 /* --- inspector --------------------------------------------------------------- */
