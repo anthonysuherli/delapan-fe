@@ -37,6 +37,12 @@ Three concrete violations, all found in the live code:
    infinite), `pulse-glow` and `avatar-ring` (1.6s infinite) are perpetual attention magnets.
    `prefers-reduced-motion` is correctly honored in `motion.css` — but calm technology says *never
    blinking, badging*, which applies to users who have set no preference at all.
+4. **Brand amber encodes a data threshold.** `panels.css:893` —
+   `.fv-bar--verified i { background: var(--accent); }` colors the findings confidence histogram's
+   verified bars with the brand hue. This is violation 1 again on a second surface, and it is
+   also color-alone: the `VERIFIED_MIN` threshold is legible only if you can distinguish amber
+   from `--line-bright` grey. *(Found during planning, 2026-07-25 — the spec originally
+   mis-described this file as carrying type references, which it does not.)*
 
 ## Non-goals
 
@@ -115,6 +121,11 @@ Amber survives on the canvas in exactly one place: the **selection ring**. The g
 this explicitly ("selection uses accent stroke/outline, never a data hue") — it is chrome
 indicating *what the user picked*, not an encoding of what the node *is*.
 
+**The findings histogram (violation 4) is fixed the same way.** `.fv-bar--verified` moves off
+`var(--accent)` onto `--state-rich`, and the `VERIFIED_MIN` boundary gains a 1px dashed threshold
+rule plus a mono axis tick — the guideline's "reference lines only where they encode a threshold."
+The verified region then reads from *position* as well as hue, so it survives hue collapse.
+
 `--focus` gains a proper token at `#2283E2` for the 2px focus ring, distinct from both chrome amber
 and `--data-1` blue.
 
@@ -144,7 +155,7 @@ Consumers, all rendering the same `(color, glyph)` pair:
   no new dependency and no shader work.
 - `src/panels/LeftRail.tsx` — legend rows gain the glyph beside the swatch, plus the remainder line.
 - `src/panels/Inspector.tsx` — type chips gain the glyph.
-- `src/panels/FindingsView.tsx` — type references gain the glyph.
+- `src/panels/FindingsView.tsx` — **no type references here**; see violation 4 below.
 
 ---
 
@@ -228,7 +239,7 @@ environment:
 | `src/graph/canvasDraw.ts` | glyph prefix in label + hover; tokenize the two hex fallbacks |
 | `src/panels/LeftRail.tsx` | legend glyphs, remainder line, coverage-band glyph, provenance tags |
 | `src/panels/Inspector.tsx` | type chips gain glyphs; provenance tag on `grounded_in` |
-| `src/panels/FindingsView.tsx` | type glyphs; emitted/unattributed tag |
+| `src/panels/FindingsView.tsx` | verified threshold rule + axis tick (violation 4) |
 | `src/panels/StatusBar.tsx` | static dot, tabular numerals |
 | `src/styles/panels.css` | grid snap, hairlines, tabular-nums, glyph/tag styles |
 | `src/styles/layout.css` | rail deference, grid snap, blink removal |
