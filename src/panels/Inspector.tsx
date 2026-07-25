@@ -142,8 +142,11 @@ function NodeInspector({ id }: { id: string }) {
 
       <div className="sect">
         <h2 className="sect-title">
-          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>{" "}
-          <span className="prov">emitted</span>
+          Evidence
+          <span className="sect-meta">
+            <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+            {attrs.grounded_in.length > 0 && <span className="prov">emitted</span>}
+          </span>
         </h2>
         <EvidenceList ids={attrs.grounded_in} />
       </div>
@@ -280,8 +283,11 @@ function EdgeInspector({ id }: { id: string }) {
 
       <div className="sect">
         <h2 className="sect-title">
-          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>{" "}
-          <span className="prov">emitted</span>
+          Evidence
+          <span className="sect-meta">
+            <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+            {attrs.grounded_in.length > 0 && <span className="prov">emitted</span>}
+          </span>
         </h2>
         <EvidenceList ids={attrs.grounded_in} />
       </div>

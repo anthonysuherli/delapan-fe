@@ -1022,6 +1022,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* keep a provenance tag beside the figure it qualifies: .sect-title and
+   .lr-verdict-band are space-between rows tuned for two children, so the
+   subject and its tag are grouped rather than flung to opposite edges. */
+.sect-meta,
+.lr-verdict-lead {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--u);
+}
+
+.lr-verdict-lead {
+  gap: var(--u2);
+}
+
 .lr-verdict-glyph {
   margin-right: var(--u);
 }

@@ -333,15 +333,17 @@ function CoverageProbe() {
       {state.kind === "done" && (
         <div key={state.preamble} className="lr-verdict dlpn-in-rise">
           <div className={`lr-verdict-band ${state.coverage}`}>
-            <span className="lr-verdict-glyph">
-              {state.coverage === "rich" ? "●" : state.coverage === "sparse" ? "▲" : "■"}
+            <span className="lr-verdict-lead">
+              <span className="lr-verdict-glyph">
+                {state.coverage === "rich" ? "●" : state.coverage === "sparse" ? "▲" : "■"}
+              </span>
+              {state.coverage}
+              <small>
+                {state.coverage === "rich" && "KB can answer"}
+                {state.coverage === "sparse" && "partial grounding"}
+                {state.coverage === "gap" && "needs exploration"}
+              </small>
             </span>
-            {state.coverage}
-            <small>
-              {state.coverage === "rich" && "KB can answer"}
-              {state.coverage === "sparse" && "partial grounding"}
-              {state.coverage === "gap" && "needs exploration"}
-            </small>
             <span className="prov">projected</span>
           </div>
           <pre className="lr-preamble">{state.preamble}</pre>
