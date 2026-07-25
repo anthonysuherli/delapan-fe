@@ -9,6 +9,7 @@ import {
   RING,
   channelCount,
   isRemainder,
+  primeChannels,
   resetAssignments,
   typeColor,
   typeGlyph,
@@ -152,5 +153,51 @@ describe("tokens.css mirrors the module", () => {
     const dataTokens = [...tokensCss.matchAll(/--data-[\w-]+:\s*([^;]+);/g)].map((m) => m[1]!.trim());
     expect(dataTokens.length).toBeGreaterThan(0);
     for (const value of dataTokens) expect(value).toMatch(/^#[0-9a-f]{6}$/i);
+  });
+});
+
+describe("the colour ring goes to types that exist", () => {
+  it("never spends a slot on an absent default type", () => {
+    // Regression: BASE_SLOT used to reserve 5 of 6 slots unconditionally, so a
+    // domain KB with none of the default types got ONE hue and the rest grey.
+    primeChannels({
+      component: 39, data_table: 16, constraint: 12,
+      config_knob: 9, tool: 9, api_endpoint: 9, pipeline_phase: 6,
+    });
+    const coloured = ["component", "data_table", "constraint", "config_knob", "tool", "api_endpoint"];
+    for (const t of coloured) expect(isRemainder(t), `${t} should have its own hue`).toBe(false);
+    expect(new Set(coloured.map(typeColor)).size).toBe(coloured.length);
+  });
+
+  it("gives the scarce hues to the most frequent types", () => {
+    primeChannels({ rare: 1, common: 500, mid: 50 });
+    expect(typeColor("common")).toBe(RING[0]);
+    expect(typeColor("mid")).toBe(RING[1]);
+  });
+
+  it("still gives a stock KB its canonical colours", () => {
+    primeChannels({ concept: 14, technology: 12, company: 6, person: 4, project: 4 });
+    expect(typeColor("concept")).toBe(RING[0]);
+    expect(typeColor("technology")).toBe(RING[1]);
+    expect(typeColor("person")).toBe(RING[2]);
+    expect(typeColor("company")).toBe(RING[3]);
+    expect(typeColor("project")).toBe(RING[4]);
+  });
+
+  it("does not leak assignments across a KB switch", () => {
+    primeChannels({ alpha: 10, beta: 5 });
+    const alphaHue = typeColor("alpha");
+    primeChannels({ gamma: 10, delta: 5 });
+    // gamma is now the most frequent type, so it takes the first slot alpha held
+    expect(typeColor("gamma")).toBe(alphaHue);
+    expect(isRemainder("gamma")).toBe(false);
+  });
+
+  it("keeps a distinct glyph for every type past the colour cap", () => {
+    const counts: Record<string, number> = {};
+    for (let i = 0; i < 12; i++) counts[`t-${i}`] = 12 - i;
+    primeChannels(counts);
+    const glyphs = Object.keys(counts).map(typeGlyph);
+    expect(new Set(glyphs).size).toBe(glyphs.length);
   });
 });

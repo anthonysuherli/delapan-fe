@@ -4,11 +4,19 @@
 
 import type { GraphResponse } from "../api/types";
 import { typeColor, EDGE_COLOR } from "./colors";
+import { primeChannels } from "./encoding";
 import { graph, graphTouched, refreshNodeSizes } from "./graphStore";
 import { runLayout } from "./layout";
 
 export function buildGraph(data: GraphResponse): void {
   graph.clear();
+  // Hand the colour ring to this KB's own types, most frequent first, before
+  // anything looks one up. Without this the ring is spent on whichever types
+  // happen to be seen first, and stale assignments leak across a KB switch.
+  const typeCounts: Record<string, number> = {};
+  for (const n of data.nodes) typeCounts[n.type] = (typeCounts[n.type] ?? 0) + 1;
+  primeChannels(typeCounts);
+
   for (const n of data.nodes) {
     graph.addNode(n.id, {
       label: n.label,

@@ -48,7 +48,13 @@ export const REST_GLYPH = "○";
  */
 export const REST_GLYPHS: readonly string[] = ["○", "△", "□", "◈", "✦", "✚", "◌", "◐"];
 
-/** Fixed slots, so the panel looks the same on every boot. */
+/**
+ * Preferred slots for delapan's default ontology, so a stock KB looks the same
+ * on every boot. These are PREFERENCES, not reservations: a slot is only spent
+ * when the type is actually present. Reserving them unconditionally starved
+ * every domain KB — a schema of component/data_table/constraint/... would find
+ * five of six hues already taken and render almost entirely in remainder grey.
+ */
 const BASE_SLOT: Record<string, number> = {
   concept: 0,
   technology: 1,
@@ -60,20 +66,47 @@ const BASE_SLOT: Record<string, number> = {
 const REMAINDER = -1;
 
 const assigned = new Map<string, number>();
-let nextSlot = Object.keys(BASE_SLOT).length;
+const takenSlots = new Set<number>();
 
 const remainderAssigned = new Map<string, number>();
 let nextRemainderSlot = 0;
 
-function slotOf(type: string): number {
-  const base = BASE_SLOT[type];
-  if (base !== undefined) return base;
-  let slot = assigned.get(type);
-  if (slot === undefined) {
-    slot = nextSlot < RING.length ? nextSlot++ : REMAINDER;
-    assigned.set(type, slot);
-  }
+function claim(type: string, slot: number): number {
+  assigned.set(type, slot);
+  if (slot !== REMAINDER) takenSlots.add(slot);
   return slot;
+}
+
+function slotOf(type: string): number {
+  const existing = assigned.get(type);
+  if (existing !== undefined) return existing;
+
+  const preferred = BASE_SLOT[type];
+  if (preferred !== undefined && !takenSlots.has(preferred)) return claim(type, preferred);
+
+  for (let slot = 0; slot < RING.length; slot++) {
+    if (!takenSlots.has(slot)) return claim(type, slot);
+  }
+  return claim(type, REMAINDER);
+}
+
+/**
+ * Hand the colour ring to the types that actually exist, most frequent first,
+ * so the scarce hues land on what dominates the graph and the remainder holds
+ * the long tail. Types present in BASE_SLOT go first so a stock KB keeps its
+ * canonical colours. Call once per graph load, before any typeColor lookup.
+ */
+export function primeChannels(typeCounts: Record<string, number>): void {
+  resetAssignments();
+  const types = Object.keys(typeCounts);
+  const base = types
+    .filter((t) => BASE_SLOT[t] !== undefined)
+    .sort((a, b) => BASE_SLOT[a]! - BASE_SLOT[b]!);
+  const rest = types
+    .filter((t) => BASE_SLOT[t] === undefined)
+    // count desc, then name asc so the assignment is stable across reloads
+    .sort((a, b) => typeCounts[b]! - typeCounts[a]! || a.localeCompare(b));
+  for (const t of [...base, ...rest]) slotOf(t);
 }
 
 /** Stable, wrapping glyph slot for a type that has overflowed the colour ring. */
@@ -110,7 +143,7 @@ export function channelCount(): number {
 /** Test-only: Vitest keeps module state across cases in a file. */
 export function resetAssignments(): void {
   assigned.clear();
-  nextSlot = Object.keys(BASE_SLOT).length;
+  takenSlots.clear();
   remainderAssigned.clear();
   nextRemainderSlot = 0;
 }
