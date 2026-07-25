@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  background: var(--bg1);
+  background: var(--bg0);
   border-right: 1px solid var(--line);
 }
 
@@ -39,12 +39,12 @@
 .lr-stats-counts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--u2);
   margin-bottom: 10px;
 }
 
 .lr-counter {
-  padding: 8px 10px;
+  padding: var(--u2) 10px;
   background: var(--bg0);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -75,7 +75,6 @@
   min-width: 11px;
   font-size: 10px;
   line-height: 1;
-  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
@@ -85,11 +84,12 @@
   font-size: 9px;
   letter-spacing: 0.06em;
   color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .lr-legend {
   display: grid;
-  gap: 4px;
+  gap: var(--u);
 }
 
 .lr-legend-row {
@@ -119,7 +119,7 @@
   margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--u);
 }
 
 .lr-relation {
@@ -149,7 +149,7 @@
 }
 
 .lr-schema-block h4 {
-  margin: 0 0 4px;
+  margin: 0 0 var(--u);
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.14em;
@@ -160,7 +160,7 @@
 .lr-schema-types {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--u);
 }
 
 .lr-drift {
@@ -170,7 +170,7 @@
 
 .lr-drift-note {
   margin-top: 6px;
-  padding: 5px 8px;
+  padding: 5px var(--u2);
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--red);
@@ -217,7 +217,7 @@
 }
 
 .lr-verdict {
-  margin-top: 8px;
+  margin-top: var(--u2);
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--line);
@@ -257,7 +257,7 @@
   max-height: 140px;
   overflow-y: auto;
   margin: 0;
-  padding: 8px 10px;
+  padding: var(--u2) 10px;
   font-family: var(--font-mono);
   font-size: 10px;
   line-height: 1.55;
@@ -268,7 +268,7 @@
 }
 
 .lr-probe-err {
-  margin-top: 8px;
+  margin-top: var(--u2);
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--red);
@@ -277,7 +277,7 @@
 /* explore */
 
 .lr-explore-log {
-  margin-top: 8px;
+  margin-top: var(--u2);
   display: grid;
   gap: 2px;
 }
@@ -305,7 +305,6 @@
 
 .lr-phase-tick {
   width: 8px;
-  text-align: center;
 }
 
 /* --- inspector --------------------------------------------------------------- */
@@ -330,7 +329,7 @@
 }
 
 .ins-empty h3 {
-  margin: 0 0 12px;
+  margin: 0 0 var(--u3);
   font-family: var(--font-display);
   font-size: 16px;
   font-weight: 600;
@@ -348,17 +347,17 @@
 .ins-key-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--u2);
   font-size: 11px;
 }
 
 .ins-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
+  gap: var(--u2);
+  padding: var(--u3);
   border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--bg2), transparent);
+  background: var(--bg2);
 }
 
 .ins-kind {
@@ -392,8 +391,8 @@
   display: grid;
   grid-template-columns: 64px 1fr;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--u2);
+  margin-bottom: var(--u2);
 }
 
 .ins-row > label {
@@ -409,7 +408,7 @@
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 4px 8px;
+  padding: var(--u) var(--u2);
   font-size: 12px;
   text-align: left;
   color: var(--text);
@@ -431,13 +430,13 @@
 
 .ins-props {
   display: grid;
-  gap: 4px;
+  gap: var(--u);
 }
 
 .ins-prop-row {
   display: grid;
   grid-template-columns: 90px 1fr 20px;
-  gap: 4px;
+  gap: var(--u);
   align-items: center;
 }
 
@@ -463,7 +462,7 @@
 }
 
 .ins-prop-add {
-  margin-top: 4px;
+  margin-top: var(--u);
 }
 
 /* evidence list */
@@ -472,7 +471,7 @@
   display: block;
   width: 100%;
   text-align: left;
-  padding: 8px 9px;
+  padding: var(--u2) 9px;
   margin-bottom: 6px;
   background: var(--bg0);
   border: 1px solid var(--line);
@@ -488,16 +487,17 @@
   font-size: 11.5px;
   font-weight: 500;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: var(--u);
 }
 
 .ev-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--u2);
   font-family: var(--font-mono);
   font-size: 9px;
   color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .ev-conf {
@@ -525,7 +525,7 @@
 .ins-actions {
   display: flex;
   gap: 6px;
-  padding: 12px;
+  padding: var(--u3);
   border-top: 1px solid var(--line);
   background: var(--bg1);
 }
@@ -536,13 +536,14 @@
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .ins-bulk-form {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 5px;
-  margin-top: 8px;
+  margin-top: var(--u2);
 }
 
 /* --- finding drawer ----------------------------------------------------------- */
@@ -618,8 +619,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--u2);
+  margin-bottom: var(--u3);
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-dim);
@@ -640,11 +641,11 @@
 }
 
 .drawer-prov {
-  margin-top: 16px;
+  margin-top: var(--u4);
 }
 
 .drawer-prov h4 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--u2);
   font-family: var(--font-display);
   font-size: 12px;
   font-weight: 600;
@@ -681,7 +682,7 @@
 }
 
 .drawer-actions {
-  padding: 12px 14px;
+  padding: var(--u3) 14px;
   border-top: 1px solid var(--line);
 }
 
@@ -718,7 +719,7 @@
 .modal-head {
   display: flex;
   align-items: center;
-  padding: 12px 14px;
+  padding: var(--u3) 14px;
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 700;
@@ -736,7 +737,7 @@
 
 .modal-row {
   display: grid;
-  gap: 4px;
+  gap: var(--u);
 }
 
 .modal-row > label {
@@ -750,8 +751,8 @@
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 14px;
+  gap: var(--u2);
+  padding: var(--u3) 14px;
   border-top: 1px solid var(--line);
 }
 
@@ -764,7 +765,7 @@
   z-index: 200;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--u2);
   max-width: 360px;
 }
 
@@ -772,7 +773,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 9px var(--u3);
   font-size: 12px;
   background: var(--bg2);
   border: 1px solid var(--line-bright);
@@ -806,7 +807,7 @@
 }
 
 .toast .btn {
-  padding: 2px 8px;
+  padding: 2px var(--u2);
   font-size: 10px;
 }
 
@@ -821,30 +822,30 @@
 
 /* ── OKF concept-doc reader ─────────────────────────────────────────── */
 .okf-reader { width: min(640px, 94vw); }
-.okf-head-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.okf-head-left { display: flex; align-items: center; gap: var(--u2); min-width: 0; }
 .okf-title { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .okf-lede { font-size: 14px; line-height: 1.5; margin: 0 0 10px; }
-.okf-toolbar { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
-.okf-switch { display: flex; gap: 4px; }
-.btn--on { outline: 1px solid var(--accent, #b45309); }
-.okf-stale { font-size: 11px; color: var(--accent, #b45309); margin: 4px 0 8px; }
-.okf-rel { min-width: 108px; font-size: 10px; color: var(--text-faint, #8595a9); }
+.okf-toolbar { display: flex; gap: var(--u2); align-items: center; margin: 10px 0; }
+.okf-switch { display: flex; gap: var(--u); }
+.btn--on { outline: 1px solid var(--accent); }
+.okf-stale { font-size: 11px; color: var(--accent); margin: var(--u) 0 var(--u2); }
+.okf-rel { min-width: 108px; font-size: 10px; color: var(--text-faint); }
 .okf-props { width: 100%; font-size: 12px; }
 .okf-props td { padding: 2px 0; vertical-align: top; }
-.okf-prop-k { color: var(--text-faint, #8595a9); padding-right: 12px; white-space: nowrap; }
+.okf-prop-k { color: var(--text-faint); padding-right: var(--u3); white-space: nowrap; }
 .okf-finding { display: block; width: 100%; text-align: left; cursor: pointer; color: inherit;
-  border: none; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px;
+  border: none; border-radius: 6px; padding: var(--u2) 10px; margin-bottom: 6px;
   background: rgba(127, 127, 127, 0.08); }
 .okf-finding:hover { background: rgba(127, 127, 127, 0.16); }
 .okf-finding-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
-.okf-finding-body { font-size: 12px; color: var(--text-faint, #8595a9); margin-bottom: 6px; line-height: 1.45; }
+.okf-finding-body { font-size: 12px; color: var(--text-faint); margin-bottom: 6px; line-height: 1.45; }
 .okf-prose { font-size: 13px; line-height: 1.55; }
 .okf-prose h2 { font-size: 14px; margin: 14px 0 6px; }
-.okf-prose h3 { font-size: 13px; margin: 12px 0 4px; }
-.okf-prose p { margin: 0 0 8px; }
-.okf-prose ul, .okf-prose ol { margin: 0 0 8px 18px; }
+.okf-prose h3 { font-size: 13px; margin: var(--u3) 0 var(--u); }
+.okf-prose p { margin: 0 0 var(--u2); }
+.okf-prose ul, .okf-prose ol { margin: 0 0 var(--u2) 18px; }
 .okf-prose code { font-family: var(--font-mono, monospace); font-size: 12px; }
-.okf-prose pre { overflow: auto; padding: 8px; border-radius: 6px; background: rgba(127, 127, 127, 0.14); }
+.okf-prose pre { overflow: auto; padding: var(--u2); border-radius: 6px; background: rgba(127, 127, 127, 0.14); }
 
 /* --- findings trust view ------------------------------------------------- */
 
@@ -860,8 +861,8 @@
 .fv-head {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 10px 12px 6px;
+  gap: var(--u2);
+  padding: 10px var(--u3) 6px;
 }
 
 .fv-head .sect-title {
@@ -870,14 +871,14 @@
 }
 
 .fv-error {
-  margin: 12px;
+  margin: var(--u3);
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--red);
 }
 
 .fv-empty {
-  padding: 18px 12px;
+  padding: 18px var(--u3);
 }
 
 .fv-hist {
@@ -960,9 +961,9 @@
   display: grid;
   grid-template-columns: 54px 34px 1fr auto;
   align-items: center;
-  gap: 8px;
+  gap: var(--u2);
   width: 100%;
-  padding: 5px 12px;
+  padding: 5px var(--u3);
   text-align: left;
   font-size: 12px;
   color: var(--text);

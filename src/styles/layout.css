@@ -17,9 +17,9 @@
 .tb {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 12px;
-  background: linear-gradient(180deg, var(--bg2), var(--bg1));
+  gap: var(--u3);
+  padding: 0 var(--u3);
+  background: var(--bg1);
   border-bottom: 1px solid var(--line);
 }
 
@@ -27,7 +27,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  margin-right: 4px;
+  margin-right: var(--u);
   user-select: none;
 }
 
@@ -91,7 +91,7 @@
 .tb-search-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--u2);
   width: 100%;
   padding: 6px 10px;
   text-align: left;
@@ -123,7 +123,7 @@
   width: 1px;
   height: 20px;
   background: var(--line);
-  margin: 0 4px;
+  margin: 0 var(--u);
 }
 
 /* --- status bar ------------------------------------------------------------ */
@@ -132,7 +132,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 0 12px;
+  padding: 0 var(--u3);
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-dim);
@@ -184,7 +184,7 @@
 .sb-history {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--u);
 }
 
 .sb-history .btn {
@@ -227,7 +227,6 @@
   font-family: var(--font-mono);
   font-size: 12px;
   max-width: 480px;
-  text-align: center;
 }
 
 .tb-seg {
@@ -238,7 +237,7 @@
 }
 
 .tb-seg-btn {
-  padding: 4px 10px;
+  padding: var(--u) 10px;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.08em;
