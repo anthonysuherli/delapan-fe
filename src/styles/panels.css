@@ -910,11 +910,33 @@
 }
 
 .fv-bar--verified i {
-  background: var(--accent);
+  background: var(--state-rich);
 }
 
 .fv-bar--muted i {
   opacity: 0.3;
+}
+
+/* the VERIFIED_MIN boundary — a reference line that ENCODES A THRESHOLD, which
+   is the only kind of rule the data-ink budget pays for. */
+.fv-threshold {
+  position: absolute;
+  top: 0;
+  bottom: 18px;
+  width: 0;
+  border-left: 1px dashed var(--line-bright);
+  pointer-events: none;
+}
+
+.fv-threshold span {
+  position: absolute;
+  bottom: -16px;
+  left: 2px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .fv-axis {

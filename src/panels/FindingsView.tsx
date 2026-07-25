@@ -143,6 +143,12 @@ function Histogram({
         <span>confidence</span>
         <span>1.0</span>
       </div>
+      <div
+        className="fv-threshold"
+        style={{ left: `calc(12px + (100% - 24px) * ${VERIFIED_MIN})` }}
+      >
+        <span>{VERIFIED_MIN.toFixed(2)} verified</span>
+      </div>
     </div>
   );
 }
