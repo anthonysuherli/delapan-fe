@@ -1,13 +1,30 @@
 /**
  * Custom 2D-canvas draw functions for sigma labels/hover — the hover card is
  * tinted to the instrument-panel theme instead of sigma's stock styling.
+ *
+ * The label carries the node's TYPE GLYPH before its text. That glyph is the
+ * second encoding channel: hue alone fails colour-vision-deficient readers.
  */
 
 import type { Attributes } from "graphology-types";
 import type { Settings } from "sigma/settings";
 import type { NodeDisplayData, PartialButFor } from "sigma/types";
+import { typeGlyph } from "./encoding";
 
-type LabelData = PartialButFor<NodeDisplayData, "x" | "y" | "size" | "label" | "color">;
+type LabelData = PartialButFor<NodeDisplayData, "x" | "y" | "size" | "label" | "color"> & {
+  nodeType?: string;
+};
+
+const INK = "#465a70";
+const INK_STRONG = "#1f2b3a";
+const CARD_FILL = "rgba(255, 255, 255, 0.95)";
+const GLYPH_GAP = 4;
+
+/** "▲ label", or just "label" when the node has no type. */
+function withGlyph(data: LabelData): string {
+  const glyph = data.nodeType ? typeGlyph(data.nodeType) : "";
+  return glyph ? `${glyph} ${data.label}` : String(data.label);
+}
 
 export function drawNodeLabel<N extends Attributes, E extends Attributes, G extends Attributes>(
   context: CanvasRenderingContext2D,
@@ -17,8 +34,8 @@ export function drawNodeLabel<N extends Attributes, E extends Attributes, G exte
   if (!data.label) return;
   const size = settings.labelSize;
   context.font = `${settings.labelWeight} ${size}px ${settings.labelFont}`;
-  context.fillStyle = "#465a70";
-  context.fillText(data.label, data.x + data.size + 5, data.y + size / 3);
+  context.fillStyle = INK;
+  context.fillText(withGlyph(data), data.x + data.size + GLYPH_GAP + 1, data.y + size / 3);
 }
 
 export function drawNodeHover<N extends Attributes, E extends Attributes, G extends Attributes>(
@@ -28,16 +45,17 @@ export function drawNodeHover<N extends Attributes, E extends Attributes, G exte
 ): void {
   if (!data.label) return;
   const size = settings.labelSize;
+  const text = withGlyph(data);
   context.font = `${settings.labelWeight} ${size}px ${settings.labelFont}`;
-  const width = context.measureText(data.label).width;
-  const x = data.x + data.size + 5;
+  const width = context.measureText(text).width;
+  const x = data.x + data.size + GLYPH_GAP + 1;
   const y = data.y;
   const padX = 6;
   const padY = 5;
 
   context.beginPath();
-  context.fillStyle = "rgba(255, 255, 255, 0.95)";
-  context.strokeStyle = data.color ?? "#b45309";
+  context.fillStyle = CARD_FILL;
+  context.strokeStyle = data.color ?? INK;
   context.lineWidth = 1;
   const rx = x - padX;
   const ry = y - size / 2 - padY;
@@ -53,6 +71,6 @@ export function drawNodeHover<N extends Attributes, E extends Attributes, G exte
   context.fill();
   context.stroke();
 
-  context.fillStyle = "#1f2b3a";
-  context.fillText(data.label, x, y + size / 3);
+  context.fillStyle = INK_STRONG;
+  context.fillText(text, x, y + size / 3);
 }
