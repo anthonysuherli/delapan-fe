@@ -935,7 +935,10 @@
 .fv-threshold span {
   position: absolute;
   bottom: -16px;
-  left: 2px;
+  /* hangs to the LEFT of the rule: anchored right, it would collide with the
+     axis's "1.0" at the far edge, since the threshold sits at 0.90. */
+  right: 2px;
+  text-align: right;
   font-family: var(--font-mono);
   font-size: 9px;
   color: var(--text-faint);
@@ -993,7 +996,7 @@
 }
 
 .fv-conf--verified i {
-  background: var(--accent);
+  background: var(--state-rich);
 }
 
 .fv-conf-n {
