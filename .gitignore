@@ -28,3 +28,6 @@ yarn-error.log*
 *.sw?
 .vercel
 .env*
+
+# truenorth SDD scratch (progress ledger, briefs, review packages)
+.truenorth/

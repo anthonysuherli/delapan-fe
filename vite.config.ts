@@ -22,5 +22,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
+    // encoding.test.ts imports tokens.css?raw to assert the CSS tokens still
+    // mirror the TS palette. Vitest blanks CSS imports by default, which would
+    // make that drift test pass vacuously against an empty string.
+    css: true,
   },
 });

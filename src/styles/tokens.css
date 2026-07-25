@@ -1,7 +1,13 @@
 /* delapan control panel — design tokens
    daylight instrument-panel: cool paper, hairline rules, amber annunciators.
    Ink/accent pairs hold WCAG contrast on --bg0: --text ~13:1, --text-dim ~5:1,
-   --accent (amber-700) ~4.6:1; --text-faint is decorative-only. */
+   --chrome-accent (amber-700) ~4.6:1; --text-faint is decorative-only.
+
+   THREE LAYERS, and the prefix is the rule:
+     --chrome-*  brand. Top bar, active markers, selection ring. NEVER data.
+     --data-*    categorical channels. Paired with a glyph in graph/encoding.ts.
+     --state-*   coverage banding only. Never decoration.
+   A --chrome-* token on a data surface is a bug; encoding.test.ts enforces it. */
 
 :root {
   /* type */
@@ -21,21 +27,55 @@
   --text: #1f2b3a;
   --text-dim: #55677c;
   --text-faint: #8595a9;
+  --text-canvas: #465a70; /* sigma label ink */
 
-  /* annunciators */
-  --accent: #b45309;
-  --accent-bright: #d97706;
-  --accent-dim: rgba(180, 83, 9, 0.1);
+  /* chrome — brand only, never a data encoding */
+  --chrome-accent: #b45309;
+  --chrome-accent-bright: #d97706;
+  --chrome-accent-dim: rgba(180, 83, 9, 0.1);
+  --chrome-accent-deep: #92400e;
+  --chrome-accent-pale: #fbbf6e;
+
+  /* legacy aliases — 44 existing call sites; new code uses --chrome-* */
+  --accent: var(--chrome-accent);
+  --accent-bright: var(--chrome-accent-bright);
+  --accent-dim: var(--chrome-accent-dim);
+
+  /* data — CVD-safe categorical ring, mirrors RING in graph/encoding.ts.
+     Okabe-Ito orange/vermillion excluded (collide with chrome amber);
+     yellow excluded (illegible on --bg0). Capped: overflow → --data-rest. */
+  --data-1: #0072B2;
+  --data-2: #009E73;
+  --data-3: #CC79A7;
+  --data-4: #762A83;
+  --data-5: #0E7490;
+  --data-6: #56B4E9;
+  --data-rest: #8595a9;
+
+  /* state — coverage banding, always paired with a glyph + text label */
+  --state-rich: #15803d;
+  --state-sparse: #b45309;
+  --state-gap: #dc2626;
+
+  /* legacy aliases for the coverage trio */
+  --rich: var(--state-rich);
+  --sparse: var(--state-sparse);
+  --gap: var(--state-gap);
+
+  /* signals */
   --green: #15803d;
   --red: #dc2626;
   --cyan: #0e7490;
+  --focus: #2283e2;
 
-  /* coverage verdicts */
-  --rich: #15803d;
-  --sparse: #b45309;
-  --gap: #dc2626;
+  /* geometry — 4px base unit; every gap/pad is a multiple */
+  --u: 4px;
+  --u2: 8px;
+  --u3: 12px;
+  --u4: 16px;
+  --u6: 24px;
+  --u8: 32px;
 
-  /* geometry */
   --rail-w: 268px;
   --inspector-w: 336px;
   --topbar-h: 48px;

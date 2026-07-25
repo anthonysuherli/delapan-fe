@@ -21,17 +21,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* faint film grain over everything (slow drift added in motion.css) */
-body::after {
-  content: "";
-  position: fixed;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
-}
-
 ::selection {
   background: var(--accent-dim);
   color: var(--accent-bright);
@@ -76,7 +65,7 @@ button {
   background: var(--bg2);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  transition: color 120ms, border-color 120ms, background 120ms, box-shadow 120ms;
+  transition: color 120ms, border-color 120ms, background 120ms;
   white-space: nowrap;
 }
 
@@ -98,14 +87,12 @@ button {
 .btn--accent:hover:not(:disabled) {
   color: var(--accent-bright);
   border-color: var(--accent);
-  box-shadow: 0 0 12px rgba(180, 83, 9, 0.14);
 }
 
 .btn--active {
   color: var(--accent);
   background: var(--accent-dim);
   border-color: var(--accent);
-  box-shadow: 0 0 14px rgba(180, 83, 9, 0.16), inset 0 0 8px rgba(180, 83, 9, 0.06);
 }
 
 .btn--danger:hover:not(:disabled) {
@@ -125,7 +112,7 @@ button {
 
 .inp {
   width: 100%;
-  padding: 5px 8px;
+  padding: 5px var(--u2);
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--text);
@@ -133,7 +120,7 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   outline: none;
-  transition: border-color 120ms, box-shadow 120ms;
+  transition: border-color 120ms;
 }
 
 .inp::placeholder {
@@ -142,7 +129,6 @@ button {
 
 .inp:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(180, 83, 9, 0.25);
 }
 
 select.inp {
@@ -151,6 +137,15 @@ select.inp {
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 22px;
+}
+
+/* keyboard-focus ring: a 2px outline, not a hue change, so focus is visible
+   without depending on colour discrimination. :focus-visible only (not on
+   mouse click). Wins over `.inp { outline: none; }` on specificity. */
+.btn:focus-visible,
+.inp:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
 }
 
 /* --- small bits ---------------------------------------------------------- */
@@ -198,14 +193,14 @@ select.inp {
 
 .sect {
   border-bottom: 1px solid var(--line);
-  padding: 10px 12px 12px;
+  padding: 10px var(--u3) var(--u3);
 }
 
 .sect-title {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin: 0 0 8px;
+  margin: 0 0 var(--u2);
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 600;
@@ -224,6 +219,7 @@ select.inp {
   letter-spacing: 0;
   text-transform: none;
   color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .placeholder {
@@ -248,12 +244,3 @@ select.inp {
   }
 }
 
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 6px 2px rgba(217, 119, 6, 0.45);
-  }
-  50% {
-    box-shadow: 0 0 16px 5px rgba(217, 119, 6, 0.7);
-  }
-}

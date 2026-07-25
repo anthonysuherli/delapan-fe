@@ -3,7 +3,7 @@
  */
 
 import { useMemo, useState } from "react";
-import { typeColor } from "../graph/colors";
+import { typeColor, typeGlyph } from "../graph/colors";
 import { graph, graphTouched } from "../graph/graphStore";
 import { runLayout } from "../graph/layout";
 import { useStore } from "../state/store";
@@ -176,7 +176,9 @@ function GraphSearch() {
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => pick(m)}
             >
-              <span className="type-dot" style={{ background: typeColor(m.type) }} />
+              <span className="type-mark" style={{ color: typeColor(m.type) }}>
+                {typeGlyph(m.type)}
+              </span>
               {m.label}
               <span className="tb-search-type">{m.type}</span>
             </button>

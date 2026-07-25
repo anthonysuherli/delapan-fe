@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { typeColor } from "../graph/colors";
+import { typeColor, typeGlyph } from "../graph/colors";
 import { graph } from "../graph/graphStore";
 import { knownTypes } from "../state/derive";
 import {
@@ -91,7 +91,9 @@ function NodeInspector({ id }: { id: string }) {
   return (
     <>
       <div className="ins-header">
-        <span className="type-dot" style={{ background: typeColor(attrs.nodeType) }} />
+        <span className="type-mark" style={{ color: typeColor(attrs.nodeType) }}>
+          {typeGlyph(attrs.nodeType)}
+        </span>
         <span className="ins-kind">Node</span>
         <span className="ins-id mono" title={id}>
           {id}
@@ -140,7 +142,11 @@ function NodeInspector({ id }: { id: string }) {
 
       <div className="sect">
         <h2 className="sect-title">
-          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+          Evidence
+          <span className="sect-meta">
+            <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+            {attrs.grounded_in.length > 0 && <span className="prov">emitted</span>}
+          </span>
         </h2>
         <EvidenceList ids={attrs.grounded_in} />
       </div>
@@ -277,7 +283,11 @@ function EdgeInspector({ id }: { id: string }) {
 
       <div className="sect">
         <h2 className="sect-title">
-          Evidence <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+          Evidence
+          <span className="sect-meta">
+            <span className="sect-aux">{attrs.grounded_in.length} finding(s)</span>
+            {attrs.grounded_in.length > 0 && <span className="prov">emitted</span>}
+          </span>
         </h2>
         <EvidenceList ids={attrs.grounded_in} />
       </div>
@@ -310,7 +320,9 @@ function EndpointButton({ role, id }: { role: string; id: string }) {
           requestFly(id);
         }}
       >
-        <span className="type-dot" style={{ background: typeColor(attrs.nodeType) }} />
+        <span className="type-mark" style={{ color: typeColor(attrs.nodeType) }}>
+          {typeGlyph(attrs.nodeType)}
+        </span>
         {attrs.label}
         <span className="arrow" style={{ marginLeft: "auto" }}>
           ↗
@@ -489,7 +501,11 @@ export function EvidenceList({ ids }: { ids: string[] }) {
   }, [ids, fetchFinding]);
 
   if (ids.length === 0) {
-    return <div className="placeholder">ungrounded — no evidence attached</div>;
+    return (
+      <div className="placeholder">
+        ungrounded — no evidence attached <span className="prov">unattributed</span>
+      </div>
+    );
   }
 
   return (

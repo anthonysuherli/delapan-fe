@@ -33,26 +33,26 @@
 }
 
 .cv-frame--tl {
-  top: 8px;
-  left: 8px;
+  top: var(--u2);
+  left: var(--u2);
   border-right: none;
   border-bottom: none;
 }
 .cv-frame--tr {
-  top: 8px;
-  right: 8px;
+  top: var(--u2);
+  right: var(--u2);
   border-left: none;
   border-bottom: none;
 }
 .cv-frame--bl {
-  bottom: 8px;
-  left: 8px;
+  bottom: var(--u2);
+  left: var(--u2);
   border-right: none;
   border-top: none;
 }
 .cv-frame--br {
-  bottom: 8px;
-  right: 8px;
+  bottom: var(--u2);
+  right: var(--u2);
   border-left: none;
   border-top: none;
 }
@@ -99,7 +99,7 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-  padding: 4px 12px;
+  padding: var(--u) var(--u3);
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.06em;
@@ -180,9 +180,8 @@
   height: 14px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fbbf6e, var(--accent-bright) 60%, #92400e);
-  border: 1.5px solid #92400e;
-  animation: pulse-glow 1.6s ease-in-out infinite;
+  background: radial-gradient(circle at 35% 30%, var(--chrome-accent-pale), var(--accent-bright) 60%, var(--chrome-accent-deep));
+  border: 1.5px solid var(--chrome-accent-deep);
   z-index: 12;
 }
 
@@ -192,19 +191,6 @@
   inset: -7px;
   border: 1px solid rgba(180, 83, 9, 0.5);
   border-radius: 50%;
-  animation: avatar-ring 1.6s ease-in-out infinite;
-}
-
-@keyframes avatar-ring {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.25);
-    opacity: 0.25;
-  }
 }
 
 /* neighbor hotkey badges */
@@ -294,8 +280,8 @@
 
 .hud {
   position: absolute;
-  left: 12px;
-  bottom: 12px;
+  left: var(--u3);
+  bottom: var(--u3);
   z-index: 20;
   width: 230px;
   background: rgba(255, 255, 255, 0.95);
@@ -352,7 +338,7 @@
 .hud-stop {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--u2);
   width: 100%;
   padding: 3px 10px;
   font-size: 11px;
@@ -376,6 +362,7 @@
   width: 18px;
   flex: none;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .hud-stop-label {

@@ -35,7 +35,7 @@ There is no lint step and no formatter config — match the surrounding style. `
 | Graph rendering, sigma config, reducers, events | `src/graph/GraphCanvas.tsx` |
 | Node/edge attributes, the graphology instance | `src/graph/graphStore.ts` |
 | Layout (ForceAtlas2, seeding) | `src/graph/layout.ts` |
-| Type colors | `src/graph/colors.ts` |
+| Type colors and glyphs | `src/graph/encoding.ts` |
 | Keyboard shortcuts | `src/state/useHotkeys.ts` |
 | Travel mode | `src/travel/` |
 | A side panel | `src/panels/<Panel>.tsx` |
@@ -63,7 +63,7 @@ There is no lint step and no formatter config — match the surrounding style. `
 
 - TypeScript strict throughout; prefer explicit wire types from `src/api/types.ts`.
 - Pure derivations over the graphology instance go in `src/state/derive.ts` — keep them side-effect free.
-- The visual language is a dark "instrument panel": amber annunciators, IBM Plex Mono/Sans, Big Shoulders Display wordmark. Use the CSS variables in `tokens.css`; don't hard-code colors.
+- The visual language is a daylight "instrument panel": cool paper, hairline rules, amber annunciators, IBM Plex Mono/Sans, Big Shoulders Display wordmark. Tokens live in `tokens.css` in three layers — `--chrome-*` (brand; never a data encoding), `--data-*` (CVD-safe categorical channels, always paired with a glyph from `src/graph/encoding.ts`), `--state-*` (coverage banding). Don't hard-code colors, and don't encode anything by hue alone — `src/graph/encoding.test.ts` enforces both.
 - Tests live next to the code as `*.test.ts` and run under Vitest in a `node` environment (no DOM). The current suite covers undo/redo (`src/state/undo.test.ts`) — extend it when you change command/undo logic.
 
 ## Backend
