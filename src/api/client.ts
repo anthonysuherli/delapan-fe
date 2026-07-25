@@ -90,7 +90,7 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       /* keep statusText */
     }
-    on401SignOut(res.status, getSupabaseClient());
+    if (res.status === 401) on401SignOut(res.status, getSupabaseClient());
     throw new ApiError(res.status, detail);
   }
   if (res.status === 204) return undefined as T;
