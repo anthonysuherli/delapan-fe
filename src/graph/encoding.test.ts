@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   CHROME,
@@ -96,5 +97,29 @@ describe("channel assignment is stable", () => {
       expect(typeColor(type)).toBe(firstColor);
       expect(typeGlyph(type)).toBe(firstGlyph);
     }
+  });
+});
+
+describe("tokens.css mirrors the module", () => {
+  // package.json is "type": "module" — __dirname does not exist here.
+  const css = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
+
+  it("declares one --data-N token per ring slot, in order", () => {
+    RING.forEach((hue, i) => {
+      const declared = new RegExp(`--data-${i + 1}:\\s*${hue};`, "i").test(css);
+      expect(declared, `--data-${i + 1} should be ${hue}`).toBe(true);
+    });
+  });
+
+  it("declares the remainder channel", () => {
+    expect(new RegExp(`--data-rest:\\s*${REST_COLOR};`, "i").test(css)).toBe(true);
+  });
+
+  it("keeps chrome amber out of every --data-* token", () => {
+    const dataTokens = [...css.matchAll(/--data-[\w-]+:\s*([^;]+);/g)].map((m) =>
+      m[1]!.trim().toLowerCase(),
+    );
+    expect(dataTokens.length).toBeGreaterThan(0);
+    for (const hue of CHROME) expect(dataTokens).not.toContain(hue.toLowerCase());
   });
 });
