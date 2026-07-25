@@ -175,7 +175,7 @@ function StatsSection() {
       {typeEntries.some(([type]) => isRemainder(type)) && (
         <div className="lr-remainder">
           {typeEntries.filter(([type]) => isRemainder(type)).length} further type(s) share the
-          remainder channel
+          remainder colour (each keeps its own glyph)
         </div>
       )}
       {relEntries.length > 0 && (

@@ -5,6 +5,7 @@ import {
   GLYPHS,
   REST_COLOR,
   REST_GLYPH,
+  REST_GLYPHS,
   RING,
   channelCount,
   isRemainder,
@@ -44,8 +45,28 @@ describe("the ring is capped and reports its remainder", () => {
     expect(rest.length).toBeGreaterThan(0);
     for (const t of rest) {
       expect(typeColor(t)).toBe(REST_COLOR);
-      expect(typeGlyph(t)).toBe(REST_GLYPH);
     }
+  });
+
+  it("gives two distinct overflow types different glyphs while sharing REST_COLOR", () => {
+    const overflow: string[] = [];
+    for (let i = 0; i < RING.length + 2; i++) overflow.push(`o-${i}`);
+    overflow.forEach((t) => typeColor(t));
+    const [a, b] = overflow.filter(isRemainder);
+    expect(a).toBeDefined();
+    expect(b).toBeDefined();
+    expect(typeColor(a!)).toBe(REST_COLOR);
+    expect(typeColor(b!)).toBe(REST_COLOR);
+    expect(typeGlyph(a!)).not.toBe(typeGlyph(b!));
+  });
+
+  it("keeps an overflow type's glyph stable across repeated lookups", () => {
+    const overflow: string[] = [];
+    for (let i = 0; i < RING.length + 3; i++) overflow.push(`s-${i}`);
+    overflow.forEach((t) => typeColor(t));
+    const t = overflow.filter(isRemainder)[0]!;
+    const glyph = typeGlyph(t);
+    for (let i = 0; i < 5; i++) expect(typeGlyph(t)).toBe(glyph);
   });
 });
 
@@ -63,6 +84,12 @@ describe("no channel is colour-only", () => {
     for (const t of ["concept", "person", "wildcard", "another"]) {
       expect(typeGlyph(t).length).toBeGreaterThan(0);
     }
+  });
+
+  it("gives the overflow ring at least 6 glyphs, all distinct from GLYPHS", () => {
+    expect(REST_GLYPHS.length).toBeGreaterThanOrEqual(6);
+    expect(new Set([...GLYPHS, ...REST_GLYPHS]).size).toBe(GLYPHS.length + REST_GLYPHS.length);
+    expect(REST_GLYPHS[0]).toBe(REST_GLYPH);
   });
 });
 
@@ -119,5 +146,11 @@ describe("tokens.css mirrors the module", () => {
     );
     expect(dataTokens.length).toBeGreaterThan(0);
     for (const hue of CHROME) expect(dataTokens).not.toContain(hue.toLowerCase());
+  });
+
+  it("gives every --data-* token a literal 6-digit hex colour, not an alias", () => {
+    const dataTokens = [...tokensCss.matchAll(/--data-[\w-]+:\s*([^;]+);/g)].map((m) => m[1]!.trim());
+    expect(dataTokens.length).toBeGreaterThan(0);
+    for (const value of dataTokens) expect(value).toMatch(/^#[0-9a-f]{6}$/i);
   });
 });

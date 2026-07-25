@@ -39,6 +39,15 @@ export const GLYPHS: readonly string[] = ["■", "▲", "●", "◆", "▬", "�
 export const REST_COLOR = "#8595a9";
 export const REST_GLYPH = "○";
 
+/**
+ * Overflow glyphs. The colour ring is capped (distinct legible, CVD-safe hues
+ * are scarce) but shapes are cheap, so every overflow type still gets its own
+ * glyph even though it shares REST_COLOR for hue. REST_GLYPH is kept as the
+ * first entry so existing callers of that export see unchanged behaviour for
+ * the first overflow type. Distinct from each other and from all of GLYPHS.
+ */
+export const REST_GLYPHS: readonly string[] = ["○", "△", "□", "◈", "✦", "✚", "◌", "◐"];
+
 /** Fixed slots, so the panel looks the same on every boot. */
 const BASE_SLOT: Record<string, number> = {
   concept: 0,
@@ -53,6 +62,9 @@ const REMAINDER = -1;
 const assigned = new Map<string, number>();
 let nextSlot = Object.keys(BASE_SLOT).length;
 
+const remainderAssigned = new Map<string, number>();
+let nextRemainderSlot = 0;
+
 function slotOf(type: string): number {
   const base = BASE_SLOT[type];
   if (base !== undefined) return base;
@@ -64,6 +76,17 @@ function slotOf(type: string): number {
   return slot;
 }
 
+/** Stable, wrapping glyph slot for a type that has overflowed the colour ring. */
+function remainderGlyphSlot(type: string): number {
+  let slot = remainderAssigned.get(type);
+  if (slot === undefined) {
+    slot = nextRemainderSlot % REST_GLYPHS.length;
+    nextRemainderSlot++;
+    remainderAssigned.set(type, slot);
+  }
+  return slot;
+}
+
 export function typeColor(type: string): string {
   const slot = slotOf(type);
   return slot === REMAINDER ? REST_COLOR : RING[slot]!;
@@ -71,10 +94,10 @@ export function typeColor(type: string): string {
 
 export function typeGlyph(type: string): string {
   const slot = slotOf(type);
-  return slot === REMAINDER ? REST_GLYPH : GLYPHS[slot]!;
+  return slot === REMAINDER ? REST_GLYPHS[remainderGlyphSlot(type)]! : GLYPHS[slot]!;
 }
 
-/** True when this type shares the overflow channel — the legend must say so. */
+/** True when this type shares the overflow HUE. It may still have its own glyph. */
 export function isRemainder(type: string): boolean {
   return slotOf(type) === REMAINDER;
 }
@@ -88,4 +111,6 @@ export function channelCount(): number {
 export function resetAssignments(): void {
   assigned.clear();
   nextSlot = Object.keys(BASE_SLOT).length;
+  remainderAssigned.clear();
+  nextRemainderSlot = 0;
 }
