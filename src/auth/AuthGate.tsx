@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import type { Session, SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { SignInForm } from "../tracking/SignInForm";
 import { getSupabaseClient } from "../tracking/supabaseClient";
+import { useSession } from "./useSession";
 
 interface ConfiguredAuthGateProps {
   supabase: SupabaseClient;
@@ -9,25 +9,7 @@ interface ConfiguredAuthGateProps {
 }
 
 function ConfiguredAuthGate({ supabase, children }: ConfiguredAuthGateProps) {
-  const [session, setSession] = useState<Session | null | undefined>(undefined);
-
-  useEffect(() => {
-    let active = true;
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (active) setSession(nextSession);
-    });
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (active) setSession(data.session);
-    });
-
-    return () => {
-      active = false;
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
+  const session = useSession(supabase);
 
   if (session === undefined) {
     return (
