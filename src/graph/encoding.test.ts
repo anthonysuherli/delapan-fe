@@ -1,7 +1,5 @@
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
+import tokensCss from "../styles/tokens.css?raw";
 import {
   CHROME,
   GLYPHS,
@@ -103,9 +101,6 @@ describe("channel assignment is stable", () => {
 });
 
 describe("tokens.css mirrors the module", () => {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-  const tokensCss = readFileSync(join(__dirname, "../styles/tokens.css"), "utf8");
 
   it("declares one --data-N token per ring slot, in order", () => {
     RING.forEach((hue, i) => {
