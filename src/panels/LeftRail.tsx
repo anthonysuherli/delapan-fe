@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as api from "../api/client";
 import { ApiError, type Coverage, type ExplorePhase } from "../api/types";
-import { typeColor } from "../graph/colors";
+import { isRemainder, typeColor, typeGlyph } from "../graph/colors";
 import { graph } from "../graph/graphStore";
 import { extractNodeTypes, localByRelation, localByType } from "../state/derive";
 import { useStore } from "../state/store";
@@ -158,7 +158,9 @@ function StatsSection() {
         {typeEntries.map(([type, count]) => (
           <div key={type}>
             <div className="lr-legend-row">
-              <span className="type-dot" style={{ background: typeColor(type) }} />
+              <span className="type-mark" style={{ color: typeColor(type) }}>
+                {typeGlyph(type)}
+              </span>
               {type}
               <span className="lr-legend-count">{count}</span>
             </div>
@@ -170,6 +172,12 @@ function StatsSection() {
         ))}
         {typeEntries.length === 0 && <div className="placeholder">empty graph</div>}
       </div>
+      {typeEntries.some(([type]) => isRemainder(type)) && (
+        <div className="lr-remainder">
+          {typeEntries.filter(([type]) => isRemainder(type)).length} further type(s) share the
+          remainder channel
+        </div>
+      )}
       {relEntries.length > 0 && (
         <div className="lr-relations">
           {relEntries.map(([rel, count]) => (
@@ -215,7 +223,12 @@ function SchemaSection() {
       className={`type-chip${drift ? " lr-drift" : ""}`}
       style={drift ? undefined : { borderColor: typeColor(type), color: typeColor(type) }}
     >
-      <span className="type-dot" style={{ background: drift ? "var(--red)" : typeColor(type) }} />
+      <span
+        className="type-mark"
+        style={{ color: drift ? "var(--red)" : typeColor(type) }}
+      >
+        {drift ? "!" : typeGlyph(type)}
+      </span>
       {type}
     </span>
   );

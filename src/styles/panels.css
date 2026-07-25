@@ -68,6 +68,25 @@
   color: var(--text-faint);
 }
 
+/* the type mark: hue + glyph. Never render one without the other — the glyph
+   is what survives when hue collapses for a colour-vision-deficient reader. */
+.type-mark {
+  display: inline-block;
+  min-width: 11px;
+  font-size: 10px;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.lr-remainder {
+  margin-top: var(--u);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+
 .lr-legend {
   display: grid;
   gap: 4px;

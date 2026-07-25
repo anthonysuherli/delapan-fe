@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { typeColor } from "../graph/colors";
+import { typeColor, typeGlyph } from "../graph/colors";
 import { graph } from "../graph/graphStore";
 import { knownTypes } from "../state/derive";
 import {
@@ -91,7 +91,9 @@ function NodeInspector({ id }: { id: string }) {
   return (
     <>
       <div className="ins-header">
-        <span className="type-dot" style={{ background: typeColor(attrs.nodeType) }} />
+        <span className="type-mark" style={{ color: typeColor(attrs.nodeType) }}>
+          {typeGlyph(attrs.nodeType)}
+        </span>
         <span className="ins-kind">Node</span>
         <span className="ins-id mono" title={id}>
           {id}
@@ -310,7 +312,9 @@ function EndpointButton({ role, id }: { role: string; id: string }) {
           requestFly(id);
         }}
       >
-        <span className="type-dot" style={{ background: typeColor(attrs.nodeType) }} />
+        <span className="type-mark" style={{ color: typeColor(attrs.nodeType) }}>
+          {typeGlyph(attrs.nodeType)}
+        </span>
         {attrs.label}
         <span className="arrow" style={{ marginLeft: "auto" }}>
           ↗
