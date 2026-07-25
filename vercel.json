@@ -1,4 +1,8 @@
 {
+  "redirects": [
+    { "source": "/d/:slug", "destination": "https://dua.delapan.ai/d/:slug", "permanent": false },
+    { "source": "/dua/:path*", "destination": "https://dua.delapan.ai/dua/:path*", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/tracking", "destination": "/index.html" },
     { "source": "/duet", "destination": "/index.html" },
