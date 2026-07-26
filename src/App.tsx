@@ -23,11 +23,16 @@ export default function App() {
   const boot = useStore((s) => s.boot);
   const travel = useStore((s) => s.travel);
   const view = useStore((s) => s.view);
+  const setView = useStore((s) => s.setView);
   const [showScan, setShowScan] = useState(true);
 
   useHotkeys();
 
   useEffect(() => {
+    // the console's findings tile deep-links here; honour it once, on boot.
+    if (new URLSearchParams(window.location.search).get("view") === "findings") {
+      setView("findings");
+    }
     void boot();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

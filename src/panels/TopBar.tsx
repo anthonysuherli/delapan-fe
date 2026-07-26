@@ -44,13 +44,17 @@ export function TopBar() {
 
   return (
     <header className="tb dlpn-boot-top">
-      <div className="tb-brand">
-        <Logomark size={34} />
+      {/* the mark is the way home: "/" is the console hub, and this panel
+          used to live there, so clicking the logo has to go somewhere. */}
+      <a className="tb-brand" href="/" title="back to the console">
+        {/* 40 keeps the figure itself at ~33px — the brand's floor for the
+            full 5x9 mark is 32px, and the square viewBox insets it by ~18%. */}
+        <Logomark size={40} />
         <div className="tb-brand-text">
           <span className="tb-wordmark">delapan</span>
           <span className="tb-sub">knowledge graph control</span>
         </div>
-      </div>
+      </a>
 
       <div className="tb-seg" role="group" aria-label="view">
         <button

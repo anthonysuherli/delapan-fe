@@ -12,6 +12,7 @@
 :root {
   /* type */
   --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-brand: "Space Grotesk", "Big Shoulders Display", sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
   --font-body: "IBM Plex Sans", "Helvetica Neue", sans-serif;
 
@@ -28,6 +29,15 @@
   --text-dim: #55677c;
   --text-faint: #8595a9;
   --text-canvas: #465a70; /* sigma label ink */
+
+  /* brand — the locked pixel-8 identity (ink / bone / coral).
+     A brand asset, not a theme: these never change with surface or state, and
+     the coral is the mark's intersection only. Source of truth is
+     delapan-ai-site/docs/branding/tokens.css. */
+  --brand-ink: #0b0f14;
+  --brand-bone: #f7f6f2;
+  --brand-coral: #ff6b4a;
+  --brand-coral-deep: #e8431f;
 
   /* chrome — brand only, never a data encoding */
   --chrome-accent: #b45309;
