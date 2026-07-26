@@ -333,6 +333,8 @@ export function GraphCanvas() {
         </div>
       )}
       {!loadingGraph && graph.order === 0 && (
+        // data-graph-version consumes the graphVersion subscription (strict noUnusedLocals) AND
+        // ties this render to graph mutations — do not remove either side.
         <div className="cv-empty" data-graph-version={graphVersion}>
           <p className="cv-empty-title">this KB has no graph yet</p>
           <p className="cv-empty-line">

@@ -21,6 +21,7 @@ import { graph, graphTouched, onGraphTouched, refreshNodeSizes } from "../graph/
 import { placeNear } from "../graph/layout";
 import { enterNodes } from "../graph/motion";
 import { clearAliases } from "./commands";
+import { computeAnchors } from "./derive";
 import { undoManager, type Command } from "./undo";
 
 export interface Toast {
@@ -271,6 +272,7 @@ export const useStore = create<AppState>((set, get) => ({
       deferToBusy();
       return;
     }
+    const epoch = get().graphVersion;
     try {
       const res = await api.getGraph(project, kb);
       const cur = get();
@@ -279,18 +281,16 @@ export const useStore = create<AppState>((set, get) => ({
         deferToBusy();
         return;
       }
+      if (get().graphVersion !== epoch) {
+        // a mutation landed mid-fetch; snapshot is stale
+        return;
+      }
       const freshNodes = res.nodes.filter((n) => !graph.hasNode(n.id));
       const freshEdges = res.edges.filter((e) => !graph.hasEdge(e.id));
       if (freshNodes.length === 0 && freshEdges.length === 0) return;
 
       // a new node lands near its first already-present neighbour, else centroid
-      const anchorOf = new Map<string, string>();
-      for (const e of res.edges) {
-        if (graph.hasNode(e.source) && !graph.hasNode(e.target) && !anchorOf.has(e.target))
-          anchorOf.set(e.target, e.source);
-        if (graph.hasNode(e.target) && !graph.hasNode(e.source) && !anchorOf.has(e.source))
-          anchorOf.set(e.source, e.target);
-      }
+      const anchorOf = computeAnchors((id) => graph.hasNode(id), res.edges);
 
       let added = 0;
       try {

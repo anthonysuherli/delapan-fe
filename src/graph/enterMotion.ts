@@ -46,3 +46,8 @@ export function enterSize(target: number, p: number): number {
 export function enterDone(elapsed: number, count: number): boolean {
   return elapsed >= ENTER_MS + Math.max(0, count - 1) * ENTER_STAGGER_MS;
 }
+
+/** Absolute elapsed-ms deadline for the index-th entering node. */
+export function enterDoneAt(index: number): number {
+  return ENTER_MS + index * ENTER_STAGGER_MS;
+}

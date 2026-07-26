@@ -65,7 +65,7 @@ button {
   background: var(--bg2);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  transition: color var(--t-micro), border-color var(--t-micro), background var(--t-micro);
+  transition: color var(--t-micro), border-color var(--t-micro), background var(--t-micro), transform var(--t-press);
   white-space: nowrap;
 }
 

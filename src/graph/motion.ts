@@ -14,7 +14,8 @@
  */
 
 import { graph, nodeSize } from "./graphStore";
-import { ENTER_MS, ENTER_STAGGER_MS, enterProgress, enterSize, lerpPos, planEnter } from "./enterMotion";
+import { enterDoneAt, enterProgress, enterSize, lerpPos, planEnter } from "./enterMotion";
+import { sigmaRef } from "./sigmaRef";
 
 // three low-amplitude drift directions so nodes don't move in lockstep
 const DRIFT_VARIANTS = [
@@ -98,7 +99,11 @@ function capture(strip: boolean, fresh: boolean): void {
     const prev = motionMap.get(id);
     let bx = a.x;
     let by = a.y;
-    if (strip && prev) {
+    const e = enterMap.get(id);
+    if (e) {
+      bx = e.to.x;
+      by = e.to.y;
+    } else if (strip && prev) {
       const o = driftOffset(prev);
       bx -= o.x;
       by -= o.y;
@@ -164,6 +169,7 @@ export function stopGraphMotion(): void {
  * drift map. Instant under reduced motion; large batches settle instead.
  */
 export function enterNodes(ids: string[], opts: { sourceId?: string | null } = {}): void {
+  if (!sigmaRef.current) return; // no canvas mounted: nodes are already placed, skip the animation
   const present = ids.filter((id) => graph.hasNode(id));
   if (present.length === 0 || reducedMotion()) return;
   if (planEnter(present).mode === "settle") {
@@ -198,6 +204,8 @@ export function enterNodes(ids: string[], opts: { sourceId?: string | null } = {
       variant: prev ? prev.variant : seq % 3,
     });
   });
+  // first nodes into an empty canvas: amp/centroid were never computed
+  if (amp === 0) capture(false, false);
   ensureRunning();
 }
 
@@ -243,7 +251,7 @@ function landEnters(): void {
  *  its full staggered duration. */
 function allEntersDone(): boolean {
   for (const e of enterMap.values()) {
-    if (clock - e.start < ENTER_MS + e.index * ENTER_STAGGER_MS) return false;
+    if (clock - e.start < enterDoneAt(e.index)) return false;
   }
   return true;
 }

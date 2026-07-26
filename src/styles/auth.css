@@ -1,6 +1,7 @@
 /* Auth surfaces: sign-in / sign-up / waitlist cards + the branded
    interstitial. Promoted from tracking.css so the product auth journey no
-   longer depends on the tracking surface's stylesheet. */
+   longer depends on the tracking surface's stylesheet. Legacy .pending-*
+   rules still live in tracking.css. */
 
 .auth-wrap,
 .auth-state {

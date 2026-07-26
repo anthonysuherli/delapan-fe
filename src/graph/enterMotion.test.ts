@@ -4,6 +4,7 @@ import {
   ENTER_MS,
   ENTER_STAGGER_MS,
   enterDone,
+  enterDoneAt,
   enterProgress,
   enterSize,
   lerpPos,
@@ -69,5 +70,12 @@ describe("enterDone", () => {
     expect(enterDone(ENTER_MS, 1)).toBe(true);
     expect(enterDone(ENTER_MS + 2 * ENTER_STAGGER_MS - 1, 3)).toBe(false);
     expect(enterDone(ENTER_MS + 2 * ENTER_STAGGER_MS, 3)).toBe(true);
+  });
+});
+
+describe("enterDoneAt", () => {
+  it("computes the absolute deadline for an index", () => {
+    expect(enterDoneAt(0)).toBe(ENTER_MS);
+    expect(enterDoneAt(3)).toBe(ENTER_MS + 3 * ENTER_STAGGER_MS);
   });
 });

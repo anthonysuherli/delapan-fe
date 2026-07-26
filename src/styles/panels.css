@@ -474,6 +474,7 @@
 
 .ins-prop-add:hover {
   color: var(--green);
+  background: var(--bg2);
 }
 
 /* evidence list */
@@ -568,7 +569,7 @@
   z-index: var(--z-drawer);
   background: var(--scrim);
   backdrop-filter: blur(1px);
-  animation: dlpn-fade var(--t-exit) ease;
+  animation: dlpn-fade var(--t-enter) ease;
 }
 
 .drawer {
@@ -911,7 +912,7 @@
   border-radius: var(--r-3);
   padding: var(--u2) 10px;
   margin-bottom: 6px;
-  background: var(--bg1);
+  background: var(--bg2);
 }
 
 .okf-finding:hover {

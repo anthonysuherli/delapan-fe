@@ -32,6 +32,7 @@
 4. Glow alpha ladder: existing alphas (.1/.12/.15/.25/.3/.45/.5) round to the 3-rung ladder (.1/.25/.45). Sub-perceptual nudges, accepted in brainstorming.
 5. Connection-lost banner: already covered — `api.onApiModeChange` (store.ts:565) toasts "engine unreachable — switched to built-in mock data" and StatusBar shows the MOCK DATA badge. No new work.
 6. Search keyboard navigation: TopBar search already implements ArrowDown/Enter result navigation (TopBar.tsx:158–175). No new work.
+7. Spec §5 node exits (200ms fade-through-dim) and the edge-fade behind anchored enters were not implemented this pass; field-error timing shipped at --t-micro not 240ms. Deferred to spec 2 / backlog (final-review finding, recorded 2026-07-26).
 
 ---
 
