@@ -5,6 +5,7 @@
 
 import type { EdgeSpec, NodeSpec } from "../api/types";
 import { graph } from "../graph/graphStore";
+import { enterNodes } from "../graph/motion";
 import {
   createEdgeCommand,
   createNodeCommand,
@@ -32,6 +33,7 @@ export async function addNode(spec: NodeSpec): Promise<void> {
   if (ok && id) {
     useStore.setState({ selectedNodes: [id], selectedEdges: [] });
     store.requestFly(id);
+    enterNodes([id], { sourceId: anchor });
   }
 }
 

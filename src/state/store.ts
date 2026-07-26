@@ -16,7 +16,10 @@ import type {
   Synopsis,
 } from "../api/types";
 import { buildGraph } from "../graph/build";
-import { graph, onGraphTouched } from "../graph/graphStore";
+import { typeColor, EDGE_COLOR } from "../graph/colors";
+import { graph, graphTouched, onGraphTouched, refreshNodeSizes } from "../graph/graphStore";
+import { placeNear } from "../graph/layout";
+import { enterNodes } from "../graph/motion";
 import { clearAliases } from "./commands";
 import { undoManager, type Command } from "./undo";
 
@@ -82,6 +85,7 @@ interface AppState {
   boot(): Promise<void>;
   setScope(project: string, kb: string): Promise<void>;
   loadScope(): Promise<void>;
+  mergeGraphDelta(): Promise<void>;
   refreshStats(): void;
   selectNode(id: string, additive?: boolean): void;
   selectEdge(id: string, additive?: boolean): void;
@@ -243,6 +247,61 @@ export const useStore = create<AppState>((set, get) => ({
       get().pushToast("error", `failed to load graph: ${err instanceof Error ? err.message : err}`);
     } finally {
       set({ loadingGraph: false });
+    }
+  },
+
+  /** Merge new nodes/edges after an explore without rebuilding the graph —
+   *  existing positions, selection, and undo history survive; only the new
+   *  nodes animate in. */
+  async mergeGraphDelta() {
+    const { project, kb } = get();
+    if (!project || !kb) return;
+    try {
+      const res = await api.getGraph(project, kb);
+      const freshNodes = res.nodes.filter((n) => !graph.hasNode(n.id));
+      const freshEdges = res.edges.filter((e) => !graph.hasEdge(e.id));
+      if (freshNodes.length === 0 && freshEdges.length === 0) return;
+
+      // a new node lands near its first already-present neighbour, else centroid
+      const anchorOf = new Map<string, string>();
+      for (const e of res.edges) {
+        if (graph.hasNode(e.source) && !graph.hasNode(e.target) && !anchorOf.has(e.target))
+          anchorOf.set(e.target, e.source);
+        if (graph.hasNode(e.target) && !graph.hasNode(e.source) && !anchorOf.has(e.source))
+          anchorOf.set(e.source, e.target);
+      }
+      for (const n of freshNodes) {
+        const pos = placeNear(anchorOf.get(n.id) ?? null);
+        graph.addNode(n.id, {
+          label: n.label,
+          nodeType: n.type,
+          properties: n.properties ?? {},
+          grounded_in: n.grounded_in ?? [],
+          created_at: n.created_at,
+          x: pos.x,
+          y: pos.y,
+          size: 4,
+          color: typeColor(n.type),
+        });
+      }
+      for (const e of freshEdges) {
+        if (!graph.hasNode(e.source) || !graph.hasNode(e.target)) continue;
+        graph.addEdgeWithKey(e.id, e.source, e.target, {
+          label: e.relation,
+          relation: e.relation,
+          properties: e.properties ?? {},
+          grounded_in: e.grounded_in ?? [],
+          created_at: e.created_at,
+          size: 1.4,
+          color: EDGE_COLOR,
+        });
+      }
+      refreshNodeSizes();
+      graphTouched();
+      enterNodes(freshNodes.map((n) => n.id));
+      set({ lastAction: `explore merged ${freshNodes.length} node(s), ${freshEdges.length} edge(s)` });
+    } catch {
+      /* delta merge is best-effort; the next full load reconciles */
     }
   },
 
