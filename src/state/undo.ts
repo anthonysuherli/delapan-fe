@@ -40,6 +40,10 @@ export class UndoManager {
     return this.redoStack[this.redoStack.length - 1]?.label ?? null;
   }
 
+  get isBusy(): boolean {
+    return this.busy;
+  }
+
   subscribe(fn: Listener): () => void {
     this.listeners.add(fn);
     return () => this.listeners.delete(fn);

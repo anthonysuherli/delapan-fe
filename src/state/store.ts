@@ -85,7 +85,7 @@ interface AppState {
   boot(): Promise<void>;
   setScope(project: string, kb: string): Promise<void>;
   loadScope(): Promise<void>;
-  mergeGraphDelta(): Promise<void>;
+  mergeGraphDelta(retried?: boolean): Promise<void>;
   refreshStats(): void;
   selectNode(id: string, additive?: boolean): void;
   selectEdge(id: string, additive?: boolean): void;
@@ -252,12 +252,27 @@ export const useStore = create<AppState>((set, get) => ({
 
   /** Merge new nodes/edges after an explore without rebuilding the graph —
    *  existing positions, selection, and undo history survive; only the new
-   *  nodes animate in. */
-  async mergeGraphDelta() {
+   *  nodes animate in. Deliberately bypasses the Command/undo system (no
+   *  inverse, not undoable), so it defers to undoManager's busy lock instead
+   *  of composing with it — retrying once rather than racing a live command. */
+  async mergeGraphDelta(retried = false) {
     const { project, kb } = get();
     if (!project || !kb) return;
+    const deferToBusy = () => {
+      if (!retried) window.setTimeout(() => void get().mergeGraphDelta(true), 600);
+    };
+    if (undoManager.isBusy) {
+      deferToBusy();
+      return;
+    }
     try {
       const res = await api.getGraph(project, kb);
+      const cur = get();
+      if (cur.project !== project || cur.kb !== kb) return;
+      if (undoManager.isBusy) {
+        deferToBusy();
+        return;
+      }
       const freshNodes = res.nodes.filter((n) => !graph.hasNode(n.id));
       const freshEdges = res.edges.filter((e) => !graph.hasEdge(e.id));
       if (freshNodes.length === 0 && freshEdges.length === 0) return;
@@ -270,34 +285,45 @@ export const useStore = create<AppState>((set, get) => ({
         if (graph.hasNode(e.target) && !graph.hasNode(e.source) && !anchorOf.has(e.source))
           anchorOf.set(e.source, e.target);
       }
-      for (const n of freshNodes) {
-        const pos = placeNear(anchorOf.get(n.id) ?? null);
-        graph.addNode(n.id, {
-          label: n.label,
-          nodeType: n.type,
-          properties: n.properties ?? {},
-          grounded_in: n.grounded_in ?? [],
-          created_at: n.created_at,
-          x: pos.x,
-          y: pos.y,
-          size: 4,
-          color: typeColor(n.type),
-        });
+
+      let added = 0;
+      try {
+        for (const n of freshNodes) {
+          const pos = placeNear(anchorOf.get(n.id) ?? null);
+          graph.addNode(n.id, {
+            label: n.label,
+            nodeType: n.type,
+            properties: n.properties ?? {},
+            grounded_in: n.grounded_in ?? [],
+            created_at: n.created_at,
+            x: pos.x,
+            y: pos.y,
+            size: 4,
+            color: typeColor(n.type),
+          });
+          added += 1;
+        }
+        for (const e of freshEdges) {
+          if (!graph.hasNode(e.source) || !graph.hasNode(e.target)) continue;
+          graph.addEdgeWithKey(e.id, e.source, e.target, {
+            label: e.relation,
+            relation: e.relation,
+            properties: e.properties ?? {},
+            grounded_in: e.grounded_in ?? [],
+            created_at: e.created_at,
+            size: 1.4,
+            color: EDGE_COLOR,
+          });
+          added += 1;
+        }
+      } finally {
+        // a mid-loop throw (e.g. duplicate id from the server) must not leave
+        // graphVersion stale for whatever did get spliced in
+        if (added > 0) {
+          refreshNodeSizes();
+          graphTouched();
+        }
       }
-      for (const e of freshEdges) {
-        if (!graph.hasNode(e.source) || !graph.hasNode(e.target)) continue;
-        graph.addEdgeWithKey(e.id, e.source, e.target, {
-          label: e.relation,
-          relation: e.relation,
-          properties: e.properties ?? {},
-          grounded_in: e.grounded_in ?? [],
-          created_at: e.created_at,
-          size: 1.4,
-          color: EDGE_COLOR,
-        });
-      }
-      refreshNodeSizes();
-      graphTouched();
       enterNodes(freshNodes.map((n) => n.id));
       set({ lastAction: `explore merged ${freshNodes.length} node(s), ${freshEdges.length} edge(s)` });
     } catch {

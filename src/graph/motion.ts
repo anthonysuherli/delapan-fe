@@ -256,12 +256,11 @@ function applyFrame(): void {
       if (e) {
         const p = enterProgress(clock - e.start, e.index);
         const pos = lerpPos(e.from, e.to, p);
-        const sameSpot = e.from.x === e.to.x && e.from.y === e.to.y;
         return {
           ...attr,
           x: pos.x,
           y: pos.y,
-          size: sameSpot ? enterSize(e.targetSize, p) : e.targetSize,
+          size: enterSize(e.targetSize, p),
         };
       }
       const m = motionMap.get(id);
