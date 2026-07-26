@@ -16,7 +16,7 @@ export function Hero() {
       </nav>
 
       <header className="lp-inner lp-hero">
-        <h1>your agent learns something. where did it come from, and what happens when it changes?</h1>
+        <h1>where did your agent learn that?</h1>
         <p className="lp-lede">
           delapan researches a domain once, keeps every fact with the source it came from, and
           corrects itself when the facts move — without ever losing what it knew before.

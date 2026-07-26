@@ -110,12 +110,14 @@ itself trip the vision's public-sign-up condition. Opening sign-up does.
 
 ### Hero copy
 
-> **your agent learns something. where did it come from, and what happens when it changes?**
+> **where did your agent learn that?**
 >
 > delapan researches a domain once, keeps every fact with the source it came from, and corrects
 > itself when the facts move — without ever losing what it knew before.
 
-Problem-first, and the promise is one the shipped code keeps.
+Problem-first, and the promise is one the shipped code keeps. Shortened from a longer
+two-clause question after seeing it rendered: at the hero size it ran to five lines and
+swallowed the viewport. The self-correcting half of the thesis moves to the lede.
 
 ## 3. The page demonstrates its own argument
 
