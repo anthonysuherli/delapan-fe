@@ -1,5 +1,9 @@
 /* center canvas region: sigma stage, viewfinder chrome, overlays, travel HUD */
 
+/* z-index here is the INTRA-canvas overlay stack (vignette < frames < hint <
+   reticle < avatar < hopkeys < relpop < hud): local ordering, deliberately
+   literal. Cross-surface stacking uses the --z-* bands in tokens.css. */
+
 .cv {
   position: relative;
   min-width: 0;
@@ -59,7 +63,7 @@
 
 .cv--travel .cv-frame {
   border-color: var(--accent);
-  box-shadow: 0 0 8px rgba(180, 83, 9, 0.25);
+  box-shadow: 0 0 8px var(--glow-2);
 }
 
 /* vignette while traveling — the ego bubble feel */
@@ -107,7 +111,7 @@
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid var(--accent);
   border-radius: 999px;
-  box-shadow: 0 0 16px rgba(180, 83, 9, 0.15);
+  box-shadow: 0 0 16px var(--glow-1);
   white-space: nowrap;
 }
 
@@ -189,7 +193,7 @@
   content: "";
   position: absolute;
   inset: -7px;
-  border: 1px solid rgba(180, 83, 9, 0.5);
+  border: 1px solid var(--glow-3);
   border-radius: 50%;
 }
 
@@ -210,7 +214,7 @@
   color: var(--bg0);
   background: var(--text-dim);
   border: 1px solid var(--bg0);
-  border-radius: 4px;
+  border-radius: var(--r-2);
   pointer-events: auto;
   cursor: pointer;
   transition: background 100ms, transform 100ms;
@@ -224,7 +228,7 @@
 
 .hopkey--aim {
   background: var(--accent);
-  box-shadow: 0 0 10px rgba(180, 83, 9, 0.45);
+  box-shadow: 0 0 10px var(--glow-3);
   transform: translate(-50%, -50%) scale(1.15);
 }
 
@@ -238,8 +242,8 @@
   padding: 10px;
   background: var(--bg2);
   border: 1px solid var(--accent);
-  border-radius: 6px;
-  box-shadow: 0 14px 40px rgba(31, 43, 58, 0.18), 0 0 18px rgba(180, 83, 9, 0.1);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-3), 0 0 18px var(--glow-1);
   pointer-events: auto;
   animation: modal-in 140ms cubic-bezier(0.2, 0.9, 0.3, 1);
 }
@@ -286,8 +290,8 @@
   width: 230px;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--accent);
-  border-radius: 6px;
-  box-shadow: 0 0 24px rgba(180, 83, 9, 0.12);
+  border-radius: var(--r-3);
+  box-shadow: 0 0 24px var(--glow-1);
   overflow: hidden;
   animation: toast-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
 }
@@ -298,7 +302,7 @@
   justify-content: space-between;
   padding: 7px 10px;
   background: var(--accent-dim);
-  border-bottom: 1px solid rgba(180, 83, 9, 0.3);
+  border-bottom: 1px solid var(--glow-2);
 }
 
 .hud-title {
