@@ -259,7 +259,13 @@ export const useStore = create<AppState>((set, get) => ({
     const { project, kb } = get();
     if (!project || !kb) return;
     const deferToBusy = () => {
-      if (!retried) window.setTimeout(() => void get().mergeGraphDelta(true), 600);
+      if (!retried) {
+        window.setTimeout(() => void get().mergeGraphDelta(true), 600);
+      } else {
+        // final bail — the retry also found it busy; surface it rather than
+        // silently dropping the merge (a full reload still reconciles)
+        set({ lastAction: "explore merge deferred — graph busy; reload to reconcile" });
+      }
     };
     if (undoManager.isBusy) {
       deferToBusy();
@@ -268,7 +274,7 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       const res = await api.getGraph(project, kb);
       const cur = get();
-      if (cur.project !== project || cur.kb !== kb) return;
+      if (cur.project !== project || cur.kb !== kb || cur.loadingGraph) return;
       if (undoManager.isBusy) {
         deferToBusy();
         return;
