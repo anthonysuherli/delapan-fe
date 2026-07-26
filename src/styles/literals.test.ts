@@ -5,7 +5,8 @@
  * public/duet-app.html are out of the 2026-07-26 polish scope and
  * deliberately unscanned. landing.css joined the scan in the pixel-8
  * restage (site-release task 4) — it resolves through site.css's --p8-*
- * tokens rather than tokens.css.
+ * tokens rather than tokens.css. site-docs.css joined in site-release
+ * task 7, same --p8-* convention.
  */
 import { describe, expect, it } from "vitest";
 import authCss from "./auth.css?raw";
@@ -16,6 +17,7 @@ import landingCss from "./landing.css?raw";
 import layoutCss from "./layout.css?raw";
 import motionCss from "./motion.css?raw";
 import panelsCss from "./panels.css?raw";
+import siteDocsCss from "./site-docs.css?raw";
 import siteShellCss from "./site-shell.css?raw";
 
 const SHEETS: Record<string, string> = {
@@ -27,6 +29,7 @@ const SHEETS: Record<string, string> = {
   "layout.css": layoutCss,
   "motion.css": motionCss,
   "panels.css": panelsCss,
+  "site-docs.css": siteDocsCss,
   "site-shell.css": siteShellCss,
 };
 
