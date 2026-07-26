@@ -99,7 +99,11 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
     // falls through to the console rather than accusing an approved user of
     // being waitlisted because a request failed.
     if (access === "checking" || access === "idle") {
-      return <Interstitial line="checking access…" />;
+      return (
+        <div className="site">
+          <Interstitial line="checking access…" />
+        </div>
+      );
     }
     if (access === "pending") {
       return (
