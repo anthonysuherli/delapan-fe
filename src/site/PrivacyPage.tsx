@@ -18,7 +18,7 @@ export function PrivacyPage() {
           <p className="legal-meta">last updated 2026-07-26</p>
           <p className="legal-banner">
             this policy is a plain-language template for the invite-gated beta; it is not legal
-            advice.
+            advice
           </p>
 
           <h2>what we store</h2>

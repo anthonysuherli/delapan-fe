@@ -18,7 +18,7 @@ export function TermsPage() {
           <p className="legal-meta">last updated 2026-07-26</p>
           <p className="legal-banner">
             these terms are a plain-language template for the invite-gated beta; they are not
-            legal advice.
+            legal advice
           </p>
 
           <h2>acceptance</h2>
