@@ -92,6 +92,10 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
           {submitting ? "creating account…" : "create account"}
         </button>
         <p className="pending-note">
+          by creating an account you agree to the <a href="/terms">terms</a> and{" "}
+          <a href="/privacy">privacy policy</a>
+        </p>
+        <p className="pending-note">
           already have an account? <a href="/login">sign in</a>
         </p>
       </form>

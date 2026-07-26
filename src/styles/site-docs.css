@@ -181,6 +181,24 @@
   margin: 0 0 var(--p8-space-3);
 }
 
+/* ---- legal pages (terms/privacy) ------------------------------------------- */
+
+.legal-meta {
+  margin: 0 0 var(--p8-space-4);
+  color: var(--p8-muted);
+  font-size: var(--p8-text-sm);
+}
+
+.legal-banner {
+  margin: 0 0 var(--p8-space-6);
+  padding: var(--p8-space-3) var(--p8-space-4);
+  background: var(--p8-panel-2);
+  border-left: 3px solid var(--p8-warning);
+  border-radius: var(--p8-radius-sm);
+  color: var(--p8-muted);
+  font-size: var(--p8-text-sm);
+}
+
 /* ---- responsive -------------------------------------------------------------- */
 
 @media (max-width: 767px) {
