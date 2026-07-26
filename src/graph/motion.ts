@@ -13,8 +13,8 @@
  * single rAF loop drives it and stops when idle. Respects reduced-motion.
  */
 
-import { graph } from "./graphStore";
-import { enterDone, enterProgress, enterSize, lerpPos, planEnter } from "./enterMotion";
+import { graph, nodeSize } from "./graphStore";
+import { ENTER_MS, ENTER_STAGGER_MS, enterProgress, enterSize, lerpPos, planEnter } from "./enterMotion";
 
 // three low-amplitude drift directions so nodes don't move in lockstep
 const DRIFT_VARIANTS = [
@@ -36,10 +36,14 @@ interface EnterMotion {
   to: { x: number; y: number };
   targetSize: number;
   index: number;
+  start: number;
 }
 
 let enterMap = new Map<string, EnterMotion>();
-let enterStart = 0;
+// monotonic counter for drift params claimed by enterNodes, independent of
+// motionMap.size (which doesn't grow when a node re-entering was already
+// present in motionMap — see enterNodes)
+let driftSeq = 0;
 
 const SETTLE_MS = 800;
 const STAGGER_MS = 28;
@@ -122,6 +126,7 @@ function capture(strip: boolean, fresh: boolean): void {
 
 /** Capture base positions + drift params, then begin the settle window. */
 export function initGraphMotion(): void {
+  landEnters(); // defensive: a scope switch mid-enter must not capture flight positions
   capture(false, true);
   if (motionMap.size === 0) {
     settleDone = true;
@@ -148,7 +153,7 @@ export function stopGraphMotion(): void {
   if (raf) cancelAnimationFrame(raf);
   raf = 0;
   running = false;
-  enterMap = new Map();
+  landEnters(); // don't strand an in-flight scale/position — land on target first
   restoreBase();
 }
 
@@ -162,6 +167,7 @@ export function enterNodes(ids: string[], opts: { sourceId?: string | null } = {
   const present = ids.filter((id) => graph.hasNode(id));
   if (present.length === 0 || reducedMotion()) return;
   if (planEnter(present).mode === "settle") {
+    landEnters(); // don't let a mid-flight wave's positions become drift bases
     initGraphMotion();
     return;
   }
@@ -172,20 +178,26 @@ export function enterNodes(ids: string[], opts: { sourceId?: string | null } = {
           y: graph.getNodeAttributes(opts.sourceId).y,
         }
       : null;
+  // own start timestamp per node (not a shared module clock) so a second
+  // enterNodes call can't rewind a wave that's already in flight
+  const start = performance.now();
   present.forEach((id, i) => {
     const a = graph.getNodeAttributes(id);
     const to = { x: a.x, y: a.y };
-    enterMap.set(id, { from: src ?? to, to, targetSize: a.size, index: i });
-    // drift must not fight the enter: claim the base now
+    enterMap.set(id, { from: src ?? to, to, targetSize: a.size, index: i, start });
+    // drift must not fight the enter: claim the base now, preserving any
+    // existing drift params so a node already in motionMap doesn't get a
+    // duplicate slot (motionMap.size doesn't grow when it was already present)
+    const prev = motionMap.get(id);
+    const seq = prev ? prev.index : driftSeq++;
     motionMap.set(id, {
       base: to,
-      index: motionMap.size,
-      phase: (motionMap.size * 0.17 * Math.PI) % (Math.PI * 2),
-      omega: (2 * Math.PI) / ((5 + (motionMap.size % 4)) * 1000),
-      variant: motionMap.size % 3,
+      index: seq,
+      phase: prev ? prev.phase : (seq * 0.17 * Math.PI) % (Math.PI * 2),
+      omega: prev ? prev.omega : (2 * Math.PI) / ((5 + (seq % 4)) * 1000),
+      variant: prev ? prev.variant : seq % 3,
     });
   });
-  enterStart = performance.now();
   ensureRunning();
 }
 
@@ -207,13 +219,42 @@ function restoreBase(): void {
   );
 }
 
+/**
+ * Land every in-flight enter exactly on its target and clear enterMap,
+ * handing position authority to drift. Size is recomputed live
+ * (degree-driven) rather than replayed from the enter's snapshot, so a
+ * degree change mid-enter isn't clobbered on landing. Called on normal
+ * completion (tick) and whenever an enter is interrupted (stop, re-settle,
+ * scope switch) so nothing is stranded mid-animation.
+ */
+function landEnters(): void {
+  if (enterMap.size === 0) return;
+  graph.updateEachNodeAttributes(
+    (id, attr) => {
+      const e = enterMap.get(id);
+      return e ? { ...attr, x: e.to.x, y: e.to.y, size: nodeSize(graph.degree(id)) } : attr;
+    },
+    { attributes: ["x", "y", "size"] },
+  );
+  enterMap = new Map();
+}
+
+/** True once every in-flight enter (each on its own start clock) has reached
+ *  its full staggered duration. */
+function allEntersDone(): boolean {
+  for (const e of enterMap.values()) {
+    if (clock - e.start < ENTER_MS + e.index * ENTER_STAGGER_MS) return false;
+  }
+  return true;
+}
+
 function applyFrame(): void {
   const now = clock;
   graph.updateEachNodeAttributes(
     (id, attr) => {
       const e = enterMap.get(id);
       if (e) {
-        const p = enterProgress(clock - enterStart, e.index);
+        const p = enterProgress(clock - e.start, e.index);
         const pos = lerpPos(e.from, e.to, p);
         const sameSpot = e.from.x === e.to.x && e.from.y === e.to.y;
         return {
@@ -247,16 +288,11 @@ function tick(): void {
     const maxDelay = (motionMap.size - 1) * STAGGER_MS;
     if (clock - settleStart > SETTLE_MS + maxDelay) settleDone = true;
   }
-  if (enterMap.size > 0 && enterDone(clock - enterStart, enterMap.size)) {
-    // land enters exactly on target and hand position authority to drift
-    graph.updateEachNodeAttributes(
-      (id, attr) => {
-        const e = enterMap.get(id);
-        return e ? { ...attr, x: e.to.x, y: e.to.y, size: e.targetSize } : attr;
-      },
-      { attributes: ["x", "y", "size"] },
-    );
-    enterMap = new Map();
+  // held until settle also finishes: an enter completing mid-settle must not
+  // snap early into a still-collapsing centroid (applyFrame's enter branch
+  // naturally clamps it at target — progress saturates at 1 — while we wait)
+  if (enterMap.size > 0 && settleDone && allEntersDone()) {
+    landEnters();
   }
   // full-rate during settle; throttled once we're only drifting
   if (!settleDone || enterMap.size > 0 || clock - lastPaint >= FRAME_MS) {

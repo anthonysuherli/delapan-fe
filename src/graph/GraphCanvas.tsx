@@ -380,7 +380,10 @@ function CanvasOverlays({ sigma }: { sigma: AppSigma }) {
 }
 
 // arrival rings on nodes currently animating in — same visual family as the
-// selection pulse, so "new" and "selected" read as one language.
+// selection pulse, so "new" and "selected" read as one language. No props or
+// store subscription drive this: it reads motion.ts's module-level enter
+// state directly, deliberately, and relies on CanvasOverlays' afterRender
+// bump (above) to re-poll it every frame.
 function EnterPulses({ sigma }: { sigma: AppSigma }) {
   const ids = enteringNodeIds().slice(0, 12); // cap the ring count, not the enters
   return (
