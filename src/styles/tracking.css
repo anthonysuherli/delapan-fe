@@ -320,3 +320,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* --- waitlist / pending beta access --------------------------------------- */
+
+.pending-note {
+  margin: 0 0 var(--u4);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.pending-email {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+}
