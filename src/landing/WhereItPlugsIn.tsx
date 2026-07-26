@@ -1,11 +1,11 @@
 /**
- * 04 — the two shipped surfaces: the MCP server (6 tools) and the /api
+ * The two shipped surfaces: the MCP server (6 tools) and the /api
  * surface. Both are in backend/README.md's "What's inside" table.
  */
-export function WhereItPlugsIn() {
+export function WhereItPlugsIn({ index }: { index: number }) {
   return (
     <section className="lp-inner lp-section">
-      <p className="lp-kicker">04 — where it plugs in</p>
+      <p className="lp-kicker">{String(index).padStart(2, "0")} — where it plugs in</p>
       <h2>in your editor, or in your product</h2>
 
       <div className="lp-targets">

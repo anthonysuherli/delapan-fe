@@ -1,27 +1,36 @@
 /**
  * The literal-scan gate: in-scope stylesheets may not carry raw colour,
  * z-index, or px border-radius literals — those resolve through tokens.css.
- * tokens.css itself is the definition site and is exempt. tracking.css,
- * landing.css, and public/duet-app.html are out of the 2026-07-26 polish
- * scope and deliberately unscanned.
+ * tokens.css itself is the definition site and is exempt. tracking.css and
+ * public/duet-app.html are out of the 2026-07-26 polish scope and
+ * deliberately unscanned. landing.css joined the scan in the pixel-8
+ * restage (site-release task 4) — it resolves through site.css's --p8-*
+ * tokens rather than tokens.css. site-docs.css joined in site-release
+ * task 7, same --p8-* convention.
  */
 import { describe, expect, it } from "vitest";
 import authCss from "./auth.css?raw";
 import baseCss from "./base.css?raw";
 import canvasCss from "./canvas.css?raw";
 import consoleCss from "./console.css?raw";
+import landingCss from "./landing.css?raw";
 import layoutCss from "./layout.css?raw";
 import motionCss from "./motion.css?raw";
 import panelsCss from "./panels.css?raw";
+import siteDocsCss from "./site-docs.css?raw";
+import siteShellCss from "./site-shell.css?raw";
 
 const SHEETS: Record<string, string> = {
   "auth.css": authCss,
   "base.css": baseCss,
   "canvas.css": canvasCss,
   "console.css": consoleCss,
+  "landing.css": landingCss,
   "layout.css": layoutCss,
   "motion.css": motionCss,
   "panels.css": panelsCss,
+  "site-docs.css": siteDocsCss,
+  "site-shell.css": siteShellCss,
 };
 
 /** Deliberate exceptions, one line each. Grow this list consciously. */

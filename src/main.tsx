@@ -9,6 +9,9 @@ import "./styles/landing.css";
 import "./styles/canvas.css";
 import "./styles/tracking.css";
 import "./styles/auth.css";
+import "./styles/site.css";
+import "./styles/site-shell.css";
+import "./styles/site-docs.css";
 import "./styles/motion.css";
 
 createRoot(document.getElementById("root")!).render(<Root />);

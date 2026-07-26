@@ -1,5 +1,5 @@
 /**
- * 05 — positioning, then the part that earns it: what is NOT built yet.
+ * Positioning, then the part that earns it: what is NOT built yet.
  * The three planned items are Planned Detours in docs/truenorth/vision.md.
  * A page arguing for auditability cannot hide its own roadmap.
  */
@@ -24,10 +24,10 @@ const PLANNED = [
   "elasticsearch as an alternative retrieval backend",
 ];
 
-export function WhatItIsnt() {
+export function WhatItIsnt({ index }: { index: number }) {
   return (
     <section className="lp-inner lp-section">
-      <p className="lp-kicker">05 — where it fits</p>
+      <p className="lp-kicker">{String(index).padStart(2, "0")} — where it fits</p>
       <h2>what delapan isn't</h2>
 
       <div className="lp-contrasts">

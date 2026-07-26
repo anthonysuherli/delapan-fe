@@ -1,12 +1,12 @@
 /**
- * 02 — what delapan actually does. Three shipped capabilities:
+ * What delapan actually does. Three shipped capabilities:
  * grounded_in provenance, the write-time resolver, and bi-temporal retirement.
  * No claim in this file is aspirational.
  */
-export function Pillars() {
+export function Pillars({ index }: { index: number }) {
   return (
     <section className="lp-inner lp-section">
-      <p className="lp-kicker">02 — what delapan does</p>
+      <p className="lp-kicker">{String(index).padStart(2, "0")} — what delapan does</p>
       <h2>every fact keeps its source, and its history</h2>
 
       <div className="lp-pillars">

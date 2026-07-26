@@ -1,0 +1,214 @@
+/* ============================================================
+   site-docs.css — the docs shell: two-column rail + content,
+   code blocks, and the tool table (DocsPage, CodeBlock).
+   Scoped under `.site .docs*`. Every color/spacing/radius/font
+   value below resolves through a --p8-* token (site.css). The
+   rail column width and content max-width are structural grid
+   measures, not brand scale, and stay raw — same convention as
+   landing.css's 1080px grid measure and site-shell.css's
+   breakpoints. Hairline border widths stay raw 1px, matching the
+   app-wide convention (base.css, console.css, site-shell.css).
+   ============================================================ */
+
+.docs {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--p8-space-8);
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--p8-space-7) var(--p8-space-6) var(--p8-space-9);
+}
+
+/* ---- rail ------------------------------------------------------------ */
+
+.docs-rail {
+  position: sticky;
+  top: var(--p8-space-7);
+  align-self: start;
+}
+
+.docs-rail ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p8-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.docs-rail a {
+  display: block;
+  padding: var(--p8-space-1) 0;
+  color: var(--p8-muted);
+  text-decoration: none;
+  font-size: var(--p8-text-sm);
+}
+
+.docs-rail a:hover {
+  color: var(--p8-ink);
+}
+
+.docs-rail a[aria-current="page"] {
+  color: var(--p8-ink);
+  font-weight: 600;
+}
+
+.docs-rail-group {
+  margin-top: var(--p8-space-6);
+}
+
+.docs-rail-group h2 {
+  margin: 0 0 var(--p8-space-2);
+  color: var(--p8-muted-2);
+  font-family: var(--p8-font-body);
+  font-size: var(--p8-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---- content ----------------------------------------------------------- */
+
+.docs-content {
+  min-width: 0;
+}
+
+.docs-article h1 {
+  margin: 0 0 var(--p8-space-4);
+  font-size: var(--p8-text-3xl);
+}
+
+.docs-article h2 {
+  margin: var(--p8-space-7) 0 var(--p8-space-3);
+  font-size: var(--p8-text-xl);
+}
+
+.docs-article p {
+  margin: 0 0 var(--p8-space-4);
+  max-width: 72ch;
+  line-height: 1.6;
+}
+
+.docs-article :not(pre) > code {
+  padding: 0 var(--p8-space-1);
+  background: var(--p8-panel-2);
+  border-radius: var(--p8-radius-sm);
+}
+
+/* ---- tool table ---------------------------------------------------------- */
+
+.docs-table {
+  width: 100%;
+  margin: 0 0 var(--p8-space-6);
+  border-collapse: collapse;
+  font-size: var(--p8-text-sm);
+}
+
+.docs-table th,
+.docs-table td {
+  padding: var(--p8-space-2) var(--p8-space-3);
+  border-bottom: 1px solid var(--p8-line);
+  text-align: left;
+}
+
+.docs-table th {
+  color: var(--p8-muted);
+  font-weight: 600;
+}
+
+.docs-table code {
+  padding: 0 var(--p8-space-1);
+  background: var(--p8-panel-2);
+  border-radius: var(--p8-radius-sm);
+}
+
+/* ---- code block — the one inverted surface ------------------------------- */
+
+.docs-code {
+  margin: 0 0 var(--p8-space-5);
+  background: var(--p8-ink);
+  border-radius: var(--p8-radius);
+  overflow: hidden;
+}
+
+.docs-code-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--p8-space-3);
+  padding: var(--p8-space-2) var(--p8-space-3);
+  border-bottom: 1px solid var(--p8-line-d2);
+}
+
+.docs-code-lang {
+  margin-right: auto;
+  color: var(--p8-muted-d);
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
+  text-transform: uppercase;
+}
+
+.docs-code-copy {
+  padding: var(--p8-space-1) var(--p8-space-3);
+  background: transparent;
+  color: var(--p8-bone);
+  border: 1px solid var(--p8-line-d);
+  border-radius: var(--p8-radius-sm);
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
+  cursor: pointer;
+  transition: border-color var(--p8-dur-fast) var(--p8-ease);
+}
+
+.docs-code-copy:hover {
+  border-color: var(--p8-coral);
+}
+
+.docs-code pre {
+  margin: 0;
+  padding: var(--p8-space-4);
+  overflow-x: auto;
+}
+
+.docs-code code {
+  padding: 0;
+  background: transparent;
+  color: var(--p8-bone);
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-sm);
+}
+
+/* ---- not found ------------------------------------------------------------- */
+
+.docs-not-found h1 {
+  margin: 0 0 var(--p8-space-3);
+}
+
+/* ---- legal pages (terms/privacy) ------------------------------------------- */
+
+.legal-meta {
+  margin: 0 0 var(--p8-space-4);
+  color: var(--p8-muted);
+  font-size: var(--p8-text-sm);
+}
+
+.legal-banner {
+  margin: 0 0 var(--p8-space-6);
+  padding: var(--p8-space-3) var(--p8-space-4);
+  background: var(--p8-panel-2);
+  border-left: 3px solid var(--p8-warning);
+  border-radius: var(--p8-radius-sm);
+  color: var(--p8-muted);
+  font-size: var(--p8-text-sm);
+}
+
+/* ---- responsive -------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  .docs {
+    grid-template-columns: 1fr;
+  }
+
+  .docs-rail {
+    position: static;
+  }
+}

@@ -1,11 +1,11 @@
 /**
- * 01 — the gap core/memory/ exists to close. Every claim here describes the
+ * The gap core/memory/ exists to close. Every claim here describes the
  * status quo delapan is arguing against, not a delapan feature.
  */
-export function Problem() {
+export function Problem({ index }: { index: number }) {
   return (
     <section className="lp-inner lp-section">
-      <p className="lp-kicker">01 — the problem</p>
+      <p className="lp-kicker">{String(index).padStart(2, "0")} — the problem</p>
       <h2>agent memory is append-only</h2>
       <p className="lp-body">
         Ingest the same domain twice and you get two copies of the same fact. Correct something and

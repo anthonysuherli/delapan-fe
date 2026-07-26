@@ -13,7 +13,7 @@
  */
 
 /** [col, row, isIntersection] on a 5x9 grid. */
-const P8_CELLS: [number, number, boolean][] = [
+export const P8_CELLS: [number, number, boolean][] = [
   // top ring — top bar
   [0, 0, false], [1, 0, false], [2, 0, false], [3, 0, false], [4, 0, false],
   // top ring — sides
@@ -30,8 +30,8 @@ const P8_CELLS: [number, number, boolean][] = [
   [0, 8, false], [1, 8, false], [2, 8, false], [3, 8, false], [4, 8, false],
 ];
 
-const COLS = 5;
-const ROWS = 9;
+export const COLS = 5;
+export const ROWS = 9;
 const GAP = 1.6;
 const CELL = Math.min(100 / (COLS + 2), 100 / (ROWS + 2));
 const GW = COLS * CELL;

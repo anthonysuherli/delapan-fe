@@ -1,133 +1,119 @@
-/* the public landing page. Hairlines, 4px grid, flush left, no motion.
-   base.css sets `body { overflow: hidden }` for the full-screen graph app and
-   that propagates to the viewport, so a full-page surface MUST scroll itself —
-   the console shipped without this once and its lower half was unreachable. */
+/* the public landing page, restaged on the pixel-8 brand. Hairlines, no
+   motion. Selectors are bare `.lp-*` — scoping comes from rendering only
+   inside SiteShell's `.lp` wrapper, not from a `.site .lp*` compound
+   selector. every color/spacing/radius/font value below resolves through a
+   --p8-* token (site.css). Breakpoints/measures (ch, px grid max, px
+   breakpoints) stay raw — structural, not brand-scale, same convention as
+   site-shell.css. */
 
 .lp {
-  height: 100%;
-  overflow: auto;
-  background: var(--bg0);
-  color: var(--text);
+  display: flex;
+  flex-direction: column;
 }
 
 .lp-inner {
-  max-width: 860px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 0 var(--u6);
+  padding: 0 var(--p8-space-6);
 }
 
-.lp-nav {
-  display: flex;
-  align-items: center;
-  gap: var(--u3);
-  padding: var(--u4) var(--u6);
-  border-bottom: 1px solid var(--line);
-}
-
-.lp-wordmark {
-  font-family: var(--font-brand);
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  text-transform: lowercase;
-  color: var(--brand-ink);
-}
-
-.lp-nav-cta {
-  margin-left: auto;
-}
-
-/* --- hero ---------------------------------------------------------------- */
+/* --- hero ------------------------------------------------------------------ */
 
 .lp-hero {
-  /* block padding only — these rules share elements with .lp-inner, and the
-     `padding` shorthand would reset its horizontal padding to 0, running text
-     to the screen edge on narrow viewports. */
-  padding-top: var(--u8);
-  padding-bottom: var(--u8);
+  position: relative;
+  padding: var(--p8-space-9) 0;
+}
+
+/* positioned (not static) so it shares the "positioned, z-index:auto" paint
+   bucket with .mf-field below and — being later in the DOM — wins that tie,
+   painting on top without a z-index integer (literal-scan forbids one here). */
+.lp-hero-copy {
+  position: relative;
 }
 
 .lp-hero h1 {
-  margin: 0 0 var(--u4);
+  margin: 0 0 var(--p8-space-4);
   max-width: 18ch;
-  font-family: var(--font-display);
-  font-size: clamp(34px, 6vw, 54px);
+  font-family: var(--p8-font-display);
+  font-size: clamp(var(--p8-text-3xl), 6vw, var(--p8-text-5xl));
   font-weight: 600;
   line-height: 1.08;
-  letter-spacing: 0.01em;
-  text-transform: lowercase;
+  letter-spacing: -0.01em;
 }
 
 .lp-lede {
-  margin: 0 0 var(--u6);
-  max-width: 60ch;
-  font-size: 16px;
+  margin: 0 0 var(--p8-space-6);
+  max-width: 72ch;
+  font-size: var(--p8-text-lg);
   line-height: 1.6;
-  color: var(--text-dim);
+  color: var(--p8-muted);
 }
 
-.lp-cta-row {
-  display: flex;
-  align-items: center;
-  gap: var(--u4);
-  flex-wrap: wrap;
+/* --- generative mark field (hero background) --------------------------------- */
+
+.mf-field {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  pointer-events: none;
 }
 
-.lp-cta {
-  display: inline-block;
-  padding: var(--u3) var(--u6);
-  background: var(--chrome-accent);
-  color: var(--bg0);
-  border-radius: var(--radius);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
+.mf-cell {
+  animation: dlpn-cellfade var(--p8-dur) var(--p8-ease) both;
 }
 
-.lp-cta:hover {
-  background: var(--chrome-accent-bright);
+.mf-ink {
+  fill: var(--p8-ink);
+  --mf-o: 0.06;
 }
 
-.lp-cta-note {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--text-faint);
+.mf-coral {
+  fill: var(--p8-coral);
+  --mf-o: 0.5;
 }
 
-/* --- shared section furniture -------------------------------------------- */
+@keyframes dlpn-cellfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: var(--mf-o);
+  }
+}
+
+/* --- shared section furniture ----------------------------------------------- */
 
 .lp-section {
-  padding-top: var(--u8);
-  padding-bottom: var(--u8);
-  border-top: 1px solid var(--line);
+  padding: var(--p8-space-9) 0;
+  border-top: 1px solid var(--p8-line);
 }
 
 .lp-kicker {
-  margin: 0 0 var(--u3);
-  font-family: var(--font-mono);
-  font-size: 10px;
+  margin: 0 0 var(--p8-space-3);
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--p8-muted);
 }
 
 .lp-section h2 {
-  margin: 0 0 var(--u4);
+  margin: 0 0 var(--p8-space-4);
   max-width: 24ch;
-  font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 34px);
+  font-family: var(--p8-font-display);
+  font-size: clamp(var(--p8-text-2xl), 4vw, var(--p8-text-3xl));
   font-weight: 600;
   line-height: 1.15;
-  text-transform: lowercase;
 }
 
 .lp-body {
-  margin: 0 0 var(--u4);
-  max-width: 62ch;
-  font-size: 15px;
+  margin: 0 0 var(--p8-space-4);
+  max-width: 72ch;
+  font-size: var(--p8-text-base);
   line-height: 1.65;
-  color: var(--text-dim);
+  color: var(--p8-muted);
 }
 
 .lp-body:last-child {
@@ -135,170 +121,218 @@
 }
 
 .lp-code {
-  font-family: var(--font-mono);
+  font-family: var(--p8-font-mono);
   font-size: 0.92em;
-  color: var(--text);
+  padding: 0.1em 0.4em;
+  background: var(--p8-panel-2);
+  border-radius: var(--p8-radius-sm);
+  color: var(--p8-ink);
 }
 
-/* --- pillars -------------------------------------------------------------- */
+/* --- pillars ------------------------------------------------------------------ */
 
 .lp-pillars {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--u6);
-  margin-top: var(--u6);
+  gap: var(--p8-space-6);
+  margin-top: var(--p8-space-6);
 }
 
 .lp-pillar h3 {
-  margin: 0 0 var(--u2);
-  font-size: 15px;
+  margin: 0 0 var(--p8-space-2);
+  font-size: var(--p8-text-base);
   font-weight: 600;
-  text-transform: lowercase;
 }
 
 .lp-pillar p {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--p8-text-sm);
   line-height: 1.6;
-  color: var(--text-dim);
+  color: var(--p8-muted);
 }
 
 .lp-pillar-rule {
   width: 24px;
   height: 2px;
-  margin-bottom: var(--u3);
-  background: var(--chrome-accent);
+  margin-bottom: var(--p8-space-3);
+  background: var(--p8-coral);
 }
 
-/* --- coverage verdicts ---------------------------------------------------- */
+/* --- coverage verdicts ---------------------------------------------------------- */
 
 .lp-verdicts {
   display: grid;
-  gap: var(--u3);
-  margin-top: var(--u6);
+  gap: var(--p8-space-3);
+  margin-top: var(--p8-space-6);
 }
 
 .lp-verdict {
   display: flex;
   align-items: baseline;
-  gap: var(--u3);
-  padding: var(--u3) var(--u4);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--bg1);
+  gap: var(--p8-space-3);
+  padding: var(--p8-space-3) var(--p8-space-4);
+  border: 1px solid var(--p8-line);
+  border-radius: var(--p8-radius);
+  background: var(--p8-panel);
 }
 
 .lp-verdict-glyph {
-  font-size: 12px;
+  font-size: var(--p8-text-xs);
   line-height: 1;
 }
 
 .lp-verdict-name {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   min-width: 8ch;
 }
 
 .lp-verdict-note {
-  font-size: 14px;
-  color: var(--text-dim);
+  font-size: var(--p8-text-sm);
+  color: var(--p8-muted);
 }
 
-/* --- plug-in targets ------------------------------------------------------ */
+/* verdict color is the ONLY place coral-adjacent brand functional tokens
+   accent this page beyond the CTA and pillar rules — glyph + name only,
+   never the note, and never coral itself (functional set is distinct from
+   brand coral per site.css). */
+.lp-verdict--rich .lp-verdict-glyph,
+.lp-verdict--rich .lp-verdict-name {
+  color: var(--p8-positive);
+}
+
+.lp-verdict--sparse .lp-verdict-glyph,
+.lp-verdict--sparse .lp-verdict-name {
+  color: var(--p8-warning);
+}
+
+.lp-verdict--gap .lp-verdict-glyph,
+.lp-verdict--gap .lp-verdict-name {
+  color: var(--p8-critical);
+}
+
+/* --- plug-in targets -------------------------------------------------------------- */
 
 .lp-targets {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--u6);
-  margin-top: var(--u6);
+  gap: var(--p8-space-6);
+  margin-top: var(--p8-space-6);
 }
 
 .lp-target h3 {
-  margin: 0 0 var(--u2);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  margin: 0 0 var(--p8-space-2);
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--p8-muted);
 }
 
 .lp-target p {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--p8-text-sm);
   line-height: 1.6;
-  color: var(--text-dim);
+  color: var(--p8-muted);
 }
 
-/* --- what it isn't / not built yet ---------------------------------------- */
+/* --- what it isn't / not built yet ------------------------------------------------- */
 
 .lp-contrasts {
   display: grid;
-  gap: var(--u4);
-  margin-top: var(--u6);
+  gap: var(--p8-space-4);
+  margin-top: var(--p8-space-6);
 }
 
 .lp-contrast {
-  padding-left: var(--u4);
-  border-left: 2px solid var(--line-bright);
+  padding-left: var(--p8-space-4);
+  border-left: 2px solid var(--p8-line);
 }
 
 .lp-contrast b {
   display: block;
-  margin-bottom: var(--u);
-  font-size: 14px;
+  margin-bottom: var(--p8-space-1);
+  font-size: var(--p8-text-sm);
   font-weight: 600;
 }
 
 .lp-contrast span {
-  font-size: 14px;
+  font-size: var(--p8-text-sm);
   line-height: 1.6;
-  color: var(--text-dim);
+  color: var(--p8-muted);
 }
 
 .lp-planned {
   display: grid;
-  gap: var(--u2);
-  margin-top: var(--u6);
-  padding-top: var(--u6);
-  border-top: 1px solid var(--line);
+  gap: var(--p8-space-2);
+  margin-top: var(--p8-space-6);
+  padding-top: var(--p8-space-6);
+  border-top: 1px solid var(--p8-line);
 }
 
 .lp-planned-row {
   display: flex;
   align-items: baseline;
-  gap: var(--u3);
-  font-size: 14px;
-  color: var(--text-dim);
+  gap: var(--p8-space-3);
+  font-size: var(--p8-text-sm);
+  color: var(--p8-muted);
 }
 
 .lp-planned-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-faint);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 1px var(--u2);
+  color: var(--p8-muted);
+  border: 1px solid var(--p8-line);
+  border-radius: var(--p8-radius);
+  padding: 1px var(--p8-space-2);
 }
 
-/* --- close + footer ------------------------------------------------------- */
+/* --- close -------------------------------------------------------------------------- */
 
 .lp-close {
-  padding-top: var(--u8);
-  padding-bottom: var(--u8);
-  border-top: 1px solid var(--line);
+  padding: var(--p8-space-9) 0;
+  border-top: 1px solid var(--p8-line);
 }
 
-.lp-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--u3);
-  padding: var(--u6);
-  border-top: 1px solid var(--line);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-faint);
+/* --- responsive ----------------------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .lp-inner {
+    padding: 0 var(--p8-space-5);
+  }
+}
+
+@media (max-width: 768px) {
+  .lp-hero,
+  .lp-section,
+  .lp-close {
+    padding: var(--p8-space-7) 0;
+  }
+
+  .lp-inner {
+    padding: 0 var(--p8-space-4);
+  }
+
+  .mf-field {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .lp-verdict {
+    flex-wrap: wrap;
+  }
+}
+
+/* --- reduced motion: kill the cell stagger, land at final opacity --------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-cell {
+    animation: none;
+    opacity: var(--mf-o);
+  }
 }
