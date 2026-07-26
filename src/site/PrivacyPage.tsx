@@ -30,11 +30,10 @@ export function PrivacyPage() {
           <h2>processors</h2>
           <p>
             a small set of outside services process data on our behalf. Supabase handles the
-            database and authentication. Vercel hosts the application. when you use explore, the
-            content you explicitly submit through it is sent to LLM providers (Anthropic and
-            OpenAI-compatible gateways) and to the Tavily search API, so they can do the research
-            and generation work explore does. nothing else you haven't submitted through explore
-            leaves the system that way.
+            database and authentication. Vercel hosts the application. LLM providers reached
+            through our AI gateway process the content you explicitly send through explore; the
+            search queries explore issues go to the Tavily search API. nothing else you haven't
+            submitted through explore leaves the system that way.
           </p>
 
           <h2>what we don't do</h2>
