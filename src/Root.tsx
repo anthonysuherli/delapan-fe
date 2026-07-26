@@ -52,7 +52,11 @@ function RedirectHome() {
   useEffect(() => {
     window.location.replace("/");
   }, []);
-  return <Interstitial line="taking you home…" />;
+  return (
+    <div className="site">
+      <Interstitial line="taking you home…" />
+    </div>
+  );
 }
 
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
@@ -66,15 +70,29 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   // These four depend on the session, so wait for it to resolve. Rendering
   // early would flash the landing page at an already-signed-in visitor.
   if (session === undefined) {
-    return <Interstitial line="checking session…" />;
+    return (
+      <div className="site">
+        <Interstitial line="checking session…" />
+      </div>
+    );
   }
   if (surface === "panel") {
-    if (access === "pending") return <PendingApp session={session!} />;
+    if (access === "pending") {
+      return (
+        <div className="site">
+          <PendingApp session={session!} />
+        </div>
+      );
+    }
     return PANEL;
   }
   if (surface === "redirect-home") return <RedirectHome />;
   if (surface === "signup") {
-    return <SignUpForm supabase={supabase} />;
+    return (
+      <div className="site">
+        <SignUpForm supabase={supabase} />
+      </div>
+    );
   }
   if (surface === "console" && session) {
     // The gate is only real if the client honours it. "error" deliberately
@@ -83,11 +101,21 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
     if (access === "checking" || access === "idle") {
       return <Interstitial line="checking access…" />;
     }
-    if (access === "pending") return <PendingApp session={session} />;
+    if (access === "pending") {
+      return (
+        <div className="site">
+          <PendingApp session={session} />
+        </div>
+      );
+    }
     return <ConsoleApp session={session} />;
   }
   if (surface === "signin") {
-    return <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />;
+    return (
+      <div className="site">
+        <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />
+      </div>
+    );
   }
   return <LandingApp />;
 }

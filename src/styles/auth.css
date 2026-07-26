@@ -79,3 +79,64 @@
   font-size: 13px;
   letter-spacing: 0.14em;
 }
+
+/* ---- .site override: marketing-route auth surfaces ---------------------
+   Root.tsx wraps /login, /signup, waitlist, and its own interstitials in
+   <div className="site">; AuthGate's in-panel sign-in stays app-styled and
+   never gets this ancestor. site.css loads AFTER this file, but every
+   selector below is scoped under .site, so it out-specifies the bare
+   .auth-* rules above regardless of import order (e.g. .site .auth-card is
+   (0,2,0) vs .auth-card's (0,1,0) — cascade order never has to break the
+   tie). Tokens only — the literal-scan gate enforces this file stays
+   hex/rgba-free. */
+
+.site .auth-wrap,
+.site .auth-state {
+  background: var(--p8-bone);
+}
+
+.site .auth-card {
+  background: var(--p8-panel);
+  border-color: var(--p8-line);
+  border-radius: var(--p8-radius);
+  box-shadow: var(--p8-shadow);
+  color: var(--p8-ink);
+  font-family: var(--p8-font-body);
+}
+
+.site .auth-card label {
+  color: var(--p8-muted);
+  font-family: var(--p8-font-mono);
+}
+
+.site .auth-card .btn--accent {
+  background: var(--p8-coral);
+  border-color: var(--p8-coral-deep);
+  color: var(--p8-bone);
+}
+
+.site .auth-card .btn--accent:hover:not(:disabled) {
+  background: var(--p8-coral-deep);
+}
+
+.site .auth-err {
+  color: var(--p8-critical);
+}
+
+.site .auth-card a {
+  color: var(--p8-coral-deep);
+}
+
+.site .auth-card .inp {
+  background: var(--p8-bone);
+  border-color: var(--p8-line);
+}
+
+.site .auth-card .inp:focus {
+  border-color: var(--p8-coral);
+}
+
+/* brand rule: the wordmark's 8 takes coral everywhere under .site */
+.site .wm-8 {
+  color: var(--p8-coral);
+}
