@@ -84,10 +84,11 @@ It probes `api.getProjects()` exactly once per session and classifies the result
 (`backend/delapan/api/routes_projects.py:28-30`) → `request_store` → `require_beta(user_id)`
 (`backend/delapan/api/auth.py:181`) → `HTTPException(403)`. The probe genuinely surfaces the gate;
 this is the design's load-bearing assumption, so it was followed through the backend rather than
-inferred from the endpoint's name. `idle` covers "no
-session yet, nothing to check". The console renders no API-backed data today, so without this probe
-the gate would be decorative — a waitlisted user would see a fully populated-looking console and
-only discover the truth on `/kg`.
+inferred from the endpoint's name.
+
+`idle` covers "no session yet, nothing to check". The console renders no API-backed data today, so
+without this probe the gate would be decorative — a waitlisted user would see a fully
+populated-looking console and only discover the truth on `/kg`.
 
 ### 403 must not sign the user out
 
