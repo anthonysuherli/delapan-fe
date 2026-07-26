@@ -118,4 +118,14 @@
   --z-modal: 100;
   --z-toast: 200;
   --z-boot: 320;
+
+  /* canvas — sigma/2D-canvas palette; mirrors CANVAS in graph/encoding.ts.
+     The TS side is the source of truth (WebGL can't read custom props). */
+  --canvas-dim-node: #d8e0ea;
+  --canvas-dim-edge: #e6ebf2;
+  --canvas-edge: #b3bfcf;
+  --canvas-edge-label: #67788c;
+  --canvas-ink: #465a70;
+  --canvas-ink-strong: #1f2b3a;
+  --canvas-card: rgba(255, 255, 255, 0.95);
 }

@@ -14,6 +14,7 @@ import { orderedNeighbors, hopKeyLabel } from "../travel/neighbors";
 import { localRelationNames } from "../state/derive";
 import { drawNodeHover, drawNodeLabel } from "./canvasDraw";
 import { ACCENT, DIM_EDGE, DIM_NODE, lighten, VISITED_MIX } from "./colors";
+import { CANVAS } from "./encoding";
 import { graph, onGraphTouched, type EdgeAttrs, type NodeAttrs } from "./graphStore";
 import { initGraphMotion, resyncGraphMotion, stopGraphMotion } from "./motion";
 import { sigmaRef, type AppSigma } from "./sigmaRef";
@@ -48,11 +49,11 @@ export function GraphCanvas() {
       labelFont: '"IBM Plex Sans", sans-serif',
       labelSize: 12,
       labelWeight: "500",
-      labelColor: { color: "#465a70" },
+      labelColor: { color: CANVAS.ink },
       labelRenderedSizeThreshold: 5,
       edgeLabelFont: '"IBM Plex Mono", monospace',
       edgeLabelSize: 10,
-      edgeLabelColor: { color: "#67788c" },
+      edgeLabelColor: { color: CANVAS.edgeLabel },
       defaultDrawNodeLabel: drawNodeLabel,
       defaultDrawNodeHover: drawNodeHover,
       minCameraRatio: 0.03,
