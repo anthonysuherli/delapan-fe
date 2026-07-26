@@ -46,6 +46,10 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
             we sent a confirmation link to <span className="pending-email">{email}</span>. open it to
             finish creating your account.
           </p>
+          <p className="pending-note">
+            already have an account? <a href="/login">sign in</a> — if this address was already
+            registered, no new mail is sent and that link will just sign you in instead.
+          </p>
         </div>
       </main>
     );
