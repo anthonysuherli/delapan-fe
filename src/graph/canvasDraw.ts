@@ -9,15 +9,15 @@
 import type { Attributes } from "graphology-types";
 import type { Settings } from "sigma/settings";
 import type { NodeDisplayData, PartialButFor } from "sigma/types";
-import { typeGlyph } from "./encoding";
+import { CANVAS, typeGlyph } from "./encoding";
 
 type LabelData = PartialButFor<NodeDisplayData, "x" | "y" | "size" | "label" | "color"> & {
   nodeType?: string;
 };
 
-const INK = "#465a70";
-const INK_STRONG = "#1f2b3a";
-const CARD_FILL = "rgba(255, 255, 255, 0.95)";
+const INK = CANVAS.ink;
+const INK_STRONG = CANVAS.inkStrong;
+const CARD_FILL = CANVAS.cardFill;
 const GLYPH_GAP = 4;
 
 /** "▲ label", or just "label" when the node has no type. */

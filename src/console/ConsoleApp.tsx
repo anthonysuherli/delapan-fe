@@ -6,6 +6,7 @@
  */
 import type { Session } from "@supabase/supabase-js";
 import { Logomark } from "../panels/Logomark";
+import { Wordmark } from "../panels/Wordmark";
 import { getSupabaseClient } from "../tracking/supabaseClient";
 import { TILES } from "./tiles";
 
@@ -22,7 +23,7 @@ export function ConsoleApp({ session }: { session: Session }) {
       <header className="cons-head">
         <Logomark size={40} />
         <div className="cons-brand-text">
-          <span className="cons-wordmark">delapan</span>
+          <Wordmark form="lower" className="cons-wordmark" />
           {email && <span className="cons-sub">signed in as {email}</span>}
         </div>
       </header>

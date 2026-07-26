@@ -40,14 +40,7 @@
 }
 
 .tb-wordmark {
-  /* brand wordmark: lowercase Space Grotesk Medium, tight tracking. The mark
-     and the wordmark stay separate — the mark is the glyph, this is type. */
-  font-family: var(--font-brand);
   font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  text-transform: lowercase;
-  color: var(--brand-ink);
 }
 
 .tb-sub {
@@ -85,11 +78,11 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  z-index: 60;
+  z-index: var(--z-search);
   background: var(--bg2);
   border: 1px solid var(--line-bright);
   border-radius: var(--radius);
-  box-shadow: 0 10px 30px rgba(31, 43, 58, 0.16);
+  box-shadow: var(--shadow-2);
   overflow: hidden;
 }
 
@@ -167,7 +160,7 @@
 .sb-mock-badge {
   padding: 0 6px;
   border: 1px solid var(--accent);
-  border-radius: 3px;
+  border-radius: var(--r-1);
   color: var(--accent);
   letter-spacing: 0.12em;
   background: var(--accent-dim);
@@ -209,15 +202,7 @@
 }
 
 .boot-wordmark {
-  font-family: var(--font-display);
   font-size: 44px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--text);
-}
-
-.boot-wordmark span {
-  color: var(--accent);
 }
 
 .boot-line {
@@ -248,7 +233,7 @@
   letter-spacing: 0.08em;
   color: var(--text-dim);
   background: var(--bg2);
-  transition: color 120ms, background 120ms;
+  transition: color var(--t-micro), background var(--t-micro);
 }
 
 .tb-seg-btn:hover {
@@ -258,4 +243,13 @@
 .tb-seg-btn--on {
   color: var(--accent);
   background: var(--accent-dim);
+}
+
+/* --- center view crossfade (graph <-> findings) ---------------------------- */
+
+.view-fade {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  animation: dlpn-fade var(--t-pop) var(--ease-out);
 }

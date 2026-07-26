@@ -7,6 +7,12 @@
 
 :root {
   --ease-mech: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-micro: 120ms; /* hover/color transitions */
+  --t-press: 90ms; /* button active nudge */
+  --t-pop: 160ms; /* modal / popover in */
+  --t-enter: 240ms; /* drawer / toast / element enter */
+  --t-exit: 180ms; /* element exit — always shorter than enter */
   --t-rise: 500ms; /* panel stagger-rise */
   --t-settle: 800ms; /* graph node settle-in (sigma) */
   --t-camera: 680ms; /* sigma camera ease on select */
@@ -57,6 +63,15 @@
   to {
     transform: translate(-50%, -50%) scale(2.6);
     opacity: 0;
+  }
+}
+
+@keyframes dlpn-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
   }
 }
 
@@ -119,7 +134,7 @@
   right: 0;
   top: 0;
   height: 60px;
-  z-index: 320;
+  z-index: var(--z-boot);
   pointer-events: none;
   background: linear-gradient(
     180deg,
@@ -165,7 +180,8 @@
   .lr > .sect,
   .dlpn-in-rise,
   .dlpn-in-slide,
-  .ins-body {
+  .ins-body,
+  .view-fade {
     animation: none;
     opacity: 1;
     transform: none;
@@ -175,6 +191,9 @@
     display: none;
   }
   .lr-drift-note {
+    animation: none;
+  }
+  .skel-row {
     animation: none;
   }
 }

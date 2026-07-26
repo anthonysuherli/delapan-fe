@@ -11,6 +11,7 @@
 export type Surface =
   | "landing"
   | "signin"
+  | "signup"
   | "redirect-home"
   | "console"
   | "panel"
@@ -21,6 +22,7 @@ export function resolveRoute(pathname: string, hasSession: boolean): Surface {
   const path = pathname.replace(/\/$/, "") || "/";
   if (path === "/") return hasSession ? "console" : "landing";
   if (path === "/login") return hasSession ? "redirect-home" : "signin";
+  if (path === "/signup") return hasSession ? "redirect-home" : "signup";
   if (path === "/tracking") return "tracking";
   if (path === "/duet") return "duet";
   return "panel";

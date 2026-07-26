@@ -50,6 +50,19 @@ export function extractNodeTypes(schema: unknown): string[] {
   return [];
 }
 
+/** For each id not yet in the graph, the first already-present neighbour (from res edges) to place it near. */
+export function computeAnchors(
+  present: (id: string) => boolean,
+  edges: { source: string; target: string }[],
+): Map<string, string> {
+  const anchorOf = new Map<string, string>();
+  for (const e of edges) {
+    if (present(e.source) && !present(e.target) && !anchorOf.has(e.target)) anchorOf.set(e.target, e.source);
+    if (present(e.target) && !present(e.source) && !anchorOf.has(e.source)) anchorOf.set(e.source, e.target);
+  }
+  return anchorOf;
+}
+
 export function knownTypes(intentSchema: unknown, emergentSchema: unknown): string[] {
   const set = new Set<string>([
     ...Object.keys(localByType()),

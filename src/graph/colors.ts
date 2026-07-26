@@ -6,12 +6,14 @@
 
 export { typeColor, typeGlyph, isRemainder } from "./encoding";
 
-export const DIM_NODE = "#d8e0ea";
-export const DIM_EDGE = "#e6ebf2";
-export const EDGE_COLOR = "#b3bfcf";
+import { CANVAS, CHROME } from "./encoding";
+
+export const DIM_NODE = CANVAS.dimNode;
+export const DIM_EDGE = CANVAS.dimEdge;
+export const EDGE_COLOR = CANVAS.edge;
 
 /** Chrome, used on canvas for the SELECTION RING only — never as a data hue. */
-export const ACCENT = "#b45309";
+export const ACCENT = CHROME[0]!;
 
 export const VISITED_MIX = 0.45;
 

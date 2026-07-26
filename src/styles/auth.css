@@ -1,0 +1,81 @@
+/* Auth surfaces: sign-in / sign-up / waitlist cards + the branded
+   interstitial. Promoted from tracking.css so the product auth journey no
+   longer depends on the tracking surface's stylesheet. Legacy .pending-*
+   rules still live in tracking.css. */
+
+.auth-wrap,
+.auth-state {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  padding: var(--u6);
+  background: var(--bg0);
+}
+
+.auth-card {
+  display: grid;
+  width: min(380px, 100%);
+  gap: var(--u4);
+  padding: 28px;
+  background: var(--bg1);
+  border: 1px solid var(--line-bright);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+
+.auth-card > p {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.auth-card h1 {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.auth-card label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.auth-card .btn {
+  justify-content: center;
+  margin-top: var(--u);
+}
+
+.auth-err {
+  margin: 0;
+  color: var(--red);
+}
+
+/* the one branded wait screen: wordmark + line + a slow scan shimmer */
+.auth-state {
+  align-content: center;
+  gap: var(--u2);
+  justify-items: center;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.auth-state-wm {
+  font-size: 22px;
+}
+
+.auth-state-line {
+  display: flex;
+  align-items: center;
+  gap: var(--u2);
+  margin: 0;
+}
+
+.auth-wm {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+}

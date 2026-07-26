@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import tokensCss from "../styles/tokens.css?raw";
 import {
+  CANVAS,
   CHROME,
   GLYPHS,
   REST_COLOR,
@@ -199,5 +200,32 @@ describe("the colour ring goes to types that exist", () => {
     primeChannels(counts);
     const glyphs = Object.keys(counts).map(typeGlyph);
     expect(new Set(glyphs).size).toBe(glyphs.length);
+  });
+});
+
+describe("tokens.css mirrors the canvas palette", () => {
+  const TOKEN_OF: Record<keyof typeof CANVAS, string> = {
+    dimNode: "--canvas-dim-node",
+    dimEdge: "--canvas-dim-edge",
+    edge: "--canvas-edge",
+    edgeLabel: "--canvas-edge-label",
+    ink: "--canvas-ink",
+    inkStrong: "--canvas-ink-strong",
+    cardFill: "--canvas-card",
+  };
+
+  it("declares one --canvas-* token per CANVAS entry, byte-identical", () => {
+    for (const [key, token] of Object.entries(TOKEN_OF)) {
+      const value = CANVAS[key as keyof typeof CANVAS].replace(/[()]/g, "\\$&");
+      const declared = new RegExp(`${token}:\\s*${value};`, "i").test(tokensCss);
+      expect(declared, `${token} should be ${CANVAS[key as keyof typeof CANVAS]}`).toBe(true);
+    }
+  });
+
+  it("keeps chrome amber out of the canvas palette", () => {
+    const chrome = new Set(CHROME.map((s) => s.toLowerCase()));
+    for (const value of Object.values(CANVAS)) {
+      expect(chrome.has(value.toLowerCase())).toBe(false);
+    }
   });
 });

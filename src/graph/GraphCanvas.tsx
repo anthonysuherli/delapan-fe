@@ -14,8 +14,9 @@ import { orderedNeighbors, hopKeyLabel } from "../travel/neighbors";
 import { localRelationNames } from "../state/derive";
 import { drawNodeHover, drawNodeLabel } from "./canvasDraw";
 import { ACCENT, DIM_EDGE, DIM_NODE, lighten, VISITED_MIX } from "./colors";
+import { CANVAS } from "./encoding";
 import { graph, onGraphTouched, type EdgeAttrs, type NodeAttrs } from "./graphStore";
-import { initGraphMotion, resyncGraphMotion, stopGraphMotion } from "./motion";
+import { enteringNodeIds, initGraphMotion, resyncGraphMotion, stopGraphMotion } from "./motion";
 import { sigmaRef, type AppSigma } from "./sigmaRef";
 
 export function GraphCanvas() {
@@ -32,6 +33,7 @@ export function GraphCanvas() {
   const loadingGraph = useStore((s) => s.loadingGraph);
   const project = useStore((s) => s.project);
   const kb = useStore((s) => s.kb);
+  const graphVersion = useStore((s) => s.graphVersion);
 
   // --- create sigma once -----------------------------------------------------
   useEffect(() => {
@@ -48,11 +50,11 @@ export function GraphCanvas() {
       labelFont: '"IBM Plex Sans", sans-serif',
       labelSize: 12,
       labelWeight: "500",
-      labelColor: { color: "#465a70" },
+      labelColor: { color: CANVAS.ink },
       labelRenderedSizeThreshold: 5,
       edgeLabelFont: '"IBM Plex Mono", monospace',
       edgeLabelSize: 10,
-      edgeLabelColor: { color: "#67788c" },
+      edgeLabelColor: { color: CANVAS.edgeLabel },
       defaultDrawNodeLabel: drawNodeLabel,
       defaultDrawNodeHover: drawNodeHover,
       minCameraRatio: 0.03,
@@ -330,6 +332,27 @@ export function GraphCanvas() {
           <span className="spin" /> loading graph…
         </div>
       )}
+      {!loadingGraph && graph.order === 0 && (
+        // data-graph-version consumes the graphVersion subscription (strict noUnusedLocals) AND
+        // ties this render to graph mutations — do not remove either side.
+        <div className="cv-empty" data-graph-version={graphVersion}>
+          <p className="cv-empty-title">this KB has no graph yet</p>
+          <p className="cv-empty-line">
+            run an explore to grow it from research, or place the first node by hand.
+          </p>
+          <div className="cv-empty-actions">
+            <button
+              className="btn btn--accent"
+              onClick={() => useStore.getState().requestExploreFocus()}
+            >
+              launch an explore
+            </button>
+            <button className="btn" onClick={() => useStore.getState().setAddNodeOpen(true)}>
+              add a node
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -351,9 +374,34 @@ function CanvasOverlays({ sigma }: { sigma: AppSigma }) {
     <div className="cv-overlays">
       <SelectionReticle sigma={sigma} />
       <SelectionPulse sigma={sigma} />
+      <EnterPulses sigma={sigma} />
       <TravelLayer sigma={sigma} />
       <RelationPopover sigma={sigma} />
     </div>
+  );
+}
+
+// arrival rings on nodes currently animating in — same visual family as the
+// selection pulse, so "new" and "selected" read as one language. No props or
+// store subscription drive this: it reads motion.ts's module-level enter
+// state directly, deliberately, and relies on CanvasOverlays' afterRender
+// bump (above) to re-poll it every frame.
+function EnterPulses({ sigma }: { sigma: AppSigma }) {
+  const ids = enteringNodeIds().slice(0, 12); // cap the ring count, not the enters
+  return (
+    <>
+      {ids.map((id) => {
+        const pos = nodeViewport(sigma, id);
+        if (!pos) return null;
+        return (
+          <span
+            key={`enter-${id}`}
+            className="dlpn-ring"
+            style={{ left: pos.x, top: pos.y, width: 30, height: 30 }}
+          />
+        );
+      })}
+    </>
   );
 }
 

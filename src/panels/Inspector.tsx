@@ -104,7 +104,7 @@ function NodeInspector({ id }: { id: string }) {
         <div className="ins-row">
           <label>label</label>
           <input
-            className="inp ins-label-input"
+            className="inp inp--lg ins-label-input"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             onBlur={commitLabel}
@@ -124,7 +124,7 @@ function NodeInspector({ id }: { id: string }) {
         </div>
         <div className="ins-row">
           <label>created</label>
-          <span className="mono" style={{ fontSize: 10, color: "var(--text-faint)" }}>
+          <span className="mono hint">
             {attrs.created_at ? new Date(attrs.created_at).toLocaleString() : "—"}
           </span>
         </div>
@@ -159,8 +159,7 @@ function NodeInspector({ id }: { id: string }) {
           ⌁ connect <span className="kbd">E</span>
         </button>
         <button
-          className="btn btn--danger"
-          style={{ marginLeft: "auto" }}
+          className="btn btn--danger ml-auto"
           onClick={() => void deleteElements([id], [])}
         >
           ✕ delete
@@ -185,7 +184,7 @@ function TypeSelect({
 
   if (custom) {
     return (
-      <div style={{ display: "flex", gap: 4 }}>
+      <div className="row">
         <input
           className="inp"
           autoFocus
@@ -246,7 +245,7 @@ function EdgeInspector({ id }: { id: string }) {
   return (
     <>
       <div className="ins-header">
-        <span className="type-dot" style={{ background: "var(--accent)" }} />
+        <span className="type-dot type-dot--chrome" />
         <span className="ins-kind">Edge</span>
         <span className="ins-id mono" title={id}>
           {id}
@@ -294,8 +293,7 @@ function EdgeInspector({ id }: { id: string }) {
 
       <div className="ins-actions">
         <button
-          className="btn btn--danger"
-          style={{ marginLeft: "auto" }}
+          className="btn btn--danger ml-auto"
           onClick={() => void deleteElements([], [id])}
         >
           ✕ delete
@@ -324,7 +322,7 @@ function EndpointButton({ role, id }: { role: string; id: string }) {
           {typeGlyph(attrs.nodeType)}
         </span>
         {attrs.label}
-        <span className="arrow" style={{ marginLeft: "auto" }}>
+        <span className="arrow ml-auto">
           ↗
         </span>
       </button>
@@ -356,7 +354,7 @@ function BulkInspector({ nodes, edges }: { nodes: string[]; edges: string[] }) {
           {nodes.length > 0 && edges.length > 0 && " · "}
           {edges.length > 0 && `${edges.length} edge(s)`}
         </div>
-        <p style={{ color: "var(--text-faint)", fontSize: 11 }}>
+        <p className="hint">
           Shift-click to add or remove elements from the selection.
         </p>
       </div>
@@ -380,8 +378,7 @@ function BulkInspector({ nodes, edges }: { nodes: string[]; edges: string[] }) {
       )}
       <div className="ins-actions">
         <button
-          className="btn btn--danger"
-          style={{ marginLeft: "auto" }}
+          className="btn btn--danger ml-auto"
           onClick={() => void deleteElements(nodes, edges)}
         >
           ✕ delete all ({nodes.length + edges.length})
@@ -483,7 +480,7 @@ function PropertiesEditor({
           onChange={(e) => setNewValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
         />
-        <button className="ins-prop-del" title="add property" onClick={add} style={{ color: "var(--green)" }}>
+        <button className="ins-prop-del ins-prop-add" title="add property" onClick={add}>
           +
         </button>
       </div>

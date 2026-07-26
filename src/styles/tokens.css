@@ -90,5 +90,46 @@
   --inspector-w: 336px;
   --topbar-h: 48px;
   --statusbar-h: 28px;
-  --radius: 4px;
+
+  /* radius scale — 2/4/6/pill. --radius is a legacy alias for --r-2. */
+  --r-1: 2px;
+  --r-2: 4px;
+  --r-3: 6px;
+  --r-pill: 999px;
+  --radius: var(--r-2);
+
+  /* effects — amber annunciator glow (3-rung alpha ladder; chrome family,
+     never data) and the neutral elevation scale. */
+  --glow-1: rgba(180, 83, 9, 0.1);
+  --glow-2: rgba(180, 83, 9, 0.25);
+  --glow-3: rgba(180, 83, 9, 0.45);
+  --shadow-1: 0 1px 3px rgba(31, 43, 58, 0.1);
+  --shadow-2: 0 10px 30px rgba(31, 43, 58, 0.16);
+  --shadow-3: 0 14px 40px rgba(31, 43, 58, 0.2);
+  --shadow-4: 0 24px 80px rgba(31, 43, 58, 0.24);
+  --shadow-drawer: -18px 0 50px rgba(31, 43, 58, 0.2);
+  --card-veil: rgba(255, 255, 255, 0.6);
+  --bg-veil: rgba(245, 247, 250, 0.72);
+  --red-veil: rgba(220, 38, 38, 0.08);
+  --red-line: rgba(220, 38, 38, 0.4);
+  --scrim: rgba(31, 43, 58, 0.3);
+
+  /* z bands — cross-surface stacking only. The intra-canvas overlay stack
+     (canvas.css, values 4–40) orders layers inside one surface and stays
+     local. */
+  --z-search: 60;
+  --z-drawer: 70;
+  --z-modal: 100;
+  --z-toast: 200;
+  --z-boot: 320;
+
+  /* canvas — sigma/2D-canvas palette; mirrors CANVAS in graph/encoding.ts.
+     The TS side is the source of truth (WebGL can't read custom props). */
+  --canvas-dim-node: #d8e0ea;
+  --canvas-dim-edge: #e6ebf2;
+  --canvas-edge: #b3bfcf;
+  --canvas-edge-label: #67788c;
+  --canvas-ink: #465a70;
+  --canvas-ink-strong: #1f2b3a;
+  --canvas-card: rgba(255, 255, 255, 0.95); /* also consumed by DOM chrome (.cv-hint, .hud) — restyling CANVAS.cardFill restyles them too */
 }

@@ -10,6 +10,10 @@ import { useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import App from "./App";
 import { AuthGate } from "./auth/AuthGate";
+import { Interstitial } from "./auth/Interstitial";
+import { PendingApp } from "./auth/PendingApp";
+import { SignUpForm } from "./auth/SignUpForm";
+import { useBetaAccess } from "./auth/useBetaAccess";
 import { useSession } from "./auth/useSession";
 import { ConsoleApp } from "./console/ConsoleApp";
 import { DuetApp } from "./duet/DuetApp";
@@ -39,11 +43,7 @@ export function Root() {
     return <ConfiguredRoot supabase={getSupabaseClient()} />;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Auth is not configured.";
-    return (
-      <main className="tracking-state">
-        <p className="tracking-error">{message}</p>
-      </main>
-    );
+    return <Interstitial error={message} />;
   }
 }
 
@@ -52,32 +52,40 @@ function RedirectHome() {
   useEffect(() => {
     window.location.replace("/");
   }, []);
-  return (
-    <main className="tracking-state">
-      <span className="spin" /> taking you home…
-    </main>
-  );
+  return <Interstitial line="taking you home…" />;
 }
 
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const session = useSession(supabase);
   const surface = resolveRoute(window.location.pathname, Boolean(session));
+  const access = useBetaAccess(surface === "console" || surface === "panel" ? session : null);
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
-  if (surface === "panel") return PANEL;
 
-  // These three depend on the session, so wait for it to resolve. Rendering
+  // These four depend on the session, so wait for it to resolve. Rendering
   // early would flash the landing page at an already-signed-in visitor.
   if (session === undefined) {
-    return (
-      <main className="tracking-state">
-        <span className="spin" /> checking session…
-      </main>
-    );
+    return <Interstitial line="checking session…" />;
+  }
+  if (surface === "panel") {
+    if (access === "pending") return <PendingApp session={session!} />;
+    return PANEL;
   }
   if (surface === "redirect-home") return <RedirectHome />;
-  if (surface === "console" && session) return <ConsoleApp session={session} />;
+  if (surface === "signup") {
+    return <SignUpForm supabase={supabase} />;
+  }
+  if (surface === "console" && session) {
+    // The gate is only real if the client honours it. "error" deliberately
+    // falls through to the console rather than accusing an approved user of
+    // being waitlisted because a request failed.
+    if (access === "checking" || access === "idle") {
+      return <Interstitial line="checking access…" />;
+    }
+    if (access === "pending") return <PendingApp session={session} />;
+    return <ConsoleApp session={session} />;
+  }
   if (surface === "signin") {
     return <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />;
   }

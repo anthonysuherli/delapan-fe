@@ -147,3 +147,19 @@ export function resetAssignments(): void {
   remainderAssigned.clear();
   nextRemainderSlot = 0;
 }
+
+/**
+ * Non-categorical canvas palette (dim states, edge stroke, label ink, hover
+ * card). WebGL/2D-canvas cannot read CSS custom properties, so this module is
+ * the source of truth and tokens.css carries a --canvas-* mirror —
+ * encoding.test.ts enforces the two never drift.
+ */
+export const CANVAS = {
+  dimNode: "#d8e0ea",
+  dimEdge: "#e6ebf2",
+  edge: "#b3bfcf",
+  edgeLabel: "#67788c",
+  ink: "#465a70",
+  inkStrong: "#1f2b3a",
+  cardFill: "rgba(255, 255, 255, 0.95)",
+} as const;
