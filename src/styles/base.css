@@ -65,7 +65,7 @@ button {
   background: var(--bg2);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  transition: color 120ms, border-color 120ms, background 120ms;
+  transition: color var(--t-micro), border-color var(--t-micro), background var(--t-micro);
   white-space: nowrap;
 }
 
@@ -125,7 +125,7 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   outline: none;
-  transition: border-color 120ms;
+  transition: border-color var(--t-micro);
 }
 
 .inp::placeholder {

@@ -64,7 +64,7 @@
   border-radius: var(--radius);
   text-decoration: none;
   color: inherit;
-  transition: border-color 120ms, background 120ms;
+  transition: border-color var(--t-micro), background var(--t-micro);
 }
 
 .cons-resume:hover {
@@ -114,7 +114,7 @@
   box-shadow: var(--shadow-1);
   text-decoration: none;
   color: inherit;
-  transition: background 120ms, border-color var(--t-micro), box-shadow var(--t-micro);
+  transition: background var(--t-micro), border-color var(--t-micro), box-shadow var(--t-micro);
 }
 
 .cons-tile:hover {

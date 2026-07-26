@@ -233,7 +233,7 @@
   letter-spacing: 0.08em;
   color: var(--text-dim);
   background: var(--bg2);
-  transition: color 120ms, background 120ms;
+  transition: color var(--t-micro), background var(--t-micro);
 }
 
 .tb-seg-btn:hover {
@@ -243,4 +243,13 @@
 .tb-seg-btn--on {
   color: var(--accent);
   background: var(--accent-dim);
+}
+
+/* --- center view crossfade (graph <-> findings) ---------------------------- */
+
+.view-fade {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  animation: dlpn-fade var(--t-pop) var(--ease-out);
 }

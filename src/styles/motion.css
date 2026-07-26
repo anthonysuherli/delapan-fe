@@ -180,7 +180,8 @@
   .lr > .sect,
   .dlpn-in-rise,
   .dlpn-in-slide,
-  .ins-body {
+  .ins-body,
+  .view-fade {
     animation: none;
     opacity: 1;
     transform: none;

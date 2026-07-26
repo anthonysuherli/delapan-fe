@@ -71,7 +71,9 @@ export default function App() {
       <div className="shell-main">
         <LeftRail />
         <div className="dlpn-boot-canvas" style={{ position: "relative", minWidth: 0 }}>
-          {view === "graph" ? <GraphCanvas /> : <FindingsView />}
+          <div key={view} className="view-fade">
+            {view === "graph" ? <GraphCanvas /> : <FindingsView />}
+          </div>
           {view === "graph" && travel && <TravelHud />}
         </div>
         <Inspector />
