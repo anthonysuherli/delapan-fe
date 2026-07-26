@@ -78,7 +78,13 @@ The core of the design. Today there are two states; there must be three.
 useBetaAccess(session: Session | null | undefined): "idle" | "checking" | "approved" | "pending" | "error"
 ```
 
-It probes `api.getProjects()` exactly once per session and classifies the result. `idle` covers "no
+It probes `api.getProjects()` exactly once per session and classifies the result.
+
+**Traced, not assumed** (2026-07-26): `GET /api/projects` → `Depends(request_store)`
+(`backend/delapan/api/routes_projects.py:28-30`) → `request_store` → `require_beta(user_id)`
+(`backend/delapan/api/auth.py:181`) → `HTTPException(403)`. The probe genuinely surfaces the gate;
+this is the design's load-bearing assumption, so it was followed through the backend rather than
+inferred from the endpoint's name. `idle` covers "no
 session yet, nothing to check". The console renders no API-backed data today, so without this probe
 the gate would be decorative — a waitlisted user would see a fully populated-looking console and
 only discover the truth on `/kg`.
