@@ -74,7 +74,9 @@ export function SiteShell({ children, active }: SiteShellProps) {
         </details>
       </nav>
 
-      <main id="main">{children}</main>
+      <main id="main" tabIndex={-1}>
+        {children}
+      </main>
 
       <footer className="ss-footer">
         <div className="ss-footer-col">
