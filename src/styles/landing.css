@@ -18,7 +18,15 @@
 /* --- hero ------------------------------------------------------------------ */
 
 .lp-hero {
+  position: relative;
   padding: var(--p8-space-9) 0;
+}
+
+/* positioned (not static) so it shares the "positioned, z-index:auto" paint
+   bucket with .mf-field below and — being later in the DOM — wins that tie,
+   painting on top without a z-index integer (literal-scan forbids one here). */
+.lp-hero-copy {
+  position: relative;
 }
 
 .lp-hero h1 {
@@ -37,6 +45,40 @@
   font-size: var(--p8-text-lg);
   line-height: 1.6;
   color: var(--p8-muted);
+}
+
+/* --- generative mark field (hero background) --------------------------------- */
+
+.mf-field {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  pointer-events: none;
+}
+
+.mf-cell {
+  animation: dlpn-cellfade var(--t-enter) var(--ease-mech) both;
+}
+
+.mf-ink {
+  fill: var(--p8-ink);
+  --mf-o: 0.06;
+}
+
+.mf-coral {
+  fill: var(--p8-coral);
+  --mf-o: 0.5;
+}
+
+@keyframes dlpn-cellfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: var(--mf-o);
+  }
 }
 
 /* --- shared section furniture ----------------------------------------------- */
@@ -272,10 +314,23 @@
   .lp-inner {
     padding: 0 var(--p8-space-4);
   }
+
+  .mf-field {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
   .lp-verdict {
     flex-wrap: wrap;
+  }
+}
+
+/* --- reduced motion: kill the cell stagger, land at final opacity --------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-cell {
+    animation: none;
+    opacity: var(--mf-o);
   }
 }
