@@ -62,3 +62,17 @@ describe("landing and /login", () => {
     }
   });
 });
+
+describe("/signup", () => {
+  it("shows the sign-up form to a signed-out visitor", () => {
+    expect(resolveRoute("/signup", false)).toBe("signup");
+  });
+
+  it("sends an already signed-in visitor home instead", () => {
+    expect(resolveRoute("/signup", true)).toBe("redirect-home");
+  });
+
+  it("normalises a trailing slash", () => {
+    expect(resolveRoute("/signup/", false)).toBe("signup");
+  });
+});
