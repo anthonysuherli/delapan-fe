@@ -41,15 +41,15 @@ export function Findings() {
 
       <h2>a finding, shown plainly</h2>
       <p>
-        the shape below is illustrative — the actual embedding vector runs to hundreds of
-        dimensions and is omitted here — but the fields are the ones that matter: the claim
-        itself, its source, and the KB it belongs to.
+        the shape below is illustrative — the actual embedding vector is far longer than fits on
+        a page — but the fields are the ones that matter: the claim itself, its source, and the
+        KB it belongs to.
       </p>
       <CodeBlock lang="json">{`{
   "id": "fnd_9a2e",
   "kb_id": "engine/knowledge-graph",
   "text": "the resolver compares a candidate against its top-k similar findings before persisting.",
-  "embedding": ["...", "0.5-dim vector, truncated for illustration"],
+  "embedding": [0.0132, -0.0087, 0.0219, "…"],
   "grounded_in": {
     "source_type": "doc",
     "source_url": "backend/README.md#architecture-the-storage-seam",
