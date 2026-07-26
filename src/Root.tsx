@@ -10,6 +10,9 @@ import { useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import App from "./App";
 import { AuthGate } from "./auth/AuthGate";
+import { PendingApp } from "./auth/PendingApp";
+import { SignUpForm } from "./auth/SignUpForm";
+import { useBetaAccess } from "./auth/useBetaAccess";
 import { useSession } from "./auth/useSession";
 import { ConsoleApp } from "./console/ConsoleApp";
 import { DuetApp } from "./duet/DuetApp";
@@ -61,6 +64,7 @@ function RedirectHome() {
 
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const session = useSession(supabase);
+  const access = useBetaAccess(session);
   const surface = resolveRoute(window.location.pathname, Boolean(session));
 
   if (surface === "tracking") return <TrackingApp />;
@@ -77,7 +81,23 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
     );
   }
   if (surface === "redirect-home") return <RedirectHome />;
-  if (surface === "console" && session) return <ConsoleApp session={session} />;
+  if (surface === "signup") {
+    return <SignUpForm supabase={supabase} />;
+  }
+  if (surface === "console" && session) {
+    // The gate is only real if the client honours it. "error" deliberately
+    // falls through to the console rather than accusing an approved user of
+    // being waitlisted because a request failed.
+    if (access === "checking" || access === "idle") {
+      return (
+        <main className="tracking-state">
+          <span className="spin" /> checking access…
+        </main>
+      );
+    }
+    if (access === "pending") return <PendingApp session={session} />;
+    return <ConsoleApp session={session} />;
+  }
   if (surface === "signin") {
     return <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />;
   }
