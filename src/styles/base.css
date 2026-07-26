@@ -79,6 +79,11 @@ button {
   cursor: default;
 }
 
+.btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+  transition-duration: var(--t-press);
+}
+
 .btn--accent {
   color: var(--accent);
   border-color: rgba(180, 83, 9, 0.35);
@@ -147,7 +152,11 @@ select.inp {
    without depending on colour discrimination. :focus-visible only (not on
    mouse click). Wins over `.inp { outline: none; }` on specificity. */
 .btn:focus-visible,
-.inp:focus-visible {
+.inp:focus-visible,
+a:focus-visible,
+.hopkey:focus-visible,
+.tb-seg button:focus-visible,
+.cons-tile:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
 }
@@ -223,7 +232,7 @@ select.inp {
 
 .sect {
   border-bottom: 1px solid var(--line);
-  padding: 10px var(--u3) var(--u3);
+  padding: var(--u3);
 }
 
 .sect-title {
