@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveRoute } from "./routes";
+import { docSlug, resolveRoute } from "./routes";
 
 describe("resolveRoute", () => {
   it("sends a signed-in visitor at the root to the console", () => {
@@ -22,13 +22,38 @@ describe("resolveRoute", () => {
     expect(resolveRoute("", true)).toBe("console");
   });
 
-  it("falls back to the panel for unknown paths, so old links still land somewhere", () => {
-    expect(resolveRoute("/whatever", true)).toBe("panel");
-    expect(resolveRoute("/some/deep/path", true)).toBe("panel");
+  it("routes the public site surfaces regardless of session", () => {
+    expect(resolveRoute("/docs", false)).toBe("docs");
+    expect(resolveRoute("/docs", true)).toBe("docs");
+    expect(resolveRoute("/terms", false)).toBe("terms");
+    expect(resolveRoute("/privacy", false)).toBe("privacy");
+    expect(resolveRoute("/changelog", false)).toBe("changelog");
+    expect(resolveRoute("/about", false)).toBe("about");
+  });
+
+  it("routes any /docs/<slug> to the docs surface", () => {
+    expect(resolveRoute("/docs/coverage", true)).toBe("docs");
+    expect(resolveRoute("/docs/coverage", false)).toBe("docs");
+    expect(resolveRoute("/docs/whatever-unknown-slug", true)).toBe("docs");
+  });
+
+  it("normalises a trailing slash on the new public surfaces", () => {
+    expect(resolveRoute("/docs/", true)).toBe("docs");
+    expect(resolveRoute("/docs/coverage/", true)).toBe("docs");
+    expect(resolveRoute("/terms/", true)).toBe("terms");
+    expect(resolveRoute("/privacy/", true)).toBe("privacy");
+    expect(resolveRoute("/changelog/", true)).toBe("changelog");
+    expect(resolveRoute("/about/", true)).toBe("about");
+  });
+
+  it("falls back to a real 404 for unknown paths, not the panel", () => {
+    expect(resolveRoute("/whatever", true)).toBe("not-found");
+    expect(resolveRoute("/some/deep/path", true)).toBe("not-found");
+    expect(resolveRoute("/whatever", false)).toBe("not-found");
   });
 
   it("changes meaning for the root ONLY — every other path ignores the session", () => {
-    for (const p of ["/kg", "/tracking", "/duet", "/unknown"]) {
+    for (const p of ["/kg", "/tracking", "/duet", "/unknown", "/docs", "/docs/coverage", "/terms", "/privacy", "/changelog", "/about"]) {
       expect(resolveRoute(p, true)).toBe(resolveRoute(p, false));
     }
     expect(resolveRoute("/", true)).not.toBe(resolveRoute("/", false));
@@ -74,5 +99,27 @@ describe("/signup", () => {
 
   it("normalises a trailing slash", () => {
     expect(resolveRoute("/signup/", false)).toBe("signup");
+  });
+});
+
+describe("docSlug", () => {
+  it("returns the segment after /docs/", () => {
+    expect(docSlug("/docs/coverage")).toBe("coverage");
+    expect(docSlug("/docs/quickstart")).toBe("quickstart");
+  });
+
+  it("normalises a trailing slash", () => {
+    expect(docSlug("/docs/coverage/")).toBe("coverage");
+  });
+
+  it("is undefined for /docs itself", () => {
+    expect(docSlug("/docs")).toBeUndefined();
+    expect(docSlug("/docs/")).toBeUndefined();
+  });
+
+  it("is undefined for non-docs paths", () => {
+    expect(docSlug("/")).toBeUndefined();
+    expect(docSlug("/terms")).toBeUndefined();
+    expect(docSlug("/whatever")).toBeUndefined();
   });
 });

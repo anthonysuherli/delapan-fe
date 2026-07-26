@@ -18,7 +18,13 @@ import { useSession } from "./auth/useSession";
 import { ConsoleApp } from "./console/ConsoleApp";
 import { DuetApp } from "./duet/DuetApp";
 import { LandingApp } from "./landing/LandingApp";
-import { resolveRoute } from "./routes";
+import { docSlug, resolveRoute } from "./routes";
+import { AboutPage } from "./site/AboutPage";
+import { ChangelogPage } from "./site/ChangelogPage";
+import { DocsPage } from "./site/DocsPage";
+import { NotFound } from "./site/NotFound";
+import { PrivacyPage } from "./site/PrivacyPage";
+import { TermsPage } from "./site/TermsPage";
 import { SignInForm } from "./tracking/SignInForm";
 import { getSupabaseClient } from "./tracking/supabaseClient";
 import { TrackingApp } from "./tracking/TrackingApp";
@@ -66,6 +72,16 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
+
+  // Public site surfaces render regardless of session — a signed-out docs
+  // reader (or 404 visitor) must not wait on a session probe that has
+  // nothing to do with what they're looking at.
+  if (surface === "docs") return <DocsPage slug={docSlug(window.location.pathname)} />;
+  if (surface === "terms") return <TermsPage />;
+  if (surface === "privacy") return <PrivacyPage />;
+  if (surface === "changelog") return <ChangelogPage />;
+  if (surface === "about") return <AboutPage />;
+  if (surface === "not-found") return <NotFound />;
 
   // These four depend on the session, so wait for it to resolve. Rendering
   // early would flash the landing page at an already-signed-in visitor.
