@@ -6,12 +6,14 @@
  * through AuthGate, because AuthGate gates a subtree — here the two branches
  * are different pages, not gated/ungated versions of one page.
  */
+import { useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import App from "./App";
 import { AuthGate } from "./auth/AuthGate";
 import { useSession } from "./auth/useSession";
 import { ConsoleApp } from "./console/ConsoleApp";
 import { DuetApp } from "./duet/DuetApp";
+import { LandingApp } from "./landing/LandingApp";
 import { resolveRoute } from "./routes";
 import { SignInForm } from "./tracking/SignInForm";
 import { getSupabaseClient } from "./tracking/supabaseClient";
@@ -45,6 +47,18 @@ export function Root() {
   }
 }
 
+/** Already signed in and asking for /login — send them home. */
+function RedirectHome() {
+  useEffect(() => {
+    window.location.replace("/");
+  }, []);
+  return (
+    <main className="tracking-state">
+      <span className="spin" /> taking you home…
+    </main>
+  );
+}
+
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const session = useSession(supabase);
   const surface = resolveRoute(window.location.pathname, Boolean(session));
@@ -53,8 +67,8 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   if (surface === "duet") return <DuetApp />;
   if (surface === "panel") return PANEL;
 
-  // "/" — wait for the session to resolve before choosing, so an already
-  // signed-in visitor never sees the sign-in form flash.
+  // These three depend on the session, so wait for it to resolve. Rendering
+  // early would flash the landing page at an already-signed-in visitor.
   if (session === undefined) {
     return (
       <main className="tracking-state">
@@ -62,6 +76,10 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
       </main>
     );
   }
+  if (surface === "redirect-home") return <RedirectHome />;
   if (surface === "console" && session) return <ConsoleApp session={session} />;
-  return <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />;
+  if (surface === "signin") {
+    return <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />;
+  }
+  return <LandingApp />;
 }
