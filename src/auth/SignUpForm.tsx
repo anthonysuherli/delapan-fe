@@ -37,9 +37,9 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
 
   if (confirmSent) {
     return (
-      <main className="tracking-login">
-        <div className="tracking-login__panel">
-          <Wordmark form="display" className="tracking-wordmark" />
+      <main className="auth-wrap">
+        <div className="auth-card">
+          <Wordmark form="display" className="auth-wm" />
           <h1>check your email</h1>
           <p className="pending-note">
             we sent a confirmation link to <span className="pending-email">{email}</span>. open it to
@@ -55,9 +55,9 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
   }
 
   return (
-    <main className="tracking-login">
-      <form className="tracking-login__panel" onSubmit={(event) => void signUp(event)}>
-        <Wordmark form="display" className="tracking-wordmark" />
+    <main className="auth-wrap">
+      <form className="auth-card" onSubmit={(event) => void signUp(event)}>
+        <Wordmark form="display" className="auth-wm" />
         <h1>delapan</h1>
         <p>Create your delapan account.</p>
 
@@ -68,6 +68,7 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
             type="email"
             autoComplete="email"
             required
+            aria-invalid={Boolean(error)}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
@@ -80,12 +81,13 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
             autoComplete="new-password"
             required
             minLength={8}
+            aria-invalid={Boolean(error)}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
 
-        {error && <p className="tracking-error">{error}</p>}
+        {error && <p className="auth-err">{error}</p>}
         <button className="btn btn--accent" type="submit" disabled={submitting}>
           {submitting ? "creating account…" : "create account"}
         </button>

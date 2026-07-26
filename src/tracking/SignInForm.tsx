@@ -31,9 +31,9 @@ export function SignInForm({
   };
 
   return (
-    <main className="tracking-login">
-      <form className="tracking-login__panel" onSubmit={(event) => void signIn(event)}>
-        <Wordmark form="display" className="tracking-wordmark" />
+    <main className="auth-wrap">
+      <form className="auth-card" onSubmit={(event) => void signIn(event)}>
+        <Wordmark form="display" className="auth-wm" />
         <h1>{title}</h1>
         <p>{subtitle}</p>
 
@@ -44,6 +44,7 @@ export function SignInForm({
             type="email"
             autoComplete="email"
             required
+            aria-invalid={Boolean(error)}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
@@ -55,12 +56,13 @@ export function SignInForm({
             type="password"
             autoComplete="current-password"
             required
+            aria-invalid={Boolean(error)}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
 
-        {error && <p className="tracking-error">{error}</p>}
+        {error && <p className="auth-err">{error}</p>}
         <button className="btn btn--accent" type="submit" disabled={submitting}>
           {submitting ? "signing in…" : "sign in"}
         </button>

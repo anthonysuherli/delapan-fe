@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import App from "./App";
 import { AuthGate } from "./auth/AuthGate";
+import { Interstitial } from "./auth/Interstitial";
 import { PendingApp } from "./auth/PendingApp";
 import { SignUpForm } from "./auth/SignUpForm";
 import { useBetaAccess } from "./auth/useBetaAccess";
@@ -42,11 +43,7 @@ export function Root() {
     return <ConfiguredRoot supabase={getSupabaseClient()} />;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Auth is not configured.";
-    return (
-      <main className="tracking-state">
-        <p className="tracking-error">{message}</p>
-      </main>
-    );
+    return <Interstitial error={message} />;
   }
 }
 
@@ -55,11 +52,7 @@ function RedirectHome() {
   useEffect(() => {
     window.location.replace("/");
   }, []);
-  return (
-    <main className="tracking-state">
-      <span className="spin" /> taking you home…
-    </main>
-  );
+  return <Interstitial line="taking you home…" />;
 }
 
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
@@ -73,11 +66,7 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   // These four depend on the session, so wait for it to resolve. Rendering
   // early would flash the landing page at an already-signed-in visitor.
   if (session === undefined) {
-    return (
-      <main className="tracking-state">
-        <span className="spin" /> checking session…
-      </main>
-    );
+    return <Interstitial line="checking session…" />;
   }
   if (surface === "panel") {
     if (access === "pending") return <PendingApp session={session!} />;
@@ -92,11 +81,7 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
     // falls through to the console rather than accusing an approved user of
     // being waitlisted because a request failed.
     if (access === "checking" || access === "idle") {
-      return (
-        <main className="tracking-state">
-          <span className="spin" /> checking access…
-        </main>
-      );
+      return <Interstitial line="checking access…" />;
     }
     if (access === "pending") return <PendingApp session={session} />;
     return <ConsoleApp session={session} />;

@@ -15,9 +15,9 @@ export function PendingApp({ session }: { session: Session }) {
   };
 
   return (
-    <main className="tracking-login">
-      <div className="tracking-login__panel">
-        <Wordmark form="display" className="tracking-wordmark" />
+    <main className="auth-wrap">
+      <div className="auth-card">
+        <Wordmark form="display" className="auth-wm" />
         <h1>you're on the list</h1>
         <p className="pending-note">
           your account exists, but delapan is in a closed beta and this address hasn't been let in

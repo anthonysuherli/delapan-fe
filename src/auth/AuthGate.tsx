@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SignInForm } from "../tracking/SignInForm";
 import { getSupabaseClient } from "../tracking/supabaseClient";
+import { Interstitial } from "./Interstitial";
 import { useSession } from "./useSession";
 
 interface ConfiguredAuthGateProps {
@@ -12,11 +13,7 @@ function ConfiguredAuthGate({ supabase, children }: ConfiguredAuthGateProps) {
   const session = useSession(supabase);
 
   if (session === undefined) {
-    return (
-      <main className="tracking-state">
-        <span className="spin" /> checking session…
-      </main>
-    );
+    return <Interstitial line="checking session…" />;
   }
 
   if (!session) {
@@ -39,10 +36,6 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     return <ConfiguredAuthGate supabase={getSupabaseClient()}>{children}</ConfiguredAuthGate>;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Auth is not configured.";
-    return (
-      <main className="tracking-state">
-        <p className="tracking-error">{message}</p>
-      </main>
-    );
+    return <Interstitial error={message} />;
   }
 }
