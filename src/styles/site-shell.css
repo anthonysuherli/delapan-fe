@@ -1,0 +1,259 @@
+/* ============================================================
+   site-shell.css — nav, footer, cta, and 404 furniture for the
+   `.site` marketing shell (SiteShell, CtaRow, NotFound).
+   Every color / spacing / radius / duration value below resolves
+   through a --p8-* token from site.css. Breakpoints and container
+   measures are structural, not brand-scale, and stay raw — same
+   convention as landing.css's 1080px grid measure. Hairline border
+   *widths* stay raw 1px per the app-wide convention (base.css,
+   console.css, canvas.css); only the border *color* is a token.
+   ============================================================ */
+
+/* ---- skip link ------------------------------------------------------------ */
+
+.ss-skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  background: var(--p8-ink);
+  color: var(--p8-bone);
+  padding: var(--p8-space-2) var(--p8-space-4);
+  border-radius: var(--p8-radius-sm);
+  text-decoration: none;
+}
+
+.ss-skip:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  display: inline-block;
+  margin: var(--p8-space-2);
+}
+
+/* ---- nav -------------------------------------------------------------------- */
+
+.ss-nav {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--p8-space-6);
+  padding: var(--p8-space-3) var(--p8-space-6);
+  background: var(--p8-bone);
+  border-bottom: 1px solid var(--p8-line);
+}
+
+.ss-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--p8-space-2);
+  text-decoration: none;
+  color: var(--p8-ink);
+}
+
+.ss-links {
+  display: flex;
+  align-items: center;
+  gap: var(--p8-space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ss-links a {
+  color: var(--p8-muted);
+  text-decoration: none;
+  font-size: var(--p8-text-sm);
+}
+
+.ss-links a:hover {
+  color: var(--p8-ink);
+}
+
+.ss-links a[aria-current="page"] {
+  color: var(--p8-ink);
+  font-weight: 600;
+}
+
+.ss-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--p8-space-4);
+  margin-left: auto;
+}
+
+.ss-signin {
+  color: var(--p8-ink);
+  text-decoration: none;
+  font-size: var(--p8-text-sm);
+}
+
+.ss-menu {
+  position: relative;
+  display: none;
+  margin-left: auto;
+}
+
+.ss-menu summary {
+  cursor: pointer;
+  color: var(--p8-ink);
+  font-size: var(--p8-text-sm);
+  list-style: none;
+}
+
+.ss-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.ss-menu ul {
+  position: absolute;
+  right: 0;
+  margin-top: var(--p8-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p8-space-3);
+  padding: var(--p8-space-4);
+  list-style: none;
+  background: var(--p8-panel);
+  border: 1px solid var(--p8-line);
+  border-radius: var(--p8-radius);
+  box-shadow: var(--p8-shadow);
+}
+
+.ss-menu a {
+  color: var(--p8-ink);
+  text-decoration: none;
+  font-size: var(--p8-text-sm);
+}
+
+/* ---- cta — the one place coral fills --------------------------------------- */
+
+.ss-cta {
+  display: inline-block;
+  padding: var(--p8-space-2) var(--p8-space-5);
+  background: var(--p8-coral);
+  color: var(--p8-bone);
+  border-radius: var(--p8-radius);
+  text-decoration: none;
+  font-size: var(--p8-text-sm);
+  font-weight: 500;
+  transition: background var(--p8-dur-fast) var(--p8-ease);
+}
+
+.ss-cta:hover {
+  background: var(--p8-coral-deep);
+}
+
+.ss-cta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--p8-space-4);
+  flex-wrap: wrap;
+}
+
+.ss-cta-note {
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
+  color: var(--p8-muted);
+}
+
+/* ---- footer ------------------------------------------------------------------ */
+
+.ss-footer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--p8-space-6);
+  margin-top: var(--p8-space-9);
+  padding: var(--p8-space-8) var(--p8-space-6) var(--p8-space-6);
+  border-top: 1px solid var(--p8-line);
+  color: var(--p8-muted);
+}
+
+.ss-footer-col h2 {
+  margin: 0 0 var(--p8-space-3);
+  color: var(--p8-ink);
+  font-family: var(--p8-font-body);
+  font-size: var(--p8-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ss-footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p8-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ss-footer-col a {
+  color: var(--p8-muted);
+  text-decoration: none;
+  font-size: var(--p8-text-sm);
+}
+
+.ss-footer-col a:hover {
+  color: var(--p8-ink);
+}
+
+.ss-footer-bottom {
+  grid-column: 1 / -1;
+  margin: var(--p8-space-6) 0 0;
+  padding-top: var(--p8-space-4);
+  border-top: 1px solid var(--p8-line);
+  color: var(--p8-muted);
+  font-size: var(--p8-text-xs);
+}
+
+/* ---- 404 ----------------------------------------------------------------------- */
+
+.ss-404 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--p8-space-5);
+  max-width: 60ch;
+  padding: var(--p8-space-9) var(--p8-space-6);
+}
+
+.ss-404 h1 {
+  margin: 0;
+}
+
+.ss-404-links {
+  display: flex;
+  align-items: center;
+  gap: var(--p8-space-4);
+}
+
+.ss-404-links a {
+  color: var(--p8-ink);
+  font-size: var(--p8-text-sm);
+}
+
+/* ---- responsive ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .ss-links,
+  .ss-nav-actions {
+    display: none;
+  }
+
+  .ss-menu {
+    display: block;
+  }
+}
+
+@media (max-width: 640px) {
+  .ss-footer {
+    grid-template-columns: 1fr;
+  }
+}

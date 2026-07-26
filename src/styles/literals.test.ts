@@ -13,6 +13,7 @@ import consoleCss from "./console.css?raw";
 import layoutCss from "./layout.css?raw";
 import motionCss from "./motion.css?raw";
 import panelsCss from "./panels.css?raw";
+import siteShellCss from "./site-shell.css?raw";
 
 const SHEETS: Record<string, string> = {
   "auth.css": authCss,
@@ -22,6 +23,7 @@ const SHEETS: Record<string, string> = {
   "layout.css": layoutCss,
   "motion.css": motionCss,
   "panels.css": panelsCss,
+  "site-shell.css": siteShellCss,
 };
 
 /** Deliberate exceptions, one line each. Grow this list consciously. */
