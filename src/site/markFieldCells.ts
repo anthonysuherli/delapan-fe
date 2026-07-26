@@ -9,7 +9,7 @@
  */
 import { P8_CELLS, ROWS as MARK_ROWS } from "../panels/Logomark";
 
-export type FieldCellKind = "ink" | "coral" | "faint";
+export type FieldCellKind = "ink" | "coral";
 
 export interface FieldCell {
   x: number;

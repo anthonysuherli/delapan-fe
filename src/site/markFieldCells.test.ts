@@ -65,7 +65,7 @@ describe("fieldCells", () => {
   it("no cell kind is ever outside the declared union", () => {
     const cells = fieldCells(24, 16, "delapan");
     for (const cell of cells) {
-      expect(["ink", "coral", "faint"]).toContain(cell.kind);
+      expect(["ink", "coral"]).toContain(cell.kind);
     }
   });
 });

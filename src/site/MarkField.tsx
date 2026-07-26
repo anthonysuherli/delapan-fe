@@ -7,7 +7,12 @@ const CELL = 1;
 const GAP = 0.18;
 const S = CELL - GAP;
 const RX = CELL * 0.16; // same ratio Logomark uses for its own corner radius
-const MAX_DELAY_MS = 900;
+// animation-delay = cellUnit(...) * DELAY_SCALE_MS, and cellUnit here is only
+// ever a value that already cleared the ink/coral threshold (u < INK_RATE,
+// 0.12) — so the real ceiling is INK_RATE * DELAY_SCALE_MS, not
+// DELAY_SCALE_MS itself. At 900 that's an ~108ms max stagger; bump this if
+// the fade-in should spread out more.
+const DELAY_SCALE_MS = 900;
 
 interface MarkFieldProps {
   seed?: string;
@@ -16,8 +21,8 @@ interface MarkFieldProps {
 /**
  * The hero's generative background: a deterministic scatter of tiny pixel-8
  * cells behind the h1, right half only. Purely decorative (aria-hidden) —
- * `fieldCells` (markField.ts) decides which cells appear; this just draws
- * them. Fill + opacity resolve through the `.mf-ink`/`.mf-coral` classes in
+ * `fieldCells` (markFieldCells.ts) decides which cells appear; this just
+ * draws them. Fill + opacity resolve through the `.mf-ink`/`.mf-coral` classes in
  * landing.css so the literal-scan governs the colors; the only inline value
  * here is the per-cell animation delay, itself derived from the same
  * deterministic hash that picked the cell's kind.
@@ -40,7 +45,7 @@ export function MarkField({ seed = "delapan" }: MarkFieldProps) {
           width={S}
           height={S}
           rx={RX}
-          style={{ animationDelay: `${Math.round(cellUnit(seed, x, y) * MAX_DELAY_MS)}ms` }}
+          style={{ animationDelay: `${Math.round(cellUnit(seed, x, y) * DELAY_SCALE_MS)}ms` }}
         />
       ))}
     </svg>
