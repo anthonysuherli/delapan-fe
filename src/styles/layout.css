@@ -29,6 +29,8 @@
   gap: 9px;
   margin-right: var(--u);
   user-select: none;
+  text-decoration: none;
+  color: inherit;
 }
 
 .tb-brand-text {
