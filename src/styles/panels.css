@@ -467,6 +467,10 @@
   color: var(--green);
 }
 
+.ins-prop-add:hover {
+  color: var(--green);
+}
+
 /* evidence list */
 
 .ev-item {
