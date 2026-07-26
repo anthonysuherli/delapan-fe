@@ -85,7 +85,12 @@
   font-family: var(--p8-font-body);
   font-size: var(--p8-text-base);
   line-height: 1.6;
-  min-height: 100%;
+  /* height (not min-height): base.css sets body { overflow: hidden } for the
+     full-screen graph app, and that propagates to the viewport — a `.site`
+     page taller than the viewport needs its OWN bounded scroll container,
+     same reasoning landing.css documents for the pre-restage .lp. min-height
+     lets this box grow past the viewport and get clipped by body instead. */
+  height: 100%;
   overflow-y: auto;
   -webkit-font-smoothing: antialiased;
 }
