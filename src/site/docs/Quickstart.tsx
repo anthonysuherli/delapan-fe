@@ -19,15 +19,15 @@ export function Quickstart() {
       <p>the local tier runs from a clone with uv.</p>
       <CodeBlock lang="bash">{`git clone https://github.com/anthonysuherli/delapan-be
 cd delapan-be
-uv sync`}</CodeBlock>
+uv sync --extra local`}</CodeBlock>
 
       <h2>run the MCP server</h2>
       <p>for claude code, or any MCP client, run the server directly:</p>
-      <CodeBlock lang="bash">{`python -m delapan.mcp.server`}</CodeBlock>
+      <CodeBlock lang="bash">{`uv run python -m delapan.mcp.server`}</CodeBlock>
 
       <h2>run the HTTP API</h2>
       <p>if you'd rather talk to a loopback HTTP API, run:</p>
-      <CodeBlock lang="bash">{`python -m delapan.api.main`}</CodeBlock>
+      <CodeBlock lang="bash">{`uv run python -m delapan.api.main`}</CodeBlock>
 
       <h2>tools</h2>
       <p>the MCP server exposes these tools:</p>
