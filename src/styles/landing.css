@@ -225,3 +225,74 @@
   line-height: 1.6;
   color: var(--text-dim);
 }
+
+/* --- what it isn't / not built yet ---------------------------------------- */
+
+.lp-contrasts {
+  display: grid;
+  gap: var(--u4);
+  margin-top: var(--u6);
+}
+
+.lp-contrast {
+  padding-left: var(--u4);
+  border-left: 2px solid var(--line-bright);
+}
+
+.lp-contrast b {
+  display: block;
+  margin-bottom: var(--u);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lp-contrast span {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.lp-planned {
+  display: grid;
+  gap: var(--u2);
+  margin-top: var(--u6);
+  padding-top: var(--u6);
+  border-top: 1px solid var(--line);
+}
+
+.lp-planned-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u3);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.lp-planned-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1px var(--u2);
+}
+
+/* --- close + footer ------------------------------------------------------- */
+
+.lp-close {
+  padding: var(--u8) 0;
+  border-top: 1px solid var(--line);
+}
+
+.lp-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u6);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
