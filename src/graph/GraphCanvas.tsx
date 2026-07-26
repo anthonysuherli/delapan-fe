@@ -16,7 +16,7 @@ import { drawNodeHover, drawNodeLabel } from "./canvasDraw";
 import { ACCENT, DIM_EDGE, DIM_NODE, lighten, VISITED_MIX } from "./colors";
 import { CANVAS } from "./encoding";
 import { graph, onGraphTouched, type EdgeAttrs, type NodeAttrs } from "./graphStore";
-import { initGraphMotion, resyncGraphMotion, stopGraphMotion } from "./motion";
+import { enteringNodeIds, initGraphMotion, resyncGraphMotion, stopGraphMotion } from "./motion";
 import { sigmaRef, type AppSigma } from "./sigmaRef";
 
 export function GraphCanvas() {
@@ -372,9 +372,31 @@ function CanvasOverlays({ sigma }: { sigma: AppSigma }) {
     <div className="cv-overlays">
       <SelectionReticle sigma={sigma} />
       <SelectionPulse sigma={sigma} />
+      <EnterPulses sigma={sigma} />
       <TravelLayer sigma={sigma} />
       <RelationPopover sigma={sigma} />
     </div>
+  );
+}
+
+// arrival rings on nodes currently animating in — same visual family as the
+// selection pulse, so "new" and "selected" read as one language.
+function EnterPulses({ sigma }: { sigma: AppSigma }) {
+  const ids = enteringNodeIds().slice(0, 12); // cap the ring count, not the enters
+  return (
+    <>
+      {ids.map((id) => {
+        const pos = nodeViewport(sigma, id);
+        if (!pos) return null;
+        return (
+          <span
+            key={`enter-${id}`}
+            className="dlpn-ring"
+            style={{ left: pos.x, top: pos.y, width: 30, height: 30 }}
+          />
+        );
+      })}
+    </>
   );
 }
 

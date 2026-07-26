@@ -14,6 +14,7 @@
  */
 
 import { graph } from "./graphStore";
+import { enterDone, enterProgress, enterSize, lerpPos, planEnter } from "./enterMotion";
 
 // three low-amplitude drift directions so nodes don't move in lockstep
 const DRIFT_VARIANTS = [
@@ -29,6 +30,16 @@ interface NodeMotion {
   omega: number; // rad/ms → 5–8s period
   variant: number; // 0..2
 }
+
+interface EnterMotion {
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+  targetSize: number;
+  index: number;
+}
+
+let enterMap = new Map<string, EnterMotion>();
+let enterStart = 0;
 
 const SETTLE_MS = 800;
 const STAGGER_MS = 28;
@@ -137,7 +148,50 @@ export function stopGraphMotion(): void {
   if (raf) cancelAnimationFrame(raf);
   raf = 0;
   running = false;
+  enterMap = new Map();
   restoreBase();
+}
+
+/**
+ * Animate already-placed nodes in. With a source, each flies from the source's
+ * position along its arc; without, it scales in where it stands. Enter owns a
+ * node's position/size until done (drift skips it), then hands the base to the
+ * drift map. Instant under reduced motion; large batches settle instead.
+ */
+export function enterNodes(ids: string[], opts: { sourceId?: string | null } = {}): void {
+  const present = ids.filter((id) => graph.hasNode(id));
+  if (present.length === 0 || reducedMotion()) return;
+  if (planEnter(present).mode === "settle") {
+    initGraphMotion();
+    return;
+  }
+  const src =
+    opts.sourceId && graph.hasNode(opts.sourceId)
+      ? {
+          x: graph.getNodeAttributes(opts.sourceId).x,
+          y: graph.getNodeAttributes(opts.sourceId).y,
+        }
+      : null;
+  present.forEach((id, i) => {
+    const a = graph.getNodeAttributes(id);
+    const to = { x: a.x, y: a.y };
+    enterMap.set(id, { from: src ?? to, to, targetSize: a.size, index: i });
+    // drift must not fight the enter: claim the base now
+    motionMap.set(id, {
+      base: to,
+      index: motionMap.size,
+      phase: (motionMap.size * 0.17 * Math.PI) % (Math.PI * 2),
+      omega: (2 * Math.PI) / ((5 + (motionMap.size % 4)) * 1000),
+      variant: motionMap.size % 3,
+    });
+  });
+  enterStart = performance.now();
+  ensureRunning();
+}
+
+/** Ids currently animating in — the canvas overlay draws arrival rings. */
+export function enteringNodeIds(): string[] {
+  return [...enterMap.keys()];
 }
 
 // ---------------------------------------------------------------------------
@@ -157,6 +211,18 @@ function applyFrame(): void {
   const now = clock;
   graph.updateEachNodeAttributes(
     (id, attr) => {
+      const e = enterMap.get(id);
+      if (e) {
+        const p = enterProgress(clock - enterStart, e.index);
+        const pos = lerpPos(e.from, e.to, p);
+        const sameSpot = e.from.x === e.to.x && e.from.y === e.to.y;
+        return {
+          ...attr,
+          x: pos.x,
+          y: pos.y,
+          size: sameSpot ? enterSize(e.targetSize, p) : e.targetSize,
+        };
+      }
       const m = motionMap.get(id);
       if (!m) return attr;
       if (!settleDone) {
@@ -171,7 +237,7 @@ function applyFrame(): void {
       const o = driftOffset(m);
       return { ...attr, x: m.base.x + o.x, y: m.base.y + o.y };
     },
-    { attributes: ["x", "y"] },
+    { attributes: ["x", "y", "size"] },
   );
 }
 
@@ -181,12 +247,23 @@ function tick(): void {
     const maxDelay = (motionMap.size - 1) * STAGGER_MS;
     if (clock - settleStart > SETTLE_MS + maxDelay) settleDone = true;
   }
+  if (enterMap.size > 0 && enterDone(clock - enterStart, enterMap.size)) {
+    // land enters exactly on target and hand position authority to drift
+    graph.updateEachNodeAttributes(
+      (id, attr) => {
+        const e = enterMap.get(id);
+        return e ? { ...attr, x: e.to.x, y: e.to.y, size: e.targetSize } : attr;
+      },
+      { attributes: ["x", "y", "size"] },
+    );
+    enterMap = new Map();
+  }
   // full-rate during settle; throttled once we're only drifting
-  if (!settleDone || clock - lastPaint >= FRAME_MS) {
+  if (!settleDone || enterMap.size > 0 || clock - lastPaint >= FRAME_MS) {
     lastPaint = clock;
     applyFrame();
   }
-  const needMore = !settleDone || (ambientDrift && !reducedMotion());
+  const needMore = !settleDone || enterMap.size > 0 || (ambientDrift && !reducedMotion());
   if (needMore) {
     raf = requestAnimationFrame(tick);
   } else {
