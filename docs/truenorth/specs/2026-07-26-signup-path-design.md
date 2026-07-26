@@ -169,7 +169,10 @@ sign-up does not mean immediate access.
   prepared to delete the row.
 - **The probe adds one request per console load.** Acceptable: the console currently issues none,
   and without it the gate is not enforced client-side at all.
-- **If `getProjects()` fails for an unrelated reason** — network, 500 — the hook returns `error`
-  rather than guessing. The console renders with its existing behaviour rather than falsely
-  claiming the user is waitlisted.
+- **If `getProjects()` fails for an unrelated reason** the hook does not claim the user is
+  waitlisted. Corrected 2026-07-26 after review: a **500 returns `error`**, but a *network*
+  failure never reaches the classifier at all — `call()` in `src/api/client.ts` catches
+  `TypeError`, flips the module to mock mode, and resolves from the mock, so the probe reports
+  **approved**. Fail-open is the right direction here, but the mechanism is not the one this
+  section originally described. `VITE_USE_MOCK=1` has the same effect: the probe always approves.
 - **The deviation above.** Public sign-up without ToS or a privacy policy.
