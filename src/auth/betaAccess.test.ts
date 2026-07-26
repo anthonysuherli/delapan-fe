@@ -23,6 +23,10 @@ describe("classifyProbe", () => {
     expect(classifyProbe({ ok: false, error: new TypeError("Failed to fetch") })).toBe("error");
   });
 
+  it("treats a probe timeout as an error, never as waitlisted", () => {
+    expect(classifyProbe({ ok: false, error: new Error("beta access probe timed out") })).toBe("error");
+  });
+
   it("never reports pending for a non-403 status", () => {
     for (const status of [400, 404, 418, 500, 502, 503]) {
       expect(classifyProbe({ ok: false, error: new ApiError(status, "x") })).toBe("error");
