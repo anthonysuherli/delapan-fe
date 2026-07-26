@@ -164,3 +164,64 @@
   margin-bottom: var(--u3);
   background: var(--chrome-accent);
 }
+
+/* --- coverage verdicts ---------------------------------------------------- */
+
+.lp-verdicts {
+  display: grid;
+  gap: var(--u3);
+  margin-top: var(--u6);
+}
+
+.lp-verdict {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u3);
+  padding: var(--u3) var(--u4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg1);
+}
+
+.lp-verdict-glyph {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.lp-verdict-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  min-width: 8ch;
+}
+
+.lp-verdict-note {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+/* --- plug-in targets ------------------------------------------------------ */
+
+.lp-targets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--u6);
+  margin-top: var(--u6);
+}
+
+.lp-target h3 {
+  margin: 0 0 var(--u2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.lp-target p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
