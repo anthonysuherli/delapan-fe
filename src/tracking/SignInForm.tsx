@@ -65,6 +65,9 @@ export function SignInForm({
         <button className="btn btn--accent" type="submit" disabled={submitting}>
           {submitting ? "signing in…" : "sign in"}
         </button>
+        <p className="pending-note">
+          no account? <a href="/signup">sign up</a>
+        </p>
       </form>
     </main>
   );

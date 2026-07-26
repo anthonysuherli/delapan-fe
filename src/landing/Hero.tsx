@@ -22,8 +22,8 @@ export function Hero() {
           corrects itself when the facts move — without ever losing what it knew before.
         </p>
         <div className="lp-cta-row">
-          <a className="lp-cta" href="/login">
-            request an invite
+          <a className="lp-cta" href="/signup">
+            create an account
           </a>
           <span className="lp-cta-note">free · invite-gated beta</span>
         </div>
