@@ -32,8 +32,8 @@ export function PrivacyPage() {
             a small set of outside services process data on our behalf. Supabase handles the
             database and authentication. Vercel hosts the application. LLM providers reached
             through our AI gateway process the content you explicitly send through explore; the
-            search queries explore issues go to the Tavily search API. nothing else you haven't
-            submitted through explore leaves the system that way.
+            search queries that explore issues are sent to the Tavily search API. nothing you
+            haven't explicitly submitted through explore leaves the system that way.
           </p>
 
           <h2>what we don't do</h2>
@@ -49,8 +49,8 @@ export function PrivacyPage() {
 
           <h2>cookies</h2>
           <p>
-            delapan uses one cookie: the Supabase auth session that keeps you signed in. no
-            tracking or advertising cookies.
+            delapan keeps your sign-in session in your browser's local storage. no tracking or
+            advertising cookies.
           </p>
 
           <h2>contact</h2>

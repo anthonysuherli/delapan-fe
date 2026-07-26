@@ -89,7 +89,7 @@
   line-height: 1.6;
 }
 
-.docs-article code {
+.docs-article :not(pre) > code {
   padding: 0 var(--p8-space-1);
   background: var(--p8-panel-2);
   border-radius: var(--p8-radius-sm);
@@ -170,6 +170,8 @@
 }
 
 .docs-code code {
+  padding: 0;
+  background: transparent;
   color: var(--p8-bone);
   font-family: var(--p8-font-mono);
   font-size: var(--p8-text-sm);

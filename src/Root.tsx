@@ -43,6 +43,22 @@ const PANEL = (
 );
 
 export function Root() {
+  const pathname = window.location.pathname;
+  const surface = resolveRoute(pathname, false);
+
+  // The six public site surfaces are session-invariant — resolveRoute
+  // returns the same surface for them regardless of the session argument
+  // (pinned in routes.test.ts) — so they render before getSupabaseClient()
+  // is even constructed. A signed-out docs reader (or 404 visitor) must not
+  // be stuck behind — or crashed into an Interstitial by — a Supabase
+  // client that has nothing to do with what they're looking at.
+  if (surface === "docs") return <DocsPage slug={docSlug(pathname)} />;
+  if (surface === "terms") return <TermsPage />;
+  if (surface === "privacy") return <PrivacyPage />;
+  if (surface === "changelog") return <ChangelogPage />;
+  if (surface === "about") return <AboutPage />;
+  if (surface === "not-found") return <NotFound />;
+
   // Mirrors AuthGate's own guard: getSupabaseClient() throws when the env vars
   // are absent, and that must render a message rather than a white screen.
   try {
@@ -73,18 +89,10 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
 
-  // Public site surfaces render regardless of session — a signed-out docs
-  // reader (or 404 visitor) must not wait on a session probe that has
-  // nothing to do with what they're looking at.
-  if (surface === "docs") return <DocsPage slug={docSlug(window.location.pathname)} />;
-  if (surface === "terms") return <TermsPage />;
-  if (surface === "privacy") return <PrivacyPage />;
-  if (surface === "changelog") return <ChangelogPage />;
-  if (surface === "about") return <AboutPage />;
-  if (surface === "not-found") return <NotFound />;
-
-  // These four depend on the session, so wait for it to resolve. Rendering
-  // early would flash the landing page at an already-signed-in visitor.
+  // panel, redirect-home, signup, console, signin, and the landing default
+  // (six branches) all depend on the session, so wait for it to resolve.
+  // Rendering early would flash the landing page at an already-signed-in
+  // visitor.
   if (session === undefined) {
     return (
       <div className="site">

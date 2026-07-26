@@ -16,8 +16,10 @@ export function Quickstart() {
       </p>
 
       <h2>install</h2>
-      <p>the local tier ships as a python package with a bundled SQLite store.</p>
-      <CodeBlock lang="bash">{`pip install "delapan[local]"`}</CodeBlock>
+      <p>the local tier runs from a clone with uv.</p>
+      <CodeBlock lang="bash">{`git clone https://github.com/anthonysuherli/delapan-be
+cd delapan-be
+uv sync`}</CodeBlock>
 
       <h2>run the MCP server</h2>
       <p>for claude code, or any MCP client, run the server directly:</p>
@@ -90,6 +92,12 @@ export function Quickstart() {
               <code>delapan_get_kg_schema</code>
             </td>
             <td>read the current schema</td>
+          </tr>
+          <tr>
+            <td>
+              <code>delapan_archive</code>
+            </td>
+            <td>archive or unarchive a project or kb — reversible, never deletes</td>
           </tr>
         </tbody>
       </table>

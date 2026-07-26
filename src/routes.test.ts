@@ -52,6 +52,16 @@ describe("resolveRoute", () => {
     expect(resolveRoute("/whatever", false)).toBe("not-found");
   });
 
+  it("pins session-invariance for the six public surfaces Root.tsx renders pre-client", () => {
+    // Root.tsx resolves these six surfaces (docs, terms, privacy, changelog,
+    // about, not-found) before constructing a Supabase client at all — that
+    // restructure only holds if resolveRoute truly ignores the session for
+    // every one of them.
+    for (const p of ["/docs", "/terms", "/privacy", "/changelog", "/about", "/whatever-404"]) {
+      expect(resolveRoute(p, true)).toBe(resolveRoute(p, false));
+    }
+  });
+
   it("changes meaning for the root ONLY — every other path ignores the session", () => {
     for (const p of ["/kg", "/tracking", "/duet", "/unknown", "/docs", "/docs/coverage", "/terms", "/privacy", "/changelog", "/about"]) {
       expect(resolveRoute(p, true)).toBe(resolveRoute(p, false));

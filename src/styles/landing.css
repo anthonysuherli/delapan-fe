@@ -1,8 +1,10 @@
 /* the public landing page, restaged on the pixel-8 brand. Hairlines, no
-   motion. Scoped under `.site .lp*` — every color/spacing/radius/font value
-   below resolves through a --p8-* token (site.css). Breakpoints/measures
-   (ch, px grid max, px breakpoints) stay raw — structural, not brand-scale,
-   same convention as site-shell.css. */
+   motion. Selectors are bare `.lp-*` — scoping comes from rendering only
+   inside SiteShell's `.lp` wrapper, not from a `.site .lp*` compound
+   selector. every color/spacing/radius/font value below resolves through a
+   --p8-* token (site.css). Breakpoints/measures (ch, px grid max, px
+   breakpoints) stay raw — structural, not brand-scale, same convention as
+   site-shell.css. */
 
 .lp {
   display: flex;
@@ -59,7 +61,7 @@
 }
 
 .mf-cell {
-  animation: dlpn-cellfade var(--t-enter) var(--ease-mech) both;
+  animation: dlpn-cellfade var(--p8-dur) var(--p8-ease) both;
 }
 
 .mf-ink {

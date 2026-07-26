@@ -36,7 +36,7 @@ const ENTRIES: ChangelogMonth[] = [
       {
         date: "2026-07-26",
         title: "instrument-grade UI + live node growth",
-        note: "the app took a full visual pass onto the pixel-8 brand, and new nodes now animate into the graph instead of appearing instantly.",
+        note: "the dashboard took a full visual pass — one test-enforced token system — and new nodes now animate into the graph instead of appearing instantly.",
       },
       {
         date: "2026-07-25",
