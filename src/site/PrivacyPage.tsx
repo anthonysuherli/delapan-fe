@@ -4,8 +4,8 @@ import { usePageTitle } from "./usePageTitle";
 /**
  * Privacy policy — template-grade, for the invite-gated beta. Plain
  * language, factual claims kept true of the real system (Supabase for
- * auth/db, Vercel for hosting, explore's outbound calls). `[contact email]`
- * stays a literal placeholder; do not invent one.
+ * auth/db, Vercel for hosting, explore's outbound calls). Contact is
+ * hello@delapan.ai (operator decision, 2026-07-26).
  */
 export function PrivacyPage() {
   usePageTitle("delapan — privacy");
@@ -56,7 +56,7 @@ export function PrivacyPage() {
           <h2>contact</h2>
           <p>
             questions about this policy, or want your data exported or deleted? reach out at{" "}
-            <code>[contact email]</code>.
+            <a href="mailto:hello@delapan.ai">hello@delapan.ai</a>.
           </p>
         </article>
       </div>

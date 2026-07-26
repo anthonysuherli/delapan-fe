@@ -3,9 +3,9 @@ import { usePageTitle } from "./usePageTitle";
 
 /**
  * Terms of service — template-grade, for the invite-gated beta. Plain
- * language, no legalese dressing. `[jurisdiction]` and `[contact email]`
- * stay literal placeholders until a real entity/contact is chosen; do not
- * invent values for either.
+ * language, no legalese dressing. Contact is hello@delapan.ai; governing law
+ * uses neutral operator's-establishment wording until an entity/jurisdiction
+ * is chosen with counsel (operator decision, 2026-07-26).
  */
 export function TermsPage() {
   usePageTitle("delapan — terms");
@@ -77,13 +77,13 @@ export function TermsPage() {
 
           <h2>governing law</h2>
           <p>
-            these terms are governed by the laws of <code>[jurisdiction]</code>, without regard to
-            conflict-of-law principles.
+            these terms are governed by the laws of the jurisdiction in which the operator is
+            established, without regard to conflict-of-law principles.
           </p>
 
           <h2>contact</h2>
           <p>
-            questions about these terms? reach out at <code>[contact email]</code>.
+            questions about these terms? reach out at <a href="mailto:hello@delapan.ai">hello@delapan.ai</a>.
           </p>
         </article>
       </div>
