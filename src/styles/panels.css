@@ -1001,6 +1001,20 @@
   padding: 18px var(--u3);
 }
 
+.fv-skel {
+  display: grid;
+  gap: var(--u2);
+  padding: var(--u4);
+}
+
+.skel-row {
+  height: 18px;
+  border-radius: var(--r-1);
+  background: linear-gradient(90deg, var(--bg2) 25%, var(--bg1) 50%, var(--bg2) 75%);
+  background-size: 200% 100%;
+  animation: dlpn-shimmer 1.2s ease-in-out infinite;
+}
+
 .fv-hist {
   position: relative;
   display: flex;

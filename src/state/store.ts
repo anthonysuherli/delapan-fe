@@ -111,6 +111,8 @@ interface AppState {
   teleport(nodeId: string): void;
   setNeighborIndex(index: number): void;
   setLastAction(text: string): void;
+  exploreFocusSeq: number;
+  requestExploreFocus(): void;
 }
 
 let toastSeq = 0;
@@ -138,6 +140,7 @@ export const useStore = create<AppState>((set, get) => ({
   kb: null,
   loadingGraph: false,
   graphVersion: 0,
+  exploreFocusSeq: 0,
   stats: null,
   schema: null,
   synopsis: null,
@@ -448,6 +451,10 @@ export const useStore = create<AppState>((set, get) => ({
 
   setAddNodeOpen(open) {
     set({ addNodeOpen: open });
+  },
+
+  requestExploreFocus() {
+    set({ exploreFocusSeq: get().exploreFocusSeq + 1 });
   },
 
   requestFly(nodeId) {

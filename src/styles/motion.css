@@ -66,6 +66,15 @@
   }
 }
 
+@keyframes dlpn-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
 @keyframes dlpn-scan {
   0% {
     transform: translateY(-100%);
@@ -181,6 +190,9 @@
     display: none;
   }
   .lr-drift-note {
+    animation: none;
+  }
+  .skel-row {
     animation: none;
   }
 }

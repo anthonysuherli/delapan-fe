@@ -33,6 +33,7 @@ export function GraphCanvas() {
   const loadingGraph = useStore((s) => s.loadingGraph);
   const project = useStore((s) => s.project);
   const kb = useStore((s) => s.kb);
+  const graphVersion = useStore((s) => s.graphVersion);
 
   // --- create sigma once -----------------------------------------------------
   useEffect(() => {
@@ -329,6 +330,25 @@ export function GraphCanvas() {
       {loadingGraph && (
         <div className="cv-loading">
           <span className="spin" /> loading graph…
+        </div>
+      )}
+      {!loadingGraph && graph.order === 0 && (
+        <div className="cv-empty" data-graph-version={graphVersion}>
+          <p className="cv-empty-title">this KB has no graph yet</p>
+          <p className="cv-empty-line">
+            run an explore to grow it from research, or place the first node by hand.
+          </p>
+          <div className="cv-empty-actions">
+            <button
+              className="btn btn--accent"
+              onClick={() => useStore.getState().requestExploreFocus()}
+            >
+              launch an explore
+            </button>
+            <button className="btn" onClick={() => useStore.getState().setAddNodeOpen(true)}>
+              add a node
+            </button>
+          </div>
         </div>
       )}
     </div>

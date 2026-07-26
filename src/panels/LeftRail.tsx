@@ -372,6 +372,11 @@ function ExploreSection() {
   const refreshStats = useStore((s) => s.refreshStats);
   const [prompt, setPrompt] = useState("");
   const [run, setRun] = useState<ExploreRun>({ phase: null, message: "", error: null, running: false });
+  const promptRef = useRef<HTMLInputElement>(null);
+  const exploreFocusSeq = useStore((s) => s.exploreFocusSeq);
+  useEffect(() => {
+    if (exploreFocusSeq > 0) promptRef.current?.focus();
+  }, [exploreFocusSeq]);
 
   const start = async () => {
     if (!project || !kb || !prompt.trim() || run.running) return;
@@ -402,6 +407,7 @@ function ExploreSection() {
       <div className="lr-probe-form">
         <input
           className="inp"
+          ref={promptRef}
           placeholder="gap-fill from the web…"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -440,6 +446,9 @@ function ExploreSection() {
             <div className="lr-phase lr-phase--error dlpn-in-slide">
               <span className="lr-phase-tick">✕</span>
               {run.error}
+              <button className="btn ml-auto" onClick={() => void start()}>
+                retry
+              </button>
             </div>
           )}
         </div>

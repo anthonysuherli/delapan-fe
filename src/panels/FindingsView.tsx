@@ -32,8 +32,10 @@ export function FindingsView() {
   if (loading) {
     return (
       <div className="fv">
-        <div className="cv-loading">
-          <span className="spin" /> loading findings…
+        <div className="fv-skel">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="skel-row" style={{ animationDelay: `${i * 60}ms` }} />
+          ))}
         </div>
       </div>
     );
