@@ -64,14 +64,13 @@ function RedirectHome() {
 
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const session = useSession(supabase);
-  const access = useBetaAccess(session);
   const surface = resolveRoute(window.location.pathname, Boolean(session));
+  const access = useBetaAccess(surface === "console" || surface === "panel" ? session : null);
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
-  if (surface === "panel") return PANEL;
 
-  // These three depend on the session, so wait for it to resolve. Rendering
+  // These four depend on the session, so wait for it to resolve. Rendering
   // early would flash the landing page at an already-signed-in visitor.
   if (session === undefined) {
     return (
@@ -79,6 +78,10 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
         <span className="spin" /> checking session…
       </main>
     );
+  }
+  if (surface === "panel") {
+    if (access === "pending") return <PendingApp session={session!} />;
+    return PANEL;
   }
   if (surface === "redirect-home") return <RedirectHome />;
   if (surface === "signup") {
