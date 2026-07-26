@@ -239,6 +239,93 @@
   font-size: var(--p8-text-sm);
 }
 
+/* ---- changelog ------------------------------------------------------------------ */
+
+.changelog {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: var(--p8-space-7) var(--p8-space-6) var(--p8-space-9);
+}
+
+.changelog h1 {
+  margin: 0 0 var(--p8-space-3);
+  font-size: var(--p8-text-3xl);
+}
+
+.changelog-intro {
+  margin: 0 0 var(--p8-space-8);
+  color: var(--p8-muted);
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-sm);
+}
+
+.changelog-month {
+  margin-top: var(--p8-space-8);
+}
+
+.changelog-month:first-of-type {
+  margin-top: 0;
+}
+
+.changelog-month h2 {
+  margin: 0 0 var(--p8-space-4);
+  color: var(--p8-muted);
+  font-family: var(--p8-font-body);
+  font-size: var(--p8-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p8-space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.changelog-item {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: var(--p8-space-4);
+  padding-bottom: var(--p8-space-5);
+  border-bottom: 1px solid var(--p8-line);
+}
+
+.changelog-list li:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.changelog-date {
+  color: var(--p8-muted-2);
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
+}
+
+.changelog-title {
+  margin: 0 0 var(--p8-space-1);
+  color: var(--p8-ink);
+  font-weight: 600;
+}
+
+.changelog-note {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--p8-muted);
+  line-height: 1.6;
+}
+
+/* ---- about ------------------------------------------------------------------------- */
+
+.about {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: var(--p8-space-7) var(--p8-space-6) var(--p8-space-9);
+}
+
 /* ---- responsive ------------------------------------------------------------------ */
 
 @media (max-width: 767px) {
@@ -255,5 +342,10 @@
 @media (max-width: 640px) {
   .ss-footer {
     grid-template-columns: 1fr;
+  }
+
+  .changelog-item {
+    grid-template-columns: 1fr;
+    gap: var(--p8-space-2);
   }
 }
