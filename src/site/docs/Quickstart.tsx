@@ -59,7 +59,7 @@ export function Quickstart() {
             <td>
               <code>delapan_backlog</code>
             </td>
-            <td>the curation backlog</td>
+            <td>ranked gap/sparse queries the KB was asked and couldn't answer</td>
           </tr>
           <tr>
             <td>
