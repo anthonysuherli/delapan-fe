@@ -13,6 +13,7 @@ import { LeftRail } from "./panels/LeftRail";
 import { StatusBar } from "./panels/StatusBar";
 import { Toasts } from "./panels/Toasts";
 import { TopBar } from "./panels/TopBar";
+import { Wordmark } from "./panels/Wordmark";
 import { useStore } from "./state/store";
 import { useHotkeys } from "./state/useHotkeys";
 import { TravelHud } from "./travel/TravelHud";
@@ -47,9 +48,7 @@ export default function App() {
   if (booting || bootError) {
     return (
       <div className="boot">
-        <div className="boot-wordmark">
-          DELAPAN<span>_8</span>
-        </div>
+        <Wordmark form="display" className="boot-wordmark" />
         {bootError ? (
           <>
             <div className="boot-err">{bootError}</div>

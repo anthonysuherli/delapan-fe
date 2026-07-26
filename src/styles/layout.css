@@ -40,14 +40,7 @@
 }
 
 .tb-wordmark {
-  /* brand wordmark: lowercase Space Grotesk Medium, tight tracking. The mark
-     and the wordmark stay separate — the mark is the glyph, this is type. */
-  font-family: var(--font-brand);
   font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  text-transform: lowercase;
-  color: var(--brand-ink);
 }
 
 .tb-sub {
@@ -209,15 +202,7 @@
 }
 
 .boot-wordmark {
-  font-family: var(--font-display);
   font-size: 44px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--text);
-}
-
-.boot-wordmark span {
-  color: var(--accent);
 }
 
 .boot-line {

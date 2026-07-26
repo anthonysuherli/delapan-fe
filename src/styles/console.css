@@ -27,12 +27,7 @@
 }
 
 .cons-wordmark {
-  font-family: var(--font-brand);
   font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  text-transform: lowercase;
-  color: var(--brand-ink);
 }
 
 .cons-sub {

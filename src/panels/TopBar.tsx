@@ -8,6 +8,7 @@ import { graph, graphTouched } from "../graph/graphStore";
 import { runLayout } from "../graph/layout";
 import { useStore } from "../state/store";
 import { Logomark } from "./Logomark";
+import { Wordmark } from "./Wordmark";
 
 interface Match {
   id: string;
@@ -51,7 +52,7 @@ export function TopBar() {
             full 5x9 mark is 32px, and the square viewBox insets it by ~18%. */}
         <Logomark size={40} />
         <div className="tb-brand-text">
-          <span className="tb-wordmark">delapan</span>
+          <Wordmark form="lower" className="tb-wordmark" />
           <span className="tb-sub">knowledge graph control</span>
         </div>
       </a>

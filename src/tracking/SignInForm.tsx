@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { Wordmark } from "../panels/Wordmark";
 
 interface SignInFormProps {
   supabase: SupabaseClient;
@@ -32,9 +33,7 @@ export function SignInForm({
   return (
     <main className="tracking-login">
       <form className="tracking-login__panel" onSubmit={(event) => void signIn(event)}>
-        <div className="tracking-wordmark">
-          DELAPAN<span>_8</span>
-        </div>
+        <Wordmark form="display" className="tracking-wordmark" />
         <h1>{title}</h1>
         <p>{subtitle}</p>
 

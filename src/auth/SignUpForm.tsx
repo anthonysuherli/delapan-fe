@@ -8,6 +8,7 @@
  */
 import { useState, type FormEvent } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { Wordmark } from "../panels/Wordmark";
 
 export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
   const [email, setEmail] = useState("");
@@ -38,9 +39,7 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
     return (
       <main className="tracking-login">
         <div className="tracking-login__panel">
-          <div className="tracking-wordmark">
-            DELAPAN<span>_8</span>
-          </div>
+          <Wordmark form="display" className="tracking-wordmark" />
           <h1>check your email</h1>
           <p className="pending-note">
             we sent a confirmation link to <span className="pending-email">{email}</span>. open it to
@@ -58,9 +57,7 @@ export function SignUpForm({ supabase }: { supabase: SupabaseClient }) {
   return (
     <main className="tracking-login">
       <form className="tracking-login__panel" onSubmit={(event) => void signUp(event)}>
-        <div className="tracking-wordmark">
-          DELAPAN<span>_8</span>
-        </div>
+        <Wordmark form="display" className="tracking-wordmark" />
         <h1>delapan</h1>
         <p>Create your delapan account.</p>
 

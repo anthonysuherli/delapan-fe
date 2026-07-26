@@ -4,6 +4,7 @@
  * user reaches the console and meets raw errors with no explanation.
  */
 import type { Session } from "@supabase/supabase-js";
+import { Wordmark } from "../panels/Wordmark";
 import { getSupabaseClient } from "../tracking/supabaseClient";
 
 export function PendingApp({ session }: { session: Session }) {
@@ -16,9 +17,7 @@ export function PendingApp({ session }: { session: Session }) {
   return (
     <main className="tracking-login">
       <div className="tracking-login__panel">
-        <div className="tracking-wordmark">
-          DELAPAN<span>_8</span>
-        </div>
+        <Wordmark form="display" className="tracking-wordmark" />
         <h1>you're on the list</h1>
         <p className="pending-note">
           your account exists, but delapan is in a closed beta and this address hasn't been let in
