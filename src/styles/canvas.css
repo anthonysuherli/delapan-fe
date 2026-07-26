@@ -94,7 +94,7 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-dim);
-  background: rgba(245, 247, 250, 0.72);
+  background: var(--bg-veil);
 }
 
 .cv-empty {
@@ -140,7 +140,7 @@
   font-size: 10px;
   letter-spacing: 0.06em;
   color: var(--accent);
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--canvas-card);
   border: 1px solid var(--accent);
   border-radius: var(--r-pill);
   box-shadow: 0 0 16px var(--glow-1);
@@ -320,7 +320,7 @@
   bottom: var(--u3);
   z-index: 20;
   width: 230px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--canvas-card);
   border: 1px solid var(--accent);
   border-radius: var(--r-3);
   box-shadow: 0 0 24px var(--glow-1);

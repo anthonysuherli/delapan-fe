@@ -182,8 +182,8 @@
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--red);
-  background: rgba(220, 38, 38, 0.06);
-  border: 1px dashed rgba(220, 38, 38, 0.4);
+  background: var(--red-veil);
+  border: 1px dashed var(--red-line);
   border-radius: var(--radius);
 }
 
@@ -464,7 +464,7 @@
 
 .ins-prop-del:hover {
   color: var(--red);
-  background: rgba(220, 38, 38, 0.08);
+  background: var(--red-veil);
 }
 
 .ins-prop-add {
@@ -566,7 +566,7 @@
   left: 0;
   right: 0;
   z-index: var(--z-drawer);
-  background: rgba(31, 43, 58, 0.28);
+  background: var(--scrim);
   backdrop-filter: blur(1px);
   animation: dlpn-fade var(--t-exit) ease;
 }
@@ -707,7 +707,7 @@
   align-items: flex-start;
   justify-content: center;
   padding-top: 14vh;
-  background: rgba(31, 43, 58, 0.32);
+  background: var(--scrim);
   backdrop-filter: blur(2px);
 }
 

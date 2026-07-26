@@ -86,7 +86,7 @@ button {
 
 .btn--accent {
   color: var(--accent);
-  border-color: rgba(180, 83, 9, 0.35);
+  border-color: var(--glow-3);
 }
 
 .btn--accent:hover:not(:disabled) {
