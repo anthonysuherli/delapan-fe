@@ -1,0 +1,304 @@
+/* the public landing page. Hairlines, 4px grid, flush left, no motion.
+   base.css sets `body { overflow: hidden }` for the full-screen graph app and
+   that propagates to the viewport, so a full-page surface MUST scroll itself —
+   the console shipped without this once and its lower half was unreachable. */
+
+.lp {
+  height: 100%;
+  overflow: auto;
+  background: var(--bg0);
+  color: var(--text);
+}
+
+.lp-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 var(--u6);
+}
+
+.lp-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u4) var(--u6);
+  border-bottom: 1px solid var(--line);
+}
+
+.lp-wordmark {
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  color: var(--brand-ink);
+}
+
+.lp-nav-cta {
+  margin-left: auto;
+}
+
+/* --- hero ---------------------------------------------------------------- */
+
+.lp-hero {
+  /* block padding only — these rules share elements with .lp-inner, and the
+     `padding` shorthand would reset its horizontal padding to 0, running text
+     to the screen edge on narrow viewports. */
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
+}
+
+.lp-hero h1 {
+  margin: 0 0 var(--u4);
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 6vw, 54px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  text-transform: lowercase;
+}
+
+.lp-lede {
+  margin: 0 0 var(--u6);
+  max-width: 60ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.lp-cta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--u4);
+  flex-wrap: wrap;
+}
+
+.lp-cta {
+  display: inline-block;
+  padding: var(--u3) var(--u6);
+  background: var(--chrome-accent);
+  color: var(--bg0);
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lp-cta:hover {
+  background: var(--chrome-accent-bright);
+}
+
+.lp-cta-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+
+/* --- shared section furniture -------------------------------------------- */
+
+.lp-section {
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
+  border-top: 1px solid var(--line);
+}
+
+.lp-kicker {
+  margin: 0 0 var(--u3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.lp-section h2 {
+  margin: 0 0 var(--u4);
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 600;
+  line-height: 1.15;
+  text-transform: lowercase;
+}
+
+.lp-body {
+  margin: 0 0 var(--u4);
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+.lp-body:last-child {
+  margin-bottom: 0;
+}
+
+.lp-code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--text);
+}
+
+/* --- pillars -------------------------------------------------------------- */
+
+.lp-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--u6);
+  margin-top: var(--u6);
+}
+
+.lp-pillar h3 {
+  margin: 0 0 var(--u2);
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.lp-pillar p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.lp-pillar-rule {
+  width: 24px;
+  height: 2px;
+  margin-bottom: var(--u3);
+  background: var(--chrome-accent);
+}
+
+/* --- coverage verdicts ---------------------------------------------------- */
+
+.lp-verdicts {
+  display: grid;
+  gap: var(--u3);
+  margin-top: var(--u6);
+}
+
+.lp-verdict {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u3);
+  padding: var(--u3) var(--u4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg1);
+}
+
+.lp-verdict-glyph {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.lp-verdict-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  min-width: 8ch;
+}
+
+.lp-verdict-note {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+/* --- plug-in targets ------------------------------------------------------ */
+
+.lp-targets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--u6);
+  margin-top: var(--u6);
+}
+
+.lp-target h3 {
+  margin: 0 0 var(--u2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.lp-target p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+/* --- what it isn't / not built yet ---------------------------------------- */
+
+.lp-contrasts {
+  display: grid;
+  gap: var(--u4);
+  margin-top: var(--u6);
+}
+
+.lp-contrast {
+  padding-left: var(--u4);
+  border-left: 2px solid var(--line-bright);
+}
+
+.lp-contrast b {
+  display: block;
+  margin-bottom: var(--u);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lp-contrast span {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.lp-planned {
+  display: grid;
+  gap: var(--u2);
+  margin-top: var(--u6);
+  padding-top: var(--u6);
+  border-top: 1px solid var(--line);
+}
+
+.lp-planned-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u3);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.lp-planned-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1px var(--u2);
+}
+
+/* --- close + footer ------------------------------------------------------- */
+
+.lp-close {
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
+  border-top: 1px solid var(--line);
+}
+
+.lp-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u6);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
