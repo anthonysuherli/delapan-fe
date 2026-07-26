@@ -196,7 +196,10 @@ Create `src/styles/landing.css`:
 /* --- hero ---------------------------------------------------------------- */
 
 .lp-hero {
-  padding: var(--u8) 0 var(--u8);
+  /* block padding only — .lp-inner shares these elements and the `padding`
+     shorthand would reset its horizontal padding to 0. */
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
 }
 
 .lp-hero h1 {
@@ -250,7 +253,8 @@ Create `src/styles/landing.css`:
 /* --- shared section furniture -------------------------------------------- */
 
 .lp-section {
-  padding: var(--u8) 0;
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
   border-top: 1px solid var(--line);
 }
 
@@ -875,7 +879,8 @@ Append to `src/styles/landing.css`:
 /* --- close + footer ------------------------------------------------------- */
 
 .lp-close {
-  padding: var(--u8) 0;
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
   border-top: 1px solid var(--line);
 }
 

@@ -40,7 +40,11 @@
 /* --- hero ---------------------------------------------------------------- */
 
 .lp-hero {
-  padding: var(--u8) 0 var(--u8);
+  /* block padding only — these rules share elements with .lp-inner, and the
+     `padding` shorthand would reset its horizontal padding to 0, running text
+     to the screen edge on narrow viewports. */
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
 }
 
 .lp-hero h1 {
@@ -94,7 +98,8 @@
 /* --- shared section furniture -------------------------------------------- */
 
 .lp-section {
-  padding: var(--u8) 0;
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
   border-top: 1px solid var(--line);
 }
 
@@ -282,7 +287,8 @@
 /* --- close + footer ------------------------------------------------------- */
 
 .lp-close {
-  padding: var(--u8) 0;
+  padding-top: var(--u8);
+  padding-bottom: var(--u8);
   border-top: 1px solid var(--line);
 }
 
