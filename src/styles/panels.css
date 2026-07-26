@@ -166,9 +166,9 @@
   gap: var(--u);
 }
 
-.lr-drift {
-  border-color: var(--red) !important;
-  color: var(--red) !important;
+.type-chip.lr-drift {
+  border-color: var(--red);
+  color: var(--red);
 }
 
 .lr-drift-note {
@@ -385,10 +385,7 @@
 }
 
 .ins-label-input {
-  font-size: 15px !important;
-  font-family: var(--font-body) !important;
   font-weight: 600;
-  padding: 7px 9px !important;
 }
 
 .ins-row {
@@ -467,6 +464,7 @@
 
 .ins-prop-add {
   margin-top: var(--u);
+  color: var(--green);
 }
 
 /* evidence list */

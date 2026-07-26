@@ -152,6 +152,28 @@ select.inp {
   outline-offset: 1px;
 }
 
+.inp--lg {
+  font-size: 15px;
+  font-family: var(--font-body);
+  padding: 7px 9px;
+}
+
+/* --- layout utilities ---------------------------------------------------- */
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.row {
+  display: flex;
+  gap: var(--u);
+}
+
+.hint {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
 /* --- small bits ---------------------------------------------------------- */
 
 .kbd {
@@ -179,6 +201,10 @@ select.inp {
   height: 8px;
   border-radius: var(--r-1);
   flex: none;
+}
+
+.type-dot--chrome {
+  background: var(--accent);
 }
 
 .type-chip {
