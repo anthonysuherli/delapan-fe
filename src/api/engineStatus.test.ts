@@ -6,10 +6,12 @@ describe("engineStatus", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 
