@@ -20,6 +20,13 @@ type QueuedCall =
 
 let real: PostHog | null = null;
 let queue: QueuedCall[] = [];
+let loadFailed = false;
+
+/** Enqueues a call unless the real client failed to load — see init()'s .catch(). */
+function enqueue(call: QueuedCall): void {
+  if (loadFailed) return;
+  queue.push(call);
+}
 
 function runWhenIdle(fn: () => void): void {
   if (typeof requestIdleCallback === "function") {
@@ -54,11 +61,18 @@ function drain(instance: PostHog): void {
 function init(key: string, config: Partial<PostHogConfig>): void {
   if (!key) return;
   runWhenIdle(() => {
-    import("posthog-js").then(({ default: posthog }) => {
-      posthog.init(key, config);
-      real = posthog;
-      drain(posthog);
-    });
+    import("posthog-js")
+      .then(({ default: posthog }) => {
+        posthog.init(key, config);
+        real = posthog;
+        drain(posthog);
+      })
+      .catch(() => {
+        // No reporting channel exists when the analytics client itself failed to
+        // load, so there's nowhere to send this — swallow it and stop queueing.
+        loadFailed = true;
+        queue = [];
+      });
   });
 }
 
@@ -67,7 +81,7 @@ function capture(...args: Parameters<PostHog["capture"]>): void {
     real.capture(...args);
     return;
   }
-  queue.push({ fn: "capture", args });
+  enqueue({ fn: "capture", args });
 }
 
 function identify(...args: Parameters<PostHog["identify"]>): void {
@@ -75,7 +89,7 @@ function identify(...args: Parameters<PostHog["identify"]>): void {
     real.identify(...args);
     return;
   }
-  queue.push({ fn: "identify", args });
+  enqueue({ fn: "identify", args });
 }
 
 function reset(...args: Parameters<PostHog["reset"]>): void {
@@ -83,7 +97,7 @@ function reset(...args: Parameters<PostHog["reset"]>): void {
     real.reset(...args);
     return;
   }
-  queue.push({ fn: "reset", args });
+  enqueue({ fn: "reset", args });
 }
 
 function captureException(...args: Parameters<PostHog["captureException"]>): void {
@@ -91,7 +105,7 @@ function captureException(...args: Parameters<PostHog["captureException"]>): voi
     real.captureException(...args);
     return;
   }
-  queue.push({ fn: "captureException", args });
+  enqueue({ fn: "captureException", args });
 }
 
 /** Only meaningful once the real client has loaded; undefined before then. */

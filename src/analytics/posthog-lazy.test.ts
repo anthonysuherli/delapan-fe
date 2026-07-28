@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+// This project has no @types/node (tsconfig `types` is scoped to `["vite/client"]`
+// for the browser build), but vitest itself runs on Node (`environment: "node"`
+// in vite.config.ts), so the real `process` global is present at runtime. Declare
+// just enough of it to register the `unhandledRejection` listener used below.
+declare const process: {
+  on(event: "unhandledRejection", listener: (reason: unknown) => void): void;
+  off(event: "unhandledRejection", listener: (reason: unknown) => void): void;
+};
+
 const mockPosthogInstance = {
   init: vi.fn(),
   capture: vi.fn(),
@@ -17,13 +26,15 @@ const syncIdleCallback = ((cb: IdleRequestCallback) => {
   return 0;
 }) satisfies typeof requestIdleCallback;
 
+/** Captures the delay passed to the setTimeout stub below, for assertion. */
+let lastSetTimeoutDelay: number | undefined;
+
 /** Runs the setTimeout callback synchronously, capturing the delay for assertion. */
 const syncSetTimeout = ((
   cb: TimerHandler,
   delay?: number,
 ) => {
-  // Store the delay so the test can verify it
-  (globalThis as { __lastSetTimeoutDelay?: number }).__lastSetTimeoutDelay = delay ?? 0;
+  lastSetTimeoutDelay = delay ?? 0;
   if (typeof cb === "function") {
     cb();
   }
@@ -31,15 +42,19 @@ const syncSetTimeout = ((
 }) satisfies typeof setTimeout;
 
 describe("posthog-lazy", () => {
+  const originalSetTimeout = globalThis.setTimeout;
+
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
     globalThis.requestIdleCallback = syncIdleCallback;
+    lastSetTimeoutDelay = undefined;
   });
 
   afterEach(() => {
     (globalThis as { requestIdleCallback?: typeof requestIdleCallback }).requestIdleCallback =
       undefined;
+    globalThis.setTimeout = originalSetTimeout;
   });
 
   it("queues capture/identify calls made before init resolves, then flushes them in order", async () => {
@@ -98,7 +113,6 @@ describe("posthog-lazy", () => {
   it("falls back to a setTimeout when requestIdleCallback is unavailable (Safari)", async () => {
     (globalThis as { requestIdleCallback?: typeof requestIdleCallback }).requestIdleCallback =
       undefined;
-    const originalSetTimeout = globalThis.setTimeout;
     globalThis.setTimeout = syncSetTimeout;
 
     const { default: posthog } = await import("./posthog-lazy");
@@ -106,13 +120,10 @@ describe("posthog-lazy", () => {
     expect(mockPosthogInstance.init).not.toHaveBeenCalled();
 
     // Verify the delay was correct
-    expect((globalThis as { __lastSetTimeoutDelay?: number }).__lastSetTimeoutDelay).toBe(2000);
+    expect(lastSetTimeoutDelay).toBe(2000);
 
     // Wait for the microtask promise to settle
     await vi.waitFor(() => expect(mockPosthogInstance.init).toHaveBeenCalledWith("phc_test", {}));
-
-    // Restore setTimeout
-    globalThis.setTimeout = originalSetTimeout;
   });
 
   it("get_distinct_id is undefined before load and delegates after", async () => {
@@ -124,5 +135,51 @@ describe("posthog-lazy", () => {
     await vi.waitFor(() => expect(mockPosthogInstance.init).toHaveBeenCalled());
 
     expect(posthog.get_distinct_id()).toBe("real-id");
+  });
+
+  it("stops queueing after a failed dynamic import, without an unhandled rejection", async () => {
+    const onUnhandledRejection = vi.fn();
+    process.on("unhandledRejection", onUnhandledRejection);
+
+    try {
+      vi.doMock("posthog-js", async () => {
+        throw new Error("chunk load failed");
+      });
+
+      const { default: posthog } = await import("./posthog-lazy");
+
+      posthog.init("phc_test", {});
+      // Let the rejected dynamic import's .catch() run to completion.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Calls made after the failed load must not accumulate in the (now
+      // permanently unreachable) queue instead of being dropped.
+      posthog.capture("during-failure");
+      posthog.identify("user-during-failure", { plan: "free" });
+
+      expect(onUnhandledRejection).not.toHaveBeenCalled();
+
+      // Swap in a working posthog-js and force re-resolution of the dynamic
+      // import. `posthog` is still the same module instance/closure — its
+      // `real`/`queue`/`loadFailed` state carries over — but resetting the
+      // module registry clears the cached (failed) posthog-js resolution so
+      // the next `import("posthog-js")` picks up the new factory below.
+      vi.doMock("posthog-js", () => ({ default: mockPosthogInstance }));
+      vi.resetModules();
+
+      posthog.init("phc_test2", { api_host: "https://y" });
+      await vi.waitFor(() =>
+        expect(mockPosthogInstance.init).toHaveBeenCalledWith("phc_test2", {
+          api_host: "https://y",
+        }),
+      );
+
+      // The calls made during the failed window were dropped, not queued —
+      // they must not replay now that a real client is available.
+      expect(mockPosthogInstance.capture).not.toHaveBeenCalled();
+      expect(mockPosthogInstance.identify).not.toHaveBeenCalled();
+    } finally {
+      process.off("unhandledRejection", onUnhandledRejection);
+    }
   });
 });
