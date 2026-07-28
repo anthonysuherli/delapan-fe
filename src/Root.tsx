@@ -90,7 +90,7 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const surface = resolveRoute(window.location.pathname, Boolean(session));
   const engine = useEngineState();
   const isApp = surface === "console" || surface === "panel";
-  const access = useBetaAccess(isApp ? session : null);
+  const access = useBetaAccess(surface === "console" ? session : null);
   // Only the panel ever renders engine data worth preserving through an
   // outage; the console has none, so it never claims hasLoadedData. The hook
   // itself is always called (Rules of Hooks) — only its result is gated.

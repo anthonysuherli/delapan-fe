@@ -64,9 +64,10 @@ describe("resolveAppState", () => {
     expect(at("panel", SESSION, "pending", "reachable")).toBe("pending");
   });
 
-  it("waits while the access probe is in flight", () => {
+  it("waits while the console's access probe is in flight, but never stalls the panel", () => {
     expect(at("console", SESSION, "checking", "reachable")).toBe("checking");
     expect(at("console", SESSION, "idle", "reachable")).toBe("checking");
+    expect(at("panel", SESSION, "idle", "reachable")).toBe("panel");
   });
 
   it("lets an approved user through to their surface", () => {

@@ -45,7 +45,9 @@ export function resolveAppState({
   if (!session) return "signin";
   if (engine === "unreachable" && !hasLoadedData) return "engine-down";
   if (access === "pending") return "pending";
-  if (access === "checking" || access === "idle") return "checking";
+  // The panel never runs the probe (App.boot's own getProjects is the gate), so
+  // an idle/checking access there is not something to wait on.
+  if (surface === "console" && (access === "checking" || access === "idle")) return "checking";
   // "approved" and "error" both proceed: a probe failure must never accuse an
   // approved user of being waitlisted.
   return surface;
