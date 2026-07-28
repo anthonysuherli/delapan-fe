@@ -123,8 +123,13 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
  *  an expected-path entry. `unreachable`, `unauthorized` and `forbidden` are
  *  expected states with their own screens and never reach here. */
 const EXPECTED: ReadonlyArray<{ status: number; path: RegExp }> = [
-  { status: 404, path: /\/findings\// }, // deleted finding, citation survives by design
-  { status: 503, path: /\/resume/ }, // embeddings unavailable — LeftRail's own message
+  // Anchored to the endpoint suffix, not matched as a loose substring: kbPath
+  // interpolates user-chosen project/KB names into this same string, so an
+  // unanchored /\/findings\// would let a KB literally named "findings" silence
+  // every 404 in that scope — including the mutation-path 404s this list exists
+  // to keep reporting. Anchoring also stops a future /resume-cache matching.
+  { status: 404, path: /\/findings\/[^/?]+$/ }, // deleted finding, citation survives by design
+  { status: 503, path: /\/resume(\?|$)/ }, // embeddings unavailable — LeftRail's own message
 ];
 
 function report(failure: EngineFailure, path: string): EngineFailure {

@@ -113,6 +113,39 @@ describe("client no longer falls back to mock data", () => {
     expect(captureError).not.toHaveBeenCalled();
   });
 
+  it("DOES report a 404 when the KB is merely NAMED 'findings' — scope names must not widen the exclusion", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 404, statusText: "not found", text: async () => "x" }),
+    );
+
+    // kbPath interpolates user-chosen names into the same string the exclusion
+    // matches. Unanchored, this call's path (.../kbs/findings/graph/nodes/n1)
+    // would be suppressed and every mutation 404 in that KB would go silent.
+    await expect(patchNode("p", "findings", "n1", { label: "x" })).rejects.toMatchObject({
+      kind: "server",
+      status: 404,
+    });
+    await patchNode("p", "findings", "n1", { label: "x" }).catch(() => undefined);
+    expect(captureError).toHaveBeenCalled();
+  });
+
+  it("DOES report a 503 when the project is merely NAMED 'resume'", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: "unavailable", text: async () => "x" }),
+    );
+
+    // path is /api/projects/resume/kbs/kb1/graph/nodes/n1 — an unanchored
+    // /\/resume/ matches the project segment and would silence it.
+    await expect(patchNode("resume", "kb1", "n1", { label: "x" })).rejects.toMatchObject({
+      kind: "server",
+      status: 503,
+    });
+    await patchNode("resume", "kb1", "n1", { label: "x" }).catch(() => undefined);
+    expect(captureError).toHaveBeenCalled();
+  });
+
   it("DOES report a 503 from getProjects — an engine failing every request must not go quiet", async () => {
     vi.stubGlobal(
       "fetch",
