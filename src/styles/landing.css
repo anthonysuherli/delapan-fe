@@ -170,6 +170,7 @@
 }
 
 .lp-band .lp-code {
+  background: var(--p8-ink-2);
   color: var(--p8-accent-d);
 }
 

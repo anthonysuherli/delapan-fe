@@ -104,28 +104,33 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.site h1,
-.site h2,
-.site h3 {
+/* :where() zero-specificity wrap: these are DEFAULTS, not overrides — any
+   single-class surface rule (site-shell.css, landing.css, auth.css) must be
+   able to beat them regardless of stylesheet import order. Without this,
+   `.site h1` etc sit at (0,1,1), which ties or beats a plain `.lp-hero h1`
+   / `.ss-cta` and silently wins on import order instead of cascade intent.
+   `:focus-visible` below is deliberately left un-wrapped — that outline
+   should stay hard to override. */
+
+:where(.site) :where(h1, h2, h3) {
   font-family: var(--p8-font-display);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--p8-ink);
 }
 
-.site a {
+:where(.site) :where(a) {
   color: var(--p8-ink);
   text-decoration-color: var(--p8-accent);
   text-underline-offset: 3px;
   transition: color var(--p8-dur-fast) var(--p8-ease);
 }
 
-.site a:hover {
+:where(.site) :where(a):hover {
   color: var(--p8-accent-deep);
 }
 
-.site code,
-.site pre {
+:where(.site) :where(code, pre) {
   font-family: var(--p8-font-mono);
   font-size: var(--p8-text-sm);
 }
