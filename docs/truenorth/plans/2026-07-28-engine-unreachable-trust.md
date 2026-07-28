@@ -1140,6 +1140,9 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     return (await res.json()) as T;
   } catch (err) {
+    // A TypeError here means the connection dropped mid-body — that is an
+    // unreachable, and engineStatus must be told or readOnly never flips.
+    if (err instanceof TypeError) reportUnreachable();
     throw report(
       new EngineFailure(classify(err), res.status, "the engine returned an unreadable body"),
       path,
@@ -1147,13 +1150,20 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-/** Only `server` and `parse` are bugs. `unreachable`, `unauthorized` and
- *  `forbidden` are expected states with their own screens — filing them as
- *  exceptions would bury the real ones. */
+/** Only `server` and `parse` are bugs — and not every `server` status is one.
+ *  404 is the documented "citation unavailable" path (a deleted finding whose
+ *  grounded_in reference survives, by design — see CLAUDE.md); 503 is
+ *  "embeddings unavailable", which LeftRail surfaces with its own message.
+ *  Filing either as an exception buries the real ones. `unreachable`,
+ *  `unauthorized` and `forbidden` are expected states with their own screens
+ *  and never reach here. */
+const EXPECTED_STATUSES = new Set([404, 503]);
+
 function report(failure: EngineFailure, path: string): EngineFailure {
-  if (failure.kind === "server" || failure.kind === "parse") {
-    captureError(failure, { path, status: failure.status, kind: failure.kind });
-  }
+  const isBug =
+    failure.kind === "parse" ||
+    (failure.kind === "server" && !EXPECTED_STATUSES.has(failure.status));
+  if (isBug) captureError(failure, { path, status: failure.status, kind: failure.kind });
   return failure;
 }
 
@@ -1220,7 +1230,16 @@ And in `liveExplore`, wrap the initial fetch the same way `http` does:
   }
   if (!res.ok || !res.body) {
     if (res.status === 401) on401SignOut(res.status, getSupabaseClient());
-    throw new EngineFailure(classify(null, res.status), res.status, res.statusText);
+    // Wrap in report() exactly like http() does. Explore is the longest-running
+    // and most failure-prone call in the app; leaving it unwrapped would make
+    // PostHog read "explore never fails" while /graph/stats 500s show up.
+    // An ok response with a null body is a parse fault, not a server one —
+    // classify(null, 200) would otherwise yield "server error: OK".
+    const kind = res.ok ? "parse" : classify(null, res.status);
+    throw report(
+      new EngineFailure(kind, res.status, res.ok ? "the engine returned no body" : res.statusText),
+      `${kbPath(project, kb)}/explore`,
+    );
   }
 ```
 
@@ -1309,6 +1328,20 @@ import { join } from "node:path";
 
 const NEEDLE = "Findings are the atomic unit of delapan knowledge";
 const DIR = "dist/assets";
+const SOURCE = "src/api/mock.ts";
+
+// The needle is fixture CONTENT. If someone edits or regenerates the dataset it
+// vanishes from the source and from any emitted chunk alike, the grep below
+// matches nothing, and this script would print "ok" forever while the fixture
+// ships. Assert the needle still exists at its source first, so a stale gate
+// fails loudly instead of silently passing.
+if (!readFileSync(SOURCE, "utf8").includes(NEEDLE)) {
+  console.error(
+    `assert-no-mock: FAIL — NEEDLE no longer appears in ${SOURCE}, so this gate ` +
+      "would pass vacuously. Update NEEDLE to a string the fixture still contains.",
+  );
+  process.exit(1);
+}
 
 let offenders = [];
 try {
