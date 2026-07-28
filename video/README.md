@@ -25,9 +25,23 @@ open work for the composition task. It must match frame one of the MP4.
   — see "Deviation from plan" below)
 - Create command: `npx --yes hyperframes init video/resolution-demo --example blank --non-interactive --skip-transcribe`
 - Render command: `HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 render video/resolution-demo --output public/demo-resolution.mp4` (this is what `npm run video:render` runs)
-- Poster command: `npx --yes hyperframes@0.7.76 snapshot` — captures key frames as
-  PNGs, which is how the poster gets made without ffmpeg
-- Composition gates: `lint`, `validate`, and `check` (which runs all of them)
+
+## Listed in `--help`, NOT yet exercised
+
+These come from `npx --yes hyperframes@0.7.76 --help` (full output in
+`.truenorth/sdd/task-1-report.md`). They exist as subcommands; nobody has run
+them against this composition yet, so treat every one as a lead to verify, not
+a working recipe.
+
+- `snapshot` — "Capture key frames as PNG screenshots for visual verification".
+  The most likely route to the poster frame without ffmpeg. **Unproven:** whether
+  it can target t=0 and write to an arbitrary path is exactly what the
+  composition task must find out first.
+- `check` — "Run lint, runtime validation, and layout inspection as one gate".
+  `lint` and `validate` are also separately invokable.
+- `benchmark` — renders across preset fps/quality/worker configs and compares
+  speed against file size. Useful if the 3 MB budget is tight.
+- `info`, `inspect`, `keyframes`, `compare`, `doctor`, `preview`.
 - FFmpeg: **not required and not installed.** HyperFrames bundles its own
   encoder — verified by rendering successfully on a machine where both `ffmpeg`
   and `ffprobe` are absent from PATH. Do not reach for `ffprobe` to inspect
