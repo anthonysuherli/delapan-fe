@@ -204,6 +204,13 @@ type QueuedCall =
 
 let real: PostHog | null = null;
 let queue: QueuedCall[] = [];
+let loadFailed = false;
+
+/** Enqueues a call unless the real client failed to load — see init()'s .catch(). */
+function enqueue(call: QueuedCall): void {
+  if (loadFailed) return;
+  queue.push(call);
+}
 
 function runWhenIdle(fn: () => void): void {
   if (typeof requestIdleCallback === "function") {
@@ -238,11 +245,18 @@ function drain(instance: PostHog): void {
 function init(key: string, config: Partial<PostHogConfig>): void {
   if (!key) return;
   runWhenIdle(() => {
-    import("posthog-js").then(({ default: posthog }) => {
-      posthog.init(key, config);
-      real = posthog;
-      drain(posthog);
-    });
+    import("posthog-js")
+      .then(({ default: posthog }) => {
+        posthog.init(key, config);
+        real = posthog;
+        drain(posthog);
+      })
+      .catch(() => {
+        // No reporting channel exists when the analytics client itself failed to
+        // load, so there's nowhere to send this — swallow it and stop queueing.
+        loadFailed = true;
+        queue = [];
+      });
   });
 }
 
@@ -251,7 +265,7 @@ function capture(...args: Parameters<PostHog["capture"]>): void {
     real.capture(...args);
     return;
   }
-  queue.push({ fn: "capture", args });
+  enqueue({ fn: "capture", args });
 }
 
 function identify(...args: Parameters<PostHog["identify"]>): void {
@@ -259,7 +273,7 @@ function identify(...args: Parameters<PostHog["identify"]>): void {
     real.identify(...args);
     return;
   }
-  queue.push({ fn: "identify", args });
+  enqueue({ fn: "identify", args });
 }
 
 function reset(...args: Parameters<PostHog["reset"]>): void {
@@ -267,7 +281,7 @@ function reset(...args: Parameters<PostHog["reset"]>): void {
     real.reset(...args);
     return;
   }
-  queue.push({ fn: "reset", args });
+  enqueue({ fn: "reset", args });
 }
 
 function captureException(...args: Parameters<PostHog["captureException"]>): void {
@@ -275,7 +289,7 @@ function captureException(...args: Parameters<PostHog["captureException"]>): voi
     real.captureException(...args);
     return;
   }
-  queue.push({ fn: "captureException", args });
+  enqueue({ fn: "captureException", args });
 }
 
 /** Only meaningful once the real client has loaded; undefined before then. */
@@ -287,6 +301,17 @@ const posthogLazy = { init, capture, identify, reset, captureException, get_dist
 
 export default posthogLazy;
 ```
+
+> **Amendment (2026-07-28, after Task 1 review).** The `.catch()` on the dynamic
+> import and the `enqueue()` guard above are a deliberate deviation from the
+> `delapan-ai-site` source, authorised by the human during Task 1's review. Without
+> them a failed chunk load leaves `real` null forever, so every later call
+> accumulates in a queue that can never drain — and Task 2's global
+> `unhandledrejection` handler routes into that same queue, making the growth
+> self-feeding. The source repo still carries this bug; the two files are no longer
+> byte-identical, so a future re-sync needs a manual merge on `init()` and the four
+> dispatch functions. The reviewer also flagged those four functions as verbatim
+> duplication; the human ruled the plan governs and they stay as they are.
 
 - [ ] **Step 5: Run the test to verify it passes**
 
