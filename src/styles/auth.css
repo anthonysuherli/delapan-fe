@@ -114,6 +114,12 @@
   font-family: var(--p8-font-mono);
 }
 
+/* the base rule pays out the app's --text-dim (a cool blue-grey) onto the
+   warm card — the one palette leak left on this surface. */
+.site .auth-card > p {
+  color: var(--p8-muted);
+}
+
 /* submit: ink pill, same recipe as .ss-cta (site-shell.css). The rename
    left an accent (moss) fill here, which breaks accent discipline on a
    CTA — moss is links/underlines/small marks only. */
