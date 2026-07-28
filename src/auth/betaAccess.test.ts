@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "../api/types";
+import { EngineFailure } from "../api/failure";
 import { classifyProbe } from "./betaAccess";
 
 describe("classifyProbe", () => {
@@ -31,5 +32,20 @@ describe("classifyProbe", () => {
     for (const status of [400, 404, 418, 500, 502, 503]) {
       expect(classifyProbe({ ok: false, error: new ApiError(status, "x") })).toBe("error");
     }
+  });
+
+  it("reports an unreachable engine as unreachable, never as approved or waitlisted", () => {
+    const failure = new EngineFailure("unreachable", 0, "the engine is not reachable");
+    expect(classifyProbe({ ok: false, error: failure })).toBe("unreachable");
+  });
+
+  it("still treats a 500 EngineFailure as error, so an approved user is not accused", () => {
+    const failure = new EngineFailure("server", 500, "boom");
+    expect(classifyProbe({ ok: false, error: failure })).toBe("error");
+  });
+
+  it("still treats a 403 EngineFailure as pending", () => {
+    const failure = new EngineFailure("forbidden", 403, "beta access required");
+    expect(classifyProbe({ ok: false, error: failure })).toBe("pending");
   });
 });

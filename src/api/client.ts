@@ -1,19 +1,22 @@
 /**
  * Single typed client for the delapan engine API.
  *
- *   UI ──▶ client.* ──▶ live fetch (VITE_API_BASE)
- *                  └──▶ mockApi    (VITE_USE_MOCK=1, or live unreachable)
+ *   UI ──▶ client.* ──▶ fetch(VITE_API_BASE) ──ok──▶ typed response
+ *                                            └─err─▶ EngineFailure(kind)
  *
- * ALL fetch logic lives here so contract fixes are one-file. Auto-fallback:
- * a network-level failure (backend down) flips the session to mock mode and
- * notifies listeners; HTTP errors (4xx/5xx) surface as ApiError instead.
+ * There is NO automatic fallback to mock data. A network failure raises an
+ * `unreachable` EngineFailure and asks engineStatus to confirm via /health; the
+ * UI then renders an honest failure state. The fixture is reachable only via
+ * VITE_USE_MOCK=1, behind a dynamic import so it is tree-shaken out of any
+ * production build (enforced by scripts/assert-no-mock.mjs).
  */
 
-import { mockApi } from "./mock";
 import { getSupabaseClient } from "../tracking/supabaseClient";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { captureError } from "../analytics";
+import { classify, EngineFailure } from "./failure";
+import { reportUnreachable } from "./engineStatus";
 import {
-  ApiError,
   type ConceptDocResponse,
   type EdgeSpec,
   type ExploreEvent,
@@ -30,6 +33,7 @@ import {
   type ResumeResponse,
   type Synopsis,
 } from "./types";
+import type { mockApi as MockApi } from "./mock";
 
 const env = import.meta.env as Record<string, string | undefined>;
 const BASE = env.VITE_API_BASE ?? "http://127.0.0.1:8001";
@@ -52,36 +56,32 @@ export function on401SignOut(status: number, client: Pick<SupabaseClient, "auth"
   if (status === 401) void client.auth.signOut();
 }
 
-export type ApiMode = "live" | "mock";
+// Deliberately `import.meta.env.VITE_USE_MOCK`, not `env.VITE_USE_MOCK` — Vite's
+// build-time inlining only rewrites this exact literal expression. Read through
+// the `env` alias, it stays a runtime lookup and rollup can't fold the branch
+// below, so the fixture would ship in every production bundle.
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === "1";
 
-let mode: ApiMode = env.VITE_USE_MOCK === "1" ? "mock" : "live";
-const modeListeners = new Set<(mode: ApiMode) => void>();
-
-export function getApiMode(): ApiMode {
-  return mode;
-}
-
-export function onApiModeChange(listener: (mode: ApiMode) => void): () => void {
-  modeListeners.add(listener);
-  return () => modeListeners.delete(listener);
-}
-
-function setMode(next: ApiMode): void {
-  if (mode === next) return;
-  mode = next;
-  modeListeners.forEach((l) => l(next));
-}
-
-/** fetch throws TypeError on network failure — that (and only that) triggers fallback. */
-function isNetworkError(err: unknown): boolean {
-  return err instanceof TypeError;
+/** Resolved once, on first use, and only when the mock flag is on. In a
+ *  production build USE_MOCK is statically false, so this import is unreachable
+ *  and rollup drops src/api/mock.ts from the output entirely. */
+let mockPromise: Promise<typeof MockApi> | null = null;
+function loadMock(): Promise<typeof MockApi> {
+  if (!mockPromise) mockPromise = import("./mock").then((m) => m.mockApi);
+  return mockPromise;
 }
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+    });
+  } catch (err) {
+    reportUnreachable();
+    throw new EngineFailure(classify(err), 0, "the engine is not reachable");
+  }
   if (!res.ok) {
     let detail = res.statusText;
     try {
@@ -91,23 +91,60 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
       /* keep statusText */
     }
     if (res.status === 401) on401SignOut(res.status, getSupabaseClient());
-    throw new ApiError(res.status, detail);
+    throw report(new EngineFailure(classify(null, res.status), res.status, detail), path);
   }
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  try {
+    return (await res.json()) as T;
+  } catch (err) {
+    // a dropped connection mid-body throws TypeError here too, not just
+    // malformed JSON (SyntaxError) — classify() maps that to "unreachable",
+    // so the probe must fire the same way it does on the initial fetch reject.
+    if (err instanceof TypeError) reportUnreachable();
+    throw report(
+      new EngineFailure(classify(err), res.status, "the engine returned an unreadable body"),
+      path,
+    );
+  }
 }
 
-async function call<T>(live: () => Promise<T>, mock: () => Promise<T>): Promise<T> {
-  if (mode === "mock") return mock();
-  try {
-    return await live();
-  } catch (err) {
-    if (isNetworkError(err)) {
-      setMode("mock");
-      return mock();
-    }
-    throw err;
-  }
+/** Only `server` and `parse` are bugs — and not every `server` status/path pair
+ *  is one, but the exclusion is scoped to the specific path it was ruled on, not
+ *  the status alone. A 404 is only the documented "citation unavailable" path
+ *  when it's on /findings/{id} — a deleted finding whose grounded_in reference
+ *  survives, by design. A 404 on a mutation path (patchNode, deleteNode,
+ *  deleteEdge) is the alias-map gotcha surfacing for real (delete-then-undo
+ *  re-mints a server id; a resolution regression looks exactly like a 404) and
+ *  must still report. Likewise 503 is only "embeddings unavailable" (LeftRail's
+ *  own message) on /resume — a 503 from anywhere else means the whole engine is
+ *  failing every request, which is the single most important thing to know
+ *  about and must not go silent. `parse` always short-circuits first: a
+ *  404-with-unreadable-body must not go silent just because its status matches
+ *  an expected-path entry. `unreachable`, `unauthorized` and `forbidden` are
+ *  expected states with their own screens and never reach here. */
+const EXPECTED: ReadonlyArray<{ status: number; path: RegExp }> = [
+  // Anchored to the endpoint suffix, not matched as a loose substring: kbPath
+  // interpolates user-chosen project/KB names into this same string, so an
+  // unanchored /\/findings\// would let a KB literally named "findings" silence
+  // every 404 in that scope — including the mutation-path 404s this list exists
+  // to keep reporting. Anchoring also stops a future /resume-cache matching.
+  { status: 404, path: /\/findings\/[^/?]+$/ }, // deleted finding, citation survives by design
+  { status: 503, path: /\/resume(\?|$)/ }, // embeddings unavailable — LeftRail's own message
+];
+
+function report(failure: EngineFailure, path: string): EngineFailure {
+  const isBug =
+    failure.kind === "parse" ||
+    (failure.kind === "server" &&
+      !EXPECTED.some((e) => e.status === failure.status && e.path.test(path)));
+  if (isBug) captureError(failure, { path, status: failure.status, kind: failure.kind });
+  return failure;
+}
+
+/** Mock is an explicit dev mode, never a failure fallback. */
+async function call<T>(live: () => Promise<T>, mock: (api: typeof MockApi) => Promise<T>): Promise<T> {
+  if (USE_MOCK) return mock(await loadMock());
+  return live();
 }
 
 function qs(params: Record<string, string | number | undefined>): string {
@@ -125,28 +162,28 @@ const kbPath = (project: string, kb: string) =>
 // endpoints
 
 export function getProjects(): Promise<ProjectsResponse> {
-  return call(() => http("/api/projects"), () => mockApi.getProjects());
+  return call(() => http("/api/projects"), (m) => m.getProjects());
 }
 
 export function getGraph(project: string, kb: string, query: GraphQuery = {}): Promise<GraphResponse> {
   return call(
     () => http(`${kbPath(project, kb)}/graph${qs({ ...query })}`),
-    () => mockApi.getGraph(project, kb, query),
+    (m) => m.getGraph(project, kb, query),
   );
 }
 
 export function getStats(project: string, kb: string): Promise<GraphStats> {
-  return call(() => http(`${kbPath(project, kb)}/graph/stats`), () => mockApi.getStats(project, kb));
+  return call(() => http(`${kbPath(project, kb)}/graph/stats`), (m) => m.getStats(project, kb));
 }
 
 export function getSchema(project: string, kb: string): Promise<GraphSchema> {
-  return call(() => http(`${kbPath(project, kb)}/graph/schema`), () => mockApi.getSchema(project, kb));
+  return call(() => http(`${kbPath(project, kb)}/graph/schema`), (m) => m.getSchema(project, kb));
 }
 
 export function createNodes(project: string, kb: string, nodes: NodeSpec[]): Promise<{ ids: string[] }> {
   return call(
     () => http(`${kbPath(project, kb)}/graph/nodes`, { method: "POST", body: JSON.stringify({ nodes }) }),
-    () => mockApi.createNodes(project, kb, nodes),
+    (m) => m.createNodes(project, kb, nodes),
   );
 }
 
@@ -157,7 +194,7 @@ export function patchNode(project: string, kb: string, id: string, patch: NodePa
         method: "PATCH",
         body: JSON.stringify(patch),
       }),
-    () => mockApi.patchNode(project, kb, id, patch),
+    (m) => m.patchNode(project, kb, id, patch),
   );
 }
 
@@ -168,7 +205,7 @@ export function deleteNode(
 ): Promise<{ deleted: boolean; removed_edge_ids: string[] }> {
   return call(
     () => http(`${kbPath(project, kb)}/graph/nodes/${encodeURIComponent(id)}`, { method: "DELETE" }),
-    () => mockApi.deleteNode(project, kb, id),
+    (m) => m.deleteNode(project, kb, id),
   );
 }
 
@@ -182,21 +219,21 @@ export function synthesizeConceptDoc(
       http(`${kbPath(project, kb)}/graph/nodes/${encodeURIComponent(nodeId)}/concept-doc`, {
         method: "POST",
       }),
-    () => mockApi.synthesizeConceptDoc(project, kb, nodeId),
+    (m) => m.synthesizeConceptDoc(project, kb, nodeId),
   );
 }
 
 export function createEdges(project: string, kb: string, edges: EdgeSpec[]): Promise<{ inserted: number }> {
   return call(
     () => http(`${kbPath(project, kb)}/graph/edges`, { method: "POST", body: JSON.stringify({ edges }) }),
-    () => mockApi.createEdges(project, kb, edges),
+    (m) => m.createEdges(project, kb, edges),
   );
 }
 
 export function deleteEdge(project: string, kb: string, id: string): Promise<{ deleted: boolean }> {
   return call(
     () => http(`${kbPath(project, kb)}/graph/edges/${encodeURIComponent(id)}`, { method: "DELETE" }),
-    () => mockApi.deleteEdge(project, kb, id),
+    (m) => m.deleteEdge(project, kb, id),
   );
 }
 
@@ -207,33 +244,35 @@ export function getFindings(
 ): Promise<FindingsResponse> {
   return call(
     () => http(`${kbPath(project, kb)}/findings${qs({ ...params })}`),
-    () => mockApi.getFindings(project, kb, params),
+    (m) => m.getFindings(project, kb, params),
   );
 }
 
 export function getFinding(project: string, kb: string, id: string): Promise<Finding> {
   return call(
     () => http(`${kbPath(project, kb)}/findings/${encodeURIComponent(id)}`),
-    () => mockApi.getFinding(project, kb, id),
+    (m) => m.getFinding(project, kb, id),
   );
 }
 
 export function deleteFinding(project: string, kb: string, id: string): Promise<{ deleted: boolean }> {
   return call(
     () => http(`${kbPath(project, kb)}/findings/${encodeURIComponent(id)}`, { method: "DELETE" }),
-    () => mockApi.deleteFinding(project, kb, id),
+    (m) => m.deleteFinding(project, kb, id),
   );
 }
 
 export function getSynopsis(project: string, kb: string): Promise<Synopsis | null> {
-  return call(() => http(`${kbPath(project, kb)}/synopsis`), () => mockApi.getSynopsis(project, kb));
+  return call(() => http(`${kbPath(project, kb)}/synopsis`), (m) => m.getSynopsis(project, kb));
 }
 
-/** May reject with ApiError(503) when embeddings are unavailable. */
+/** May reject with EngineFailure(kind: "server", status: 503) when embeddings are
+ *  unavailable — LeftRail's CoverageProbe special-cases that status; report() does
+ *  not send it to error tracking since it's an expected, not exceptional, state. */
 export function getResume(project: string, kb: string, query: string, depth?: number): Promise<ResumeResponse> {
   return call(
     () => http(`${kbPath(project, kb)}/resume${qs({ query, depth })}`),
-    () => mockApi.getResume(project, kb, query, depth),
+    (m) => m.getResume(project, kb, query, depth),
   );
 }
 
@@ -245,14 +284,26 @@ async function* liveExplore(
   kb: string,
   body: { prompt: string; max_findings?: number },
 ): AsyncGenerator<ExploreEvent> {
-  const res = await fetch(`${BASE}${kbPath(project, kb)}/explore`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok || !res.body) {
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${kbPath(project, kb)}/explore`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    reportUnreachable();
+    throw new EngineFailure(classify(err), 0, "the engine is not reachable");
+  }
+  const explorePath = `${kbPath(project, kb)}/explore`;
+  if (!res.ok) {
     if (res.status === 401) on401SignOut(res.status, getSupabaseClient());
-    throw new ApiError(res.status, res.statusText);
+    throw report(new EngineFailure(classify(null, res.status), res.status, res.statusText), explorePath);
+  }
+  if (!res.body) {
+    // res.ok but no stream body isn't a server-side fault by status — "parse"
+    // names what actually happened instead of a misleading "server error: OK".
+    throw report(new EngineFailure("parse", res.status, "the engine returned no stream body"), explorePath);
   }
 
   const reader = res.body.getReader();
@@ -287,24 +338,10 @@ export async function* explore(
   kb: string,
   body: { prompt: string; max_findings?: number },
 ): AsyncGenerator<ExploreEvent> {
-  if (mode === "mock") {
-    yield* mockApi.explore(project, kb, body);
+  if (USE_MOCK) {
+    const m = await loadMock();
+    yield* m.explore(project, kb, body);
     return;
   }
-  let stream: AsyncGenerator<ExploreEvent>;
-  try {
-    stream = liveExplore(project, kb, body);
-    // force the initial fetch so network failures trigger fallback
-    const first = await stream.next();
-    if (first.done) return;
-    yield first.value;
-  } catch (err) {
-    if (isNetworkError(err)) {
-      setMode("mock");
-      yield* mockApi.explore(project, kb, body);
-      return;
-    }
-    throw err;
-  }
-  yield* stream;
+  yield* liveExplore(project, kb, body);
 }

@@ -55,6 +55,12 @@
   color: var(--red);
 }
 
+.engine-down-note {
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 /* the one branded wait screen: wordmark + line + a slow scan shimmer */
 .auth-state {
   align-content: center;
@@ -202,4 +208,8 @@
 /* brand rule: the wordmark's 8 takes accent everywhere under .site */
 .site .wm-8 {
   color: var(--p8-accent);
+}
+
+.site .engine-down-note {
+  color: var(--p8-muted);
 }

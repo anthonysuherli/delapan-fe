@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useEngineState } from "./auth/useEngineState";
 import { GraphCanvas } from "./graph/GraphCanvas";
 import { AddNodeModal } from "./panels/AddNodeModal";
 import { ConceptDocReader } from "./panels/ConceptDocReader";
@@ -10,6 +11,7 @@ import { FindingDrawer } from "./panels/FindingDrawer";
 import { FindingsView } from "./panels/FindingsView";
 import { Inspector } from "./panels/Inspector";
 import { LeftRail } from "./panels/LeftRail";
+import { OutageBanner } from "./panels/OutageBanner";
 import { StatusBar } from "./panels/StatusBar";
 import { Toasts } from "./panels/Toasts";
 import { TopBar } from "./panels/TopBar";
@@ -26,6 +28,7 @@ export default function App() {
   const view = useStore((s) => s.view);
   const setView = useStore((s) => s.setView);
   const [showScan, setShowScan] = useState(true);
+  const engine = useEngineState();
 
   useHotkeys();
 
@@ -67,6 +70,7 @@ export default function App() {
 
   return (
     <div className="shell">
+      {engine === "unreachable" && <OutageBanner />}
       <TopBar />
       <div className="shell-main">
         <LeftRail />

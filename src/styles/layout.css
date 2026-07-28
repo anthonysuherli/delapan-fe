@@ -153,17 +153,8 @@
   background: var(--green);
 }
 
-.sb-dot--mock {
+.sb-dot--down {
   background: var(--chrome-accent);
-}
-
-.sb-mock-badge {
-  padding: 0 6px;
-  border: 1px solid var(--accent);
-  border-radius: var(--r-1);
-  color: var(--accent);
-  letter-spacing: 0.12em;
-  background: var(--accent-dim);
 }
 
 .sb-action {
@@ -252,4 +243,29 @@
   height: 100%;
   min-width: 0;
   animation: dlpn-fade var(--t-pop) var(--ease-out);
+}
+
+/* mid-session outage annunciator — chrome, not state: this is an instrument
+   warning light, and --state-* is reserved for coverage banding. */
+.outage {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u2) var(--u4);
+  background: var(--chrome-accent-dim);
+  border-bottom: 1px solid var(--chrome-accent);
+  color: var(--chrome-accent-deep);
+  font-size: 12px;
+}
+
+.outage-dot {
+  width: var(--u2);
+  height: var(--u2);
+  border-radius: 50%;
+  background: var(--chrome-accent-bright);
+  flex: none;
+}
+
+.outage .btn {
+  margin-left: auto;
 }

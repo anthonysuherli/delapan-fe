@@ -31,6 +31,7 @@ export function GraphCanvas() {
   const edgeDraft = useStore((s) => s.edgeDraft);
   const flyTo = useStore((s) => s.flyTo);
   const loadingGraph = useStore((s) => s.loadingGraph);
+  const scopeError = useStore((s) => s.scopeError);
   const project = useStore((s) => s.project);
   const kb = useStore((s) => s.kb);
   const graphVersion = useStore((s) => s.graphVersion);
@@ -332,7 +333,18 @@ export function GraphCanvas() {
           <span className="spin" /> loading graph…
         </div>
       )}
-      {!loadingGraph && graph.order === 0 && (
+      {!loadingGraph && scopeError && (
+        <div className="cv-empty">
+          <p className="cv-empty-title">this KB didn't load</p>
+          <p className="cv-empty-line">{scopeError}</p>
+          <div className="cv-empty-actions">
+            <button className="btn btn--accent" onClick={() => void useStore.getState().loadScope()}>
+              retry
+            </button>
+          </div>
+        </div>
+      )}
+      {!loadingGraph && !scopeError && graph.order === 0 && (
         // data-graph-version consumes the graphVersion subscription (strict noUnusedLocals) AND
         // ties this render to graph mutations — do not remove either side.
         <div className="cv-empty" data-graph-version={graphVersion}>

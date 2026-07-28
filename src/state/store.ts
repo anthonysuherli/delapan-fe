@@ -7,6 +7,8 @@
 
 import { create } from "zustand";
 import * as api from "../api/client";
+import { getEngineState, onEngineStateChange } from "../api/engineStatus";
+import { EngineFailure, type EngineFailureKind } from "../api/failure";
 import type {
   Finding,
   FindingRow,
@@ -48,9 +50,20 @@ export type FindingCacheEntry =
 const SCOPE_KEY = "delapan.scope";
 
 interface AppState {
-  mode: api.ApiMode;
+  readOnly: boolean;
   booting: boolean;
   bootError: string | null;
+  /** How boot()'s own getProjects() failed. The panel does not run the beta
+   *  probe (App.boot's call IS its gate), so this is the only place a 403
+   *  surfaces for that surface — without it a waitlisted user reaching /kg
+   *  gets the raw response body on the boot-error screen instead of the
+   *  waitlist. Regression introduced when the duplicate probe was removed. */
+  bootFailure: EngineFailureKind | null;
+  scopeError: string | null;
+  /** Has a scope load ever actually succeeded this session? Set once, on a
+   *  successful loadScope, and never reset — a later failed scope switch
+   *  must not erase it, since the graph already on screen is still real. */
+  hasLoadedData: boolean;
   projects: ProjectInfo[];
   project: string | null;
   kb: string | null;
@@ -100,6 +113,7 @@ interface AppState {
   setView(view: "graph" | "findings"): void;
   setConfidenceRange(range: [number, number] | null): void;
   loadFindings(): void;
+  removeFindingFromView(id: string): void;
   openFinding(id: string | null): void;
   openConcept(id: string | null): void;
   navigateConcept(id: string): void;
@@ -137,9 +151,12 @@ function loadSavedScope(): { project: string; kb: string } | null {
 }
 
 export const useStore = create<AppState>((set, get) => ({
-  mode: api.getApiMode(),
+  readOnly: false,
   booting: true,
   bootError: null,
+  bootFailure: null,
+  scopeError: null,
+  hasLoadedData: false,
   projects: [],
   project: null,
   kb: null,
@@ -174,10 +191,10 @@ export const useStore = create<AppState>((set, get) => ({
   flyTo: null,
 
   async boot() {
-    set({ booting: true, bootError: null });
+    set({ booting: true, bootError: null, bootFailure: null });
     try {
       const { projects } = await api.getProjects();
-      set({ projects, mode: api.getApiMode() });
+      set({ projects });
       const saved = loadSavedScope();
       const valid =
         saved &&
@@ -194,7 +211,11 @@ export const useStore = create<AppState>((set, get) => ({
       await get().loadScope();
       set({ booting: false });
     } catch (err) {
-      set({ booting: false, bootError: err instanceof Error ? err.message : String(err) });
+      set({
+        booting: false,
+        bootError: err instanceof Error ? err.message : String(err),
+        bootFailure: err instanceof EngineFailure ? err.kind : null,
+      });
     }
   },
 
@@ -210,6 +231,7 @@ export const useStore = create<AppState>((set, get) => ({
     if (!project || !kb) return;
     set({
       loadingGraph: true,
+      scopeError: null,
       selectedNodes: [],
       selectedEdges: [],
       travel: null,
@@ -241,11 +263,25 @@ export const useStore = create<AppState>((set, get) => ({
         stats: statsRes.status === "fulfilled" ? statsRes.value : null,
         schema: schemaRes.status === "fulfilled" ? schemaRes.value : null,
         synopsis: synopsisRes.status === "fulfilled" ? synopsisRes.value : null,
-        mode: api.getApiMode(),
         lastAction: `loaded ${project}/${kb} — ${graphRes.value.nodes.length} nodes, ${graphRes.value.edges.length} edges`,
+        hasLoadedData: true,
       });
     } catch (err) {
-      get().pushToast("error", `failed to load graph: ${err instanceof Error ? err.message : err}`);
+      // A failed switch must not leave the previous KB's graph rendered under the
+      // new scope's label — mutations would then target the new KB with old ids.
+      graph.clear();
+      graphTouched();
+      const message = err instanceof Error ? err.message : String(err);
+      set({
+        stats: null,
+        schema: null,
+        synopsis: null,
+        findings: null,
+        findingsTotal: 0,
+        scopeError: message,
+        lastAction: `failed to load ${project}/${kb}`,
+      });
+      get().pushToast("error", `failed to load graph: ${message}`);
     } finally {
       set({ loadingGraph: false });
     }
@@ -375,6 +411,10 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async runCmd(cmd, opts = {}) {
+    if (get().readOnly) {
+      get().pushToast("error", `${cmd.label} failed: engine unreachable`);
+      return false;
+    }
     try {
       await undoManager.run(cmd);
       set({
@@ -392,6 +432,10 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async undo() {
+    if (get().readOnly) {
+      get().pushToast("error", "undo failed: engine unreachable");
+      return;
+    }
     try {
       const label = await undoManager.undo();
       if (label) {
@@ -408,6 +452,10 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async redo() {
+    if (get().readOnly) {
+      get().pushToast("error", "redo failed: engine unreachable");
+      return;
+    }
     try {
       const label = await undoManager.redo();
       if (label) {
@@ -485,6 +533,15 @@ export const useStore = create<AppState>((set, get) => ({
           loadingFindings: false,
         });
       });
+  },
+
+  removeFindingFromView(id) {
+    const { findings, findingsTotal } = get();
+    if (!findings?.some((f) => f.id === id)) return;
+    set({
+      findings: findings.filter((f) => f.id !== id),
+      findingsTotal: Math.max(0, findingsTotal - 1),
+    });
   },
 
   openFinding(id) {
@@ -645,7 +702,7 @@ export const useStore = create<AppState>((set, get) => ({
 }));
 
 // ---------------------------------------------------------------------------
-// wiring: graph mutations → version bump; undo stack → flags; api mode → badge
+// wiring: graph mutations → version bump; undo stack → flags; engine liveness → read-only
 
 onGraphTouched(() => {
   useStore.setState((s) => ({ graphVersion: s.graphVersion + 1 }));
@@ -660,9 +717,9 @@ undoManager.subscribe(() => {
   });
 });
 
-api.onApiModeChange((mode) => {
-  useStore.setState({ mode });
-  if (mode === "mock") {
-    useStore.getState().pushToast("info", "engine unreachable — switched to built-in mock data");
-  }
+// engine liveness → read-only. An unreachable engine cannot accept a mutation,
+// so the affordances go away rather than letting an edit apply-then-rollback.
+useStore.setState({ readOnly: getEngineState() === "unreachable" });
+onEngineStateChange((state) => {
+  useStore.setState({ readOnly: state === "unreachable" });
 });
