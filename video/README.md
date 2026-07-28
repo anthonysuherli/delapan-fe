@@ -13,16 +13,24 @@ every build. It runs through `npx` instead.
 npm run video:render
 ```
 
-Writes `public/demo-resolution.mp4` and `public/demo-resolution-poster.png`.
-Both are committed. Budget: **MP4 under 3 MB.**
+Writes `public/demo-resolution.mp4` only. Budget: **MP4 under 3 MB.**
 
-## Verified toolchain (fill in from your run)
+**Poster generation is not wired up yet.** The landing page needs
+`public/demo-resolution-poster.png` as the video's poster frame; producing it is
+open work for the composition task. It must match frame one of the MP4.
+
+## Verified toolchain
 
 - CLI version: `0.7.76` (package is `hyperframes` on npm, not `@hyperframes/cli`
   — see "Deviation from plan" below)
 - Create command: `npx --yes hyperframes init video/resolution-demo --example blank --non-interactive --skip-transcribe`
 - Render command: `npx --yes hyperframes render video/resolution-demo --output public/demo-resolution.mp4`
-- FFmpeg version: `ffmpeg version 8.1.2 Copyright (c) 2000-2026 the FFmpeg developers`
+- FFmpeg: **not required and not installed.** HyperFrames bundles its own
+  encoder — verified by rendering successfully on a machine where both `ffmpeg`
+  and `ffprobe` are absent from PATH. Do not reach for `ffprobe` to inspect
+  output; the renderer prints a summary line like `25.6 KB · 10.0s video` on
+  completion. For more details use `npx --yes hyperframes@0.7.76 info` on the
+  composition directory.
 
 ## Compositions
 
@@ -48,3 +56,8 @@ Both are committed. Budget: **MP4 under 3 MB.**
   directly and does not re-trigger this init behavior.
 - `render`'s output flag is `-o`/`--output` (a file path, default
   `renders/<name>.mp4`), not `--out` as the plan's illustrative snippet showed.
+- **`video:render` pins `hyperframes@0.7.76` and sets `HYPERFRAMES_SKIP_SKILLS=1`:**
+  `npx --yes hyperframes` (unpinned) re-resolves to latest on every run, risking
+  silent breakage. `HYPERFRAMES_SKIP_SKILLS=1` suppresses the global skill
+  installer side effect. Both are essential for reproducibility and avoiding
+  unexpected state in `~/.claude/skills/` and `~/.agents/skills/`.
