@@ -188,11 +188,17 @@ Create `src/analytics/posthog-lazy.ts`. Ported from the site verbatim; only the 
  *
  *   call ──▶ real client loaded? ──yes──▶ delegate
  *                              └──no───▶ queue ──(on load)──▶ replay in order
+ *                                          └──(load failed)──▶ drop
  *
  * init() defers BOTH the dynamic import and posthog.init() to the browser's next
  * idle window (requestIdleCallback, falling back to a 2s setTimeout on browsers
  * without it, e.g. Safari). Calls made before then — including captureException
- * for errors thrown during that window — are queued, so nothing is dropped.
+ * for errors thrown during that window — are queued and replayed on load.
+ *
+ * If the chunk fails to load, that queue is dropped and every later call becomes
+ * a no-op. Analytics is best-effort: holding calls for a client that is never
+ * coming would grow without bound for the life of the session, and the global
+ * unhandledrejection handler feeds this same path.
  */
 import type { PostHog, PostHogConfig } from "posthog-js";
 
