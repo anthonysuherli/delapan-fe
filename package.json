@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "video:render": "HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 render video/resolution-demo --output public/demo-resolution.mp4"
+    "video:render": "HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 render video/resolution-demo --output public/demo-resolution.mp4",
+    "video:poster": "rm -rf video/resolution-demo/out/poster && HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 snapshot video/resolution-demo --at 0 --no-end -o video/resolution-demo/out/poster && cp video/resolution-demo/out/poster/frame-00-at-0s.png public/demo-resolution-poster.png",
+    "video:build": "npm run video:render && npm run video:poster"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",

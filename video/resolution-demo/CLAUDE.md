@@ -1,3 +1,9 @@
+> **Added by this repo (`delapan-fe`).** This project deliberately does not install the
+> HyperFrames global skills — see `video/README.md`'s "Deviation from plan" section. Do
+> **not** run `npx hyperframes skills update` or invoke `/hyperframes*` skills below; they
+> write into `~/.claude/skills/` and `~/.agents/skills/`, a machine-wide side effect this
+> repo suppresses with `HYPERFRAMES_SKIP_SKILLS=1`.
+
 # HyperFrames Composition Project
 
 ## Skills — USE THESE FIRST

@@ -106,7 +106,11 @@ player chrome.
 video/resolution-demo/
   index.html          the composition — plays as-is in a browser, no build step
   design.md           the --p8-* palette values, so video and page share one source of truth
-  hyperframes-core/   authoring contract
+  AGENTS.md           the authoring contract (data-* timing attributes, class="clip", etc.)
+  CLAUDE.md           byte-identical to AGENTS.md — Claude Code's auto-loaded copy
+  hyperframes.json    CLI project config
+  meta.json           project metadata (id, name)
+  package.json        dev/check/render/publish scripts, scoped to this composition
 ```
 
 Chosen over hosting the artifact on Vercel Blob (adds a storage dependency and an env var the local
@@ -191,6 +195,10 @@ animation, no countdown" bullet:
    legible at 375px width, and the keyboard reaches and operates the controls.
 4. **LCP measured with the section present**, against the landing spec's < 2.5s bar. Measured, not
    argued from `preload="none"`.
+   **Open as of `2026-07-27-landing-demo-video.md`'s "Verification results":** the preview
+   browser returned zero paint-timing entries, so this was not measured — only reasoned
+   structurally (the section sits outside the initial viewport). Remains open pending a
+   Lighthouse run against a deployed URL.
 5. **Broken-source check** — rename the MP4 and confirm the page degrades to poster plus fallback
    copy rather than an empty box.
 6. **Text-alternative check** — with the video removed entirely, the section still states its
@@ -207,7 +215,7 @@ animation, no countdown" bullet:
   dependency producing a plain MP4, so the blast radius of the project going stale is bounded: the
   committed artifact keeps working, and the composition is plain HTML that any renderer could
   replace.
-- **New `video/` tree and `devDependencies` in a frontend that is deliberately thin.** Contained by
+- **New `video/` tree in a frontend that is deliberately thin.** Contained by
   keeping it out of `npm run build` and out of the bundle.
 
 ## Repo facts verified for this design (2026-07-26 — code over docs)
