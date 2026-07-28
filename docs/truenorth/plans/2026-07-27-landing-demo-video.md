@@ -564,9 +564,27 @@ port 4173), driven through the in-app browser. Numbers, not impressions.
 | MP4 size | **PASS** — 752,509 B against a 3,145,728 B budget (24%) |
 | Video duration | **PASS** — 30.0s |
 | Poster provenance | **PASS** — frame one of this exact render (`snapshot --at 0 --no-end`) |
-| **LCP** | **NOT MEASURED** — see below |
+| **LCP** | **0.9s** against a 2.5s bar — measured on the deployed site, see below |
 
-### LCP could not be measured, and was not faked
+### LCP: closed, 2026-07-27, on the deployed URL
+
+Lighthouse (desktop preset, headless Chrome) against `https://delapan.ai/` after
+deploy:
+
+| Metric | Value |
+|---|---|
+| Performance score | **99** |
+| Largest Contentful Paint | **0.9 s** (bar: < 2.5 s) |
+| First Contentful Paint | 0.8 s |
+| Cumulative Layout Shift | **0.003** — the `aspect-ratio` box reservation working |
+| Total Blocking Time | 0 ms |
+
+Live confirmation alongside it: only `demo-resolution-poster.png` is requested on
+load; `demo-resolution.mp4` is never fetched until a click. The deployed MP4 is
+byte-identical to the committed one (md5 `90c67676c0775a273eeb1617b34e8ac6`,
+752,509 B, `content-type: video/mp4`).
+
+### Why it took a deploy to measure (kept for the next person)
 
 The in-app browser reports no paint timing at all: `performance.getEntriesByType(
 'largest-contentful-paint')` returns an empty list and `first-contentful-paint`
@@ -581,8 +599,17 @@ because the MP4 is never fetched before a click, the change adds **zero bytes** 
 the initial load beyond the 29,716-byte poster — which is itself never decoded
 above the fold.
 
-To close this properly, run Lighthouse (or Chrome DevTools' Performance panel)
-against the deployed preview URL and record the LCP value and element here.
+This is why the measurement had to wait for a deploy. What worked, for reuse:
+
+```bash
+CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  npx --yes lighthouse https://delapan.ai/ --only-categories=performance \
+  --preset=desktop --quiet --chrome-flags="--headless=new --no-sandbox" \
+  --output=json --output-path=/tmp/lh.json
+```
+
+The PageSpeed Insights API is the other route, but its anonymous quota was
+exhausted when tried.
 
 ### Note on the poster
 
