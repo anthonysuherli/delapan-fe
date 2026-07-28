@@ -1157,12 +1157,24 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
  *  Filing either as an exception buries the real ones. `unreachable`,
  *  `unauthorized` and `forbidden` are expected states with their own screens
  *  and never reach here. */
-const EXPECTED_STATUSES = new Set([404, 503]);
+// Scoped to (status, path) pairs, NOT bare statuses. Excluding 404 everywhere
+// would silence a genuine desync: patchNode/deleteNode/deleteEdge all 404 on an
+// unknown id, which is exactly how a regression in commands.ts's alias map
+// surfaces (see CLAUDE.md's delete-then-undo gotcha). Excluding 503 everywhere
+// is worse still — no HTTP status triggers a liveness probe, so an engine
+// 503ing every request would report nothing, never flip readOnly, and leave the
+// StatusBar showing a green "live api" dot.
+const EXPECTED: ReadonlyArray<{ status: number; path: RegExp }> = [
+  { status: 404, path: /\/findings\// }, // deleted finding, citation survives by design
+  { status: 503, path: /\/resume/ },      // embeddings unavailable — LeftRail's own message
+];
 
 function report(failure: EngineFailure, path: string): EngineFailure {
+  // `parse` short-circuits FIRST so a 404-with-unreadable-body is never silenced.
   const isBug =
     failure.kind === "parse" ||
-    (failure.kind === "server" && !EXPECTED_STATUSES.has(failure.status));
+    (failure.kind === "server" &&
+      !EXPECTED.some((e) => e.status === failure.status && e.path.test(path)));
   if (isBug) captureError(failure, { path, status: failure.status, kind: failure.kind });
   return failure;
 }
