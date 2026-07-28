@@ -35,16 +35,17 @@
 .lp-hero h1 {
   margin: 0 0 var(--p8-space-4);
   max-width: 18ch;
-  font-family: var(--p8-font-display);
-  font-size: clamp(var(--p8-text-3xl), 6vw, var(--p8-text-5xl));
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  font-family: var(--p8-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(2.5rem, 6vw, 3.9rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
 }
 
 .lp-lede {
   margin: 0 0 var(--p8-space-6);
-  max-width: 72ch;
+  max-width: 60ch;
   font-size: var(--p8-text-lg);
   line-height: 1.6;
   color: var(--p8-muted);
@@ -87,15 +88,15 @@
 /* --- shared section furniture ----------------------------------------------- */
 
 .lp-section {
-  padding: var(--p8-space-9) 0;
-  border-top: 1px solid var(--p8-line);
+  margin-top: var(--p8-space-section);
 }
 
 .lp-kicker {
   margin: 0 0 var(--p8-space-3);
-  font-family: var(--p8-font-mono);
+  font-family: var(--p8-font-display);
   font-size: var(--p8-text-xs);
-  letter-spacing: 0.16em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--p8-muted);
 }
@@ -152,11 +153,13 @@
   color: var(--p8-muted);
 }
 
+/* the flat top-rule treatment: the div itself carries the hairline so a
+   `.lp-pillar` never gets a border-top AND this in the same box. */
 .lp-pillar-rule {
-  width: 24px;
-  height: 2px;
-  margin-bottom: var(--p8-space-3);
-  background: var(--p8-accent);
+  width: 100%;
+  height: 1px;
+  margin-bottom: var(--p8-space-5);
+  background: var(--p8-line);
 }
 
 /* --- demo video ---------------------------------------------------------------- */
@@ -247,6 +250,11 @@
   margin-top: var(--p8-space-6);
 }
 
+.lp-target {
+  padding-top: var(--p8-space-5);
+  border-top: 1px solid var(--p8-line);
+}
+
 .lp-target h3 {
   margin: 0 0 var(--p8-space-2);
   font-family: var(--p8-font-mono);
@@ -272,8 +280,8 @@
 }
 
 .lp-contrast {
-  padding-left: var(--p8-space-4);
-  border-left: 2px solid var(--p8-line);
+  padding-top: var(--p8-space-5);
+  border-top: 1px solid var(--p8-line);
 }
 
 .lp-contrast b {
@@ -319,8 +327,19 @@
 /* --- close -------------------------------------------------------------------------- */
 
 .lp-close {
-  padding: var(--p8-space-9) 0;
+  padding: var(--p8-space-section) 0;
   border-top: 1px solid var(--p8-line);
+}
+
+.lp-close h2 {
+  margin: 0 0 var(--p8-space-6);
+  max-width: 20ch;
+  font-family: var(--p8-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: var(--p8-text-3xl);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
 }
 
 /* --- responsive ----------------------------------------------------------------------- */
@@ -333,9 +352,12 @@
 
 @media (max-width: 768px) {
   .lp-hero,
-  .lp-section,
   .lp-close {
     padding: var(--p8-space-7) 0;
+  }
+
+  .lp-section {
+    margin-top: var(--p8-space-7);
   }
 
   .lp-inner {
