@@ -123,9 +123,16 @@ public/demo-resolution-poster.png
 
 Both artifacts are committed and served by Vercel as static assets. HyperFrames renders by seeking
 frames in headless Chrome and encoding with FFmpeg; wiring that into `npm run build` would require
-Chrome and FFmpeg on the Vercel builder for every deploy. The exact CLI invocation and the
-`@hyperframes/*` package set get pinned during implementation — they belong in `devDependencies`
-only, and must not reach the app bundle.
+Chrome and FFmpeg on the Vercel builder for every deploy.
+
+**HyperFrames is not a project dependency at all** — not `dependencies`, not `devDependencies`. It
+renders through Puppeteer, which downloads a Chromium binary on install, and Vercel installs
+devDependencies on every build (it must — `vite` and `typescript` live there). Listing it would pull
+~150MB of Chromium into every production deploy of a page that only serves a finished MP4. The
+`video:render` script invokes it via `npx` instead, so the repo's dependency graph is untouched and
+the composition stays plain HTML that needs nothing installed to open. *(Amended 2026-07-27 during
+planning; the original draft of this section said `devDependencies`.)* The exact CLI invocation gets
+pinned during implementation.
 
 **Byte budget: 3 MB for the MP4.** Above that, reduce duration or resolution rather than accepting
 it — this file enters git history permanently.
