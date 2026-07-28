@@ -41,6 +41,11 @@ would only matter for a re-render, which isn't otherwise needed.
 - Render command: `HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 render video/resolution-demo --output public/demo-resolution.mp4` (this is what `npm run video:render` runs)
 - Poster command: `HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 snapshot video/resolution-demo --at 0 --no-end -o <scratch-dir>` (this is what `npm run video:poster` runs, followed by copying `<scratch-dir>/frame-00-at-0s.png` to `public/demo-resolution-poster.png`). Confirmed reproducible: re-running it against the unchanged composition produces a byte-identical PNG to the committed one.
 - `check` — "Run lint, runtime validation, and layout inspection as one gate" — was run against the composition as the gate before rendering. Result: 0 errors, 38/38 WCAG AA contrast checks passed, 10 `text_occluded` info-level notices, all at t=28.33s, after the end-card handoff — reviewed and judged benign.
+- FFmpeg: **not required and not installed.** HyperFrames bundles its own
+  encoder — verified by rendering successfully on a machine where both `ffmpeg`
+  and `ffprobe` are absent from PATH. Do not reach for `ffprobe` to inspect
+  output; the renderer prints a summary line like `25.6 KB · 10.0s video` on
+  completion.
 
 ## Listed in `--help`, NOT yet exercised
 
@@ -51,12 +56,6 @@ verify, not a working recipe.
 - `benchmark` — renders across preset fps/quality/worker configs and compares
   speed against file size. Useful if the 3 MB budget is tight.
 - `info`, `inspect`, `keyframes`, `compare`, `doctor`, `preview`.
-- FFmpeg: **not required and not installed.** HyperFrames bundles its own
-  encoder — verified by rendering successfully on a machine where both `ffmpeg`
-  and `ffprobe` are absent from PATH. Do not reach for `ffprobe` to inspect
-  output; the renderer prints a summary line like `25.6 KB · 10.0s video` on
-  completion. For more details use `npx --yes hyperframes@0.7.76 info` on the
-  composition directory.
 
 ## Compositions
 
