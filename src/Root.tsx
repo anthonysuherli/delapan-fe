@@ -10,10 +10,12 @@ import { useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import App from "./App";
 import { AuthGate } from "./auth/AuthGate";
+import { EngineDown } from "./auth/EngineDown";
 import { Interstitial } from "./auth/Interstitial";
 import { PendingApp } from "./auth/PendingApp";
 import { SignUpForm } from "./auth/SignUpForm";
 import { useBetaAccess } from "./auth/useBetaAccess";
+import { useEngineState } from "./auth/useEngineState";
 import { useSession } from "./auth/useSession";
 import { ConsoleApp } from "./console/ConsoleApp";
 import { DuetApp } from "./duet/DuetApp";
@@ -25,6 +27,7 @@ import { DocsPage } from "./site/DocsPage";
 import { NotFound } from "./site/NotFound";
 import { PrivacyPage } from "./site/PrivacyPage";
 import { TermsPage } from "./site/TermsPage";
+import { resolveAppState } from "./state/appState";
 import { SignInForm } from "./tracking/SignInForm";
 import { getSupabaseClient } from "./tracking/supabaseClient";
 import { TrackingApp } from "./tracking/TrackingApp";
@@ -84,32 +87,12 @@ function RedirectHome() {
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const session = useSession(supabase);
   const surface = resolveRoute(window.location.pathname, Boolean(session));
-  const access = useBetaAccess(surface === "console" || surface === "panel" ? session : null);
+  const engine = useEngineState();
+  const isApp = surface === "console" || surface === "panel";
+  const access = useBetaAccess(isApp ? session : null);
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
-
-  // panel, redirect-home, signup, console, signin, and the landing default
-  // (six branches) all depend on the session, so wait for it to resolve.
-  // Rendering early would flash the landing page at an already-signed-in
-  // visitor.
-  if (session === undefined) {
-    return (
-      <div className="site">
-        <Interstitial line="checking session…" />
-      </div>
-    );
-  }
-  if (surface === "panel") {
-    if (access === "pending") {
-      return (
-        <div className="site">
-          <PendingApp session={session!} />
-        </div>
-      );
-    }
-    return PANEL;
-  }
   if (surface === "redirect-home") return <RedirectHome />;
   if (surface === "signup") {
     return (
@@ -118,32 +101,53 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
       </div>
     );
   }
-  if (surface === "console" && session) {
-    // The gate is only real if the client honours it. "error" deliberately
-    // falls through to the console rather than accusing an approved user of
-    // being waitlisted because a request failed.
-    if (access === "checking" || access === "idle") {
-      return (
-        <div className="site">
-          <Interstitial line="checking access…" />
-        </div>
-      );
-    }
-    if (access === "pending") {
-      return (
-        <div className="site">
-          <PendingApp session={session} />
-        </div>
-      );
-    }
-    return <ConsoleApp session={session} />;
-  }
   if (surface === "signin") {
+    if (session === undefined) {
+      return (
+        <div className="site">
+          <Interstitial line="checking session…" />
+        </div>
+      );
+    }
     return (
       <div className="site">
         <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />
       </div>
     );
   }
-  return <LandingApp />;
+  if (!isApp) return <LandingApp />;
+
+  const screen = resolveAppState({ surface, session, access, engine });
+  switch (screen) {
+    case "checking":
+      return (
+        <div className="site">
+          <Interstitial line="checking session…" />
+        </div>
+      );
+    case "engine-down":
+      return (
+        <div className="site">
+          <EngineDown />
+        </div>
+      );
+    case "signin":
+      return surface === "console" ? (
+        <LandingApp />
+      ) : (
+        <div className="site">
+          <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />
+        </div>
+      );
+    case "pending":
+      return (
+        <div className="site">
+          <PendingApp session={session!} />
+        </div>
+      );
+    case "console":
+      return <ConsoleApp session={session!} />;
+    case "panel":
+      return PANEL;
+  }
 }

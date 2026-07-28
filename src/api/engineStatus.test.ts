@@ -87,4 +87,48 @@ describe("engineStatus", () => {
       expect(BACKOFF_MS[i]).toBeGreaterThan(BACKOFF_MS[i - 1]);
     }
   });
+
+  // startEngineWatch() itself — not the React hook that calls it — is a plain
+  // function, so its attach/detach wiring is testable here the same way fetch
+  // is stubbed above: fake just enough of document/window (neither exists in
+  // this node environment) to observe the listener calls.
+  it("startEngineWatch adds visibilitychange + online listeners, stop() removes the same handlers", async () => {
+    const docAdd = vi.fn();
+    const docRemove = vi.fn();
+    const winAdd = vi.fn();
+    const winRemove = vi.fn();
+    vi.stubGlobal("document", {
+      visibilityState: "visible",
+      addEventListener: docAdd,
+      removeEventListener: docRemove,
+    });
+    vi.stubGlobal("window", { addEventListener: winAdd, removeEventListener: winRemove });
+
+    const { startEngineWatch } = await import("./engineStatus");
+    const stop = startEngineWatch();
+
+    expect(docAdd).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+    expect(winAdd).toHaveBeenCalledWith("online", expect.any(Function));
+
+    stop();
+
+    expect(docRemove).toHaveBeenCalledWith("visibilitychange", docAdd.mock.calls[0][1]);
+    expect(winRemove).toHaveBeenCalledWith("online", winAdd.mock.calls[0][1]);
+  });
+
+  it("stop() clears the pending backoff retry timer", async () => {
+    vi.stubGlobal("document", { visibilityState: "visible", addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    vi.stubGlobal("window", { addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+
+    const { startEngineWatch, probeEngine } = await import("./engineStatus");
+    const stop = startEngineWatch();
+    await probeEngine(); // unreachable — schedules a retry timer
+
+    expect(vi.getTimerCount()).toBe(1);
+
+    stop();
+
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });

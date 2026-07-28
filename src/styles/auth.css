@@ -140,3 +140,9 @@
 .site .wm-8 {
   color: var(--p8-coral);
 }
+
+.engine-down-note {
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.55;
+}

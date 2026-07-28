@@ -244,3 +244,28 @@
   min-width: 0;
   animation: dlpn-fade var(--t-pop) var(--ease-out);
 }
+
+/* mid-session outage annunciator — chrome, not state: this is an instrument
+   warning light, and --state-* is reserved for coverage banding. */
+.outage {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u2) var(--u4);
+  background: var(--chrome-accent-dim);
+  border-bottom: 1px solid var(--chrome-accent);
+  color: var(--chrome-accent-deep);
+  font-size: 12px;
+}
+
+.outage-dot {
+  width: var(--u2);
+  height: var(--u2);
+  border-radius: 50%;
+  background: var(--chrome-accent-bright);
+  flex: none;
+}
+
+.outage .btn {
+  margin-left: auto;
+}
