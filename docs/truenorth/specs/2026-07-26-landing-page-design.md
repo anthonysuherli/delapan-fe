@@ -127,6 +127,11 @@ This is the point of the design, not decoration:
   marketing and the product agree rather than merely resembling each other.
 - **Planned features are labelled**, exactly as the console labels unbuilt tiles.
 - **No autoplay, no hero animation, no countdown** — calm technology governs marketing too.
+- **Amended 2026-07-26** — one exception, scoped: a single user-initiated demo video below the
+  fold (`Resolution`, see `2026-07-26-landing-demo-video-design.md`). No autoplay, no ambient
+  motion, hero unchanged, nothing moves until clicked. The constraint's purpose — the page does
+  not perform at you — is preserved; what changed is that a visitor may ask for the mechanism to
+  be demonstrated.
 - **Hairlines over shadows, 4px grid, tabular numerals, flush-left type, pixel-8 mark** — the same
   Bauhaus rules the restyle applied to the app.
 

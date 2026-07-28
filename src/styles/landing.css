@@ -1,5 +1,6 @@
-/* the public landing page, restaged on the pixel-8 brand. Hairlines, no
-   motion. Selectors are bare `.lp-*` — scoping comes from rendering only
+/* the public landing page, restaged on the pixel-8 brand. Hairlines, and no
+   *ambient* motion — nothing moves unbidden; the one video plays only on a
+   click. Selectors are bare `.lp-*` — scoping comes from rendering only
    inside SiteShell's `.lp` wrapper, not from a `.site .lp*` compound
    selector. every color/spacing/radius/font value below resolves through a
    --p8-* token (site.css). Breakpoints/measures (ch, px grid max, px
@@ -156,6 +157,30 @@
   height: 2px;
   margin-bottom: var(--p8-space-3);
   background: var(--p8-coral);
+}
+
+/* --- demo video ---------------------------------------------------------------- */
+
+.lp-demo {
+  margin: var(--p8-space-6) 0 0;
+}
+
+.lp-demo-video {
+  display: block;
+  width: 100%;
+  max-width: 880px;
+  aspect-ratio: 16 / 9;
+  background: var(--p8-panel-2);
+  border: 1px solid var(--p8-line);
+  border-radius: var(--p8-radius);
+}
+
+.lp-demo-cap {
+  margin: var(--p8-space-3) 0 0;
+  font-family: var(--p8-font-mono);
+  font-size: var(--p8-text-xs);
+  letter-spacing: 0.08em;
+  color: var(--p8-muted);
 }
 
 /* --- coverage verdicts ---------------------------------------------------------- */

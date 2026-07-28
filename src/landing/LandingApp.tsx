@@ -11,10 +11,11 @@ import { Coverage } from "./Coverage";
 import { Hero } from "./Hero";
 import { Pillars } from "./Pillars";
 import { Problem } from "./Problem";
+import { Resolution } from "./Resolution";
 import { WhatItIsnt } from "./WhatItIsnt";
 import { WhereItPlugsIn } from "./WhereItPlugsIn";
 
-const SECTIONS = [Problem, Pillars, Coverage, WhereItPlugsIn, WhatItIsnt];
+const SECTIONS = [Problem, Pillars, Resolution, Coverage, WhereItPlugsIn, WhatItIsnt];
 
 export function LandingApp() {
   return (
