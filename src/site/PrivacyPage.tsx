@@ -32,8 +32,10 @@ export function PrivacyPage() {
             a small set of outside services process data on our behalf. Supabase handles the
             database and authentication. Vercel hosts the application. LLM providers reached
             through our AI gateway process the content you explicitly send through explore; the
-            search queries that explore issues are sent to the Tavily search API. nothing you
-            haven't explicitly submitted through explore leaves the system that way.
+            search queries that explore issues are sent to the Tavily search API. PostHog
+            receives anonymous product-usage and error events so we can tell when something
+            breaks — cookieless, and never the content of your findings. nothing you haven't
+            explicitly submitted through explore leaves the system that way.
           </p>
 
           <h2>what we don't do</h2>
