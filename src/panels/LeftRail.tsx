@@ -392,7 +392,16 @@ function ExploreSection() {
           pushToast("success", `explore merged ${event.count ?? event.finding_ids?.length ?? 0} new finding(s)`);
           refreshStats();
           void useStore.getState().mergeGraphDelta();
-          api.getSynopsis(project, kb).then((synopsis) => useStore.setState({ synopsis })).catch(() => undefined);
+          api
+            .getSynopsis(project, kb)
+            .then((synopsis) => {
+              // the scope may have moved on while explore ran — a stale synopsis
+              // must not land under a different KB's heading
+              const s = useStore.getState();
+              if (s.project !== project || s.kb !== kb) return;
+              useStore.setState({ synopsis });
+            })
+            .catch(() => undefined);
         }
       }
     } catch (err) {

@@ -11,6 +11,7 @@ export function FindingDrawer() {
   const openFindingId = useStore((s) => s.openFindingId);
   const findingCache = useStore((s) => s.findingCache);
   const openFinding = useStore((s) => s.openFinding);
+  const removeFindingFromView = useStore((s) => s.removeFindingFromView);
   const pushToast = useStore((s) => s.pushToast);
   const project = useStore((s) => s.project);
   const kb = useStore((s) => s.kb);
@@ -28,6 +29,7 @@ export function FindingDrawer() {
       const cache = { ...useStore.getState().findingCache };
       delete cache[openFindingId];
       useStore.setState({ findingCache: cache, lastAction: `deleted finding ${openFindingId}` });
+      removeFindingFromView(openFindingId);
       openFinding(null);
       pushToast("info", "finding deleted — graph elements that cited it now show it as unavailable");
     } catch (err) {

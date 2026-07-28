@@ -52,6 +52,7 @@ interface AppState {
   readOnly: boolean;
   booting: boolean;
   bootError: string | null;
+  scopeError: string | null;
   /** Has a scope load ever actually succeeded this session? Set once, on a
    *  successful loadScope, and never reset — a later failed scope switch
    *  must not erase it, since the graph already on screen is still real. */
@@ -105,6 +106,7 @@ interface AppState {
   setView(view: "graph" | "findings"): void;
   setConfidenceRange(range: [number, number] | null): void;
   loadFindings(): void;
+  removeFindingFromView(id: string): void;
   openFinding(id: string | null): void;
   openConcept(id: string | null): void;
   navigateConcept(id: string): void;
@@ -145,6 +147,7 @@ export const useStore = create<AppState>((set, get) => ({
   readOnly: false,
   booting: true,
   bootError: null,
+  scopeError: null,
   hasLoadedData: false,
   projects: [],
   project: null,
@@ -216,6 +219,7 @@ export const useStore = create<AppState>((set, get) => ({
     if (!project || !kb) return;
     set({
       loadingGraph: true,
+      scopeError: null,
       selectedNodes: [],
       selectedEdges: [],
       travel: null,
@@ -251,7 +255,21 @@ export const useStore = create<AppState>((set, get) => ({
         hasLoadedData: true,
       });
     } catch (err) {
-      get().pushToast("error", `failed to load graph: ${err instanceof Error ? err.message : err}`);
+      // A failed switch must not leave the previous KB's graph rendered under the
+      // new scope's label — mutations would then target the new KB with old ids.
+      graph.clear();
+      graphTouched();
+      const message = err instanceof Error ? err.message : String(err);
+      set({
+        stats: null,
+        schema: null,
+        synopsis: null,
+        findings: null,
+        findingsTotal: 0,
+        scopeError: message,
+        lastAction: `failed to load ${project}/${kb}`,
+      });
+      get().pushToast("error", `failed to load graph: ${message}`);
     } finally {
       set({ loadingGraph: false });
     }
@@ -503,6 +521,15 @@ export const useStore = create<AppState>((set, get) => ({
           loadingFindings: false,
         });
       });
+  },
+
+  removeFindingFromView(id) {
+    const { findings, findingsTotal } = get();
+    if (!findings?.some((f) => f.id === id)) return;
+    set({
+      findings: findings.filter((f) => f.id !== id),
+      findingsTotal: Math.max(0, findingsTotal - 1),
+    });
   },
 
   openFinding(id) {
