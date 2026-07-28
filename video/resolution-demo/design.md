@@ -32,11 +32,14 @@ Field names (`grounded_in`, `invalidated_at`, `superseded_by`) and the four verd
 | 0:00–0:04 | Title | "you already know something." |
 | 0:04–0:12 | The held fact | A card: a claim, and beneath it `grounded_in` with its source. Calm, `bone` on `ink`. |
 | 0:12–0:20 | The contradiction | A second card slides in, marked in `critical`. The four verdicts `add`/`update`/`noop`/`supersede` appear in mono; three stay dim, `supersede` lights in `coral`. |
-| 0:20–0:27 | The payload | The old card does not disappear. It dims, gains `invalidated_at`, and a line draws from it to the new card labelled `superseded_by`. Both cards remain on screen together. |
-| 0:27–0:30 | End | Wordmark + "nothing is deleted. only retired." |
+| 0:20–0:27.3 | The payload | The old card does not disappear. It dims, gains `invalidated_at`, and a line draws from it to the new card labelled `superseded_by`. Both cards remain on screen together, fully unobscured — the end scrim does not start until 0:27.3. |
+| 0:27.3–0:30 | End | The `superseded_by` link fades out, then the end scrim rises and the wordmark + "nothing is deleted. only retired." fade in, fully legible from ~0:28.1 to 0:30. |
 
-Beat 4 is the argument: both cards visible simultaneously at 0:27, old card stamped
-`invalidated_at` and linked to the new one via `superseded_by`.
+Beat 4 is the argument: both cards visible simultaneously through 0:27.0 — verified with the
+scrim contributing zero opacity at that exact timestamp — old card stamped `invalidated_at`
+and linked to the new one via `superseded_by`. The end scrim was originally timed to start at
+0:26.5, which put it at ~65% opacity over the cards by 0:27.0, veiling the composition's whole
+argument; it now starts no earlier than 0:27.3, after the co-presence checkpoint.
 
 Constraints: no numbers that aren't literal field names, no sound, no live-graph footage
 (unshipped feature).

@@ -240,12 +240,12 @@
       <div
         id="scrim"
         class="clip"
-        data-start="26.5"
-        data-duration="3.5"
+        data-start="27.3"
+        data-duration="2.7"
         data-track-index="5"
         data-layout-allow-occlusion="true"
       ></div>
-      <div id="end" class="clip" data-start="27" data-duration="3" data-track-index="6">
+      <div id="end" class="clip" data-start="27.3" data-duration="2.7" data-track-index="6">
         <div class="wordmark">delapan</div>
         <div class="tagline">nothing is deleted. only retired.</div>
       </div>
@@ -297,20 +297,23 @@
       tl.to("#linkLine", { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, 22.0);
       tl.to("#linkLabel", { opacity: 1, duration: 0.6, ease: "power1.out" }, 23.3);
 
-      // Beat 5: end (27-30) - fade the connecting line out first so its
-      // "superseded_by" label never overlaps the wordmark text. #link is a
-      // clip-managed element; animate the inner, non-clip wrapper instead
-      // and hard-kill it at the clip boundary (26.50s) per the lint rule.
-      tl.to("#linkContent", { opacity: 0, duration: 0.5, ease: "power1.in" }, 26.0);
-      tl.set("#linkContent", { opacity: 0 }, 26.5);
-      tl.to("#scrim", { opacity: 0.9, duration: 0.8, ease: "power1.inOut" }, 26.5);
+      // Beat 5: end (27.3-30) - the co-presence checkpoint (t=27.0, see
+      // design.md) must read clean: cards at full opacity, superseded_by
+      // link still present, scrim contributing zero opacity. Only after
+      // that does the link fade out (so its label never overlaps the
+      // wordmark text) and the scrim rise. #link is a clip-managed element;
+      // animate the inner, non-clip wrapper instead and hard-kill it right
+      // after its fade so it can't bleed into the scrim ramp.
+      tl.to("#linkContent", { opacity: 0, duration: 0.3, ease: "power1.in" }, 27.0);
+      tl.set("#linkContent", { opacity: 0 }, 27.3);
+      tl.to("#scrim", { opacity: 0.9, duration: 0.4, ease: "power1.inOut" }, 27.3);
       tl.fromTo(
         "#end .wordmark",
         { y: 20 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
-        27.2,
+        { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+        27.4,
       );
-      tl.to("#end .tagline", { opacity: 1, duration: 0.7, ease: "power1.out" }, 27.9);
+      tl.to("#end .tagline", { opacity: 1, duration: 0.3, ease: "power1.out" }, 27.8);
 
       // Pin the GSAP timeline's total duration to the composition's declared
       // 30s (data-duration on #root) — without this, GSAP auto-computes
