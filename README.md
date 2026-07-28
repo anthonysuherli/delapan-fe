@@ -14,7 +14,7 @@ A knowledge-base control panel. `delapan-fe` renders a [delapan](https://github.
 - **Travel mode** — a keyboard-driven exploration mode: stand on a node, see its neighbors numbered by screen position, hop with number keys, leave a breadcrumb trail.
 - **Coverage probe** — ask a question and the engine returns a `rich` / `sparse` / `gap` verdict on how well the KB answers it, plus a synthesized preamble.
 - **Web explore** — launch an SSE-streamed explore job (plan → search → crawl → extract → merge) and watch new findings land in the graph.
-- **Works offline** — ships a built-in mock dataset; if the live backend is unreachable, the app auto-falls back to mock and flags it in the status bar.
+- **Works offline** — ships a built-in mock dataset; set `VITE_USE_MOCK=1` to use it. An unreachable backend surfaces an honest error state, never fabricated data.
 
 ---
 
@@ -31,7 +31,7 @@ cp .env.example .env.local
 npm run dev          # → http://localhost:5173
 ```
 
-With no backend running, set `VITE_USE_MOCK=1` in `.env.local` (or just start the dev server — it auto-falls back to the mock dataset on the first failed request).
+With no backend running, set `VITE_USE_MOCK=1` in `.env.local` to use the built-in mock dataset — without it, an unreachable engine shows an error state rather than mock data.
 
 ### Scripts
 
@@ -51,7 +51,7 @@ Two environment variables, both read at build/dev time by Vite (`.env.example`):
 | Variable | Default | Meaning |
 |----------|---------|---------|
 | `VITE_API_BASE` | `http://127.0.0.1:8001` | Backend base URL. Set to `""` (empty) to go same-origin through the Vite dev proxy and avoid CORS entirely. |
-| `VITE_USE_MOCK` | _(unset)_ | Set to `1` to force the built-in mock dataset. When unset, the app tries the live API and auto-falls back to mock if it's unreachable. |
+| `VITE_USE_MOCK` | _(unset)_ | Set to `1` to use the built-in mock dataset (dev only — a production build refuses this). When unset, an unreachable engine surfaces an error state, not mock data. |
 
 **CORS vs. proxy.** By default the app talks straight to `VITE_API_BASE`, which requires the backend to allow CORS from the Vite origin. If you'd rather not deal with CORS, set `VITE_API_BASE=""` — requests then go to same-origin `/api/*` and the proxy in `vite.config.ts` forwards them to `http://127.0.0.1:8001`.
 
