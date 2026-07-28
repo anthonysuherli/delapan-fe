@@ -539,3 +539,55 @@ git commit -m "docs(plan): record measured verification for the demo video"
 **Placeholders.** Task 1 deliberately does not hardcode HyperFrames subcommand names, because they were not verified when this plan was written. That is not a placeholder: Step 2 gives the exact command that reveals them, and every later step says what to substitute. Inventing plausible-looking CLI syntax would have been worse. Task 1 Step 8's `video/README.md` contains angle-bracket fields that the step explicitly requires filling before commit.
 
 **Type consistency.** `Resolution({ index }: { index: number })` matches the signature `Coverage` uses and the `index={i + 1}` call site in `LandingApp.tsx`. Asset filenames `demo-resolution.mp4` and `demo-resolution-poster.png` are identical across Task 2's output, Task 3's markup, and Task 4's checks. CSS class names `lp-demo`, `lp-demo-video`, `lp-demo-cap` are used identically in the component and the stylesheet.
+
+---
+
+## Verification results
+
+Run 2026-07-27 against the production bundle (`npm run build` → `npm run preview`,
+port 4173), driven through the in-app browser. Numbers, not impressions.
+
+| Check | Result |
+|---|---|
+| Build (`tsc --noEmit && vite build`) | **PASS** — 187 modules, 624ms |
+| Test suite (`npm run test`) | **PASS** — 20 files, 173 tests, incl. `literals.test.ts` (39) |
+| Section is below the fold | **PASS** — video at y=1874 in a 800px-tall scroll container |
+| **No video bytes before click** | **PASS** — network log shows only `demo-resolution-poster.png` (200). `demo-resolution.mp4` **never requested**. |
+| `preload` / `poster` / `autoplay` | **PASS** — `none` / set / absent |
+| `<track>` elements | **PASS** — 0, as designed (silent video) |
+| Kicker numbering contiguous | **PASS** — 01…06, ours at 03, siblings renumbered themselves |
+| Desktop 1280×800 | **PASS** — video 880px wide (max-width respected), poster renders, controls present |
+| Mobile 375×812 | **PASS** — video 343px, caption wraps, **no horizontal overflow** (scrollW 375 = clientW 375) |
+| Keyboard reachable | **PASS** — `<video>` takes focus; native controls, no custom `tabindex` |
+| Broken-source degradation | **PASS** — with the MP4 removed, `networkState=3` (NO_SOURCE), box holds 16/9 at 193px, poster still shown, no collapse and no broken-media icon |
+| Text alternative | **PASS** — with `<figure>` removed the section still states its full argument |
+| MP4 size | **PASS** — 752,509 B against a 3,145,728 B budget (24%) |
+| Video duration | **PASS** — 30.0s |
+| Poster provenance | **PASS** — frame one of this exact render (`snapshot --at 0 --no-end`) |
+| **LCP** | **NOT MEASURED** — see below |
+
+### LCP could not be measured, and was not faked
+
+The in-app browser reports no paint timing at all: `performance.getEntriesByType(
+'largest-contentful-paint')` returns an empty list and `first-contentful-paint`
+is absent, at both 1280×800 and 375×812. This is an instrumentation gap in the
+preview environment, not a page defect — but it means the landing spec's
+**< 2.5s LCP bar is unverified for this change.**
+
+What *was* established, and is structural rather than measured: the section sits
+1874px down an 800px-tall scroll container, so the video and its poster are
+outside the initial viewport and **cannot be the LCP element** by definition. And
+because the MP4 is never fetched before a click, the change adds **zero bytes** to
+the initial load beyond the 29,716-byte poster — which is itself never decoded
+above the fold.
+
+To close this properly, run Lighthouse (or Chrome DevTools' Performance panel)
+against the deployed preview URL and record the LCP value and element here.
+
+### Note on the poster
+
+The poster is frame one, per spec — the title card reading "you already know
+something." on near-black. It is honest and on-brand, but as the still a visitor
+sees before clicking it advertises the video's opening rather than its subject. A
+later frame (the two cards side by side) would sell the content harder at the cost
+of a small jump on play. Flagged as a judgement call for review, not a defect.
