@@ -1098,7 +1098,12 @@ import type { mockApi as MockApi } from "./mock";
 Replace the block from `export type ApiMode = "live" | "mock";` through the end of `function call(...)` (originally lines 55-111) with:
 
 ```ts
-const USE_MOCK = env.VITE_USE_MOCK === "1";
+// MUST read import.meta.env.VITE_USE_MOCK literally, NOT through the `env`
+// alias above: Vite only static-replaces the literal `import.meta.env.KEY`
+// expression. Via the alias the value stays dynamic, the branch below is not
+// provably dead, and rollup keeps the fixture in the production bundle — the
+// exact failure this task exists to prevent. Caught by assert-no-mock.mjs.
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === "1";
 
 /** Resolved once, on first use, and only when the mock flag is on. In a
  *  production build USE_MOCK is statically false, so this import is unreachable
@@ -1333,17 +1338,18 @@ In `package.json`, change the build script:
     "build": "tsc --noEmit && vite build && node scripts/assert-no-mock.mjs",
 ```
 
-In `vite.config.ts`, change the exported config to a function so it can see the mode, and add the production guard. Replace `export default defineConfig({` with:
+In `vite.config.ts`, change the exported config to a function so it can see the mode, and add the production guard. Use Vite's `loadEnv` — **not** `process.env` directly: Vite loads `.env*` files into `import.meta.env` for the app but NOT into `process.env`, so a bare `process.env.VITE_API_BASE` is undefined locally even when `.env.local` sets it, and the guard fires on every local production build. `loadEnv` reads the files *and* respects real environment variables, so it is correct locally and on Vercel. Import it alongside `defineConfig`, and replace `export default defineConfig({` with:
 
 ```ts
 export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
   if (mode === "production") {
-    if (!process.env.VITE_API_BASE) {
+    if (!env.VITE_API_BASE) {
       throw new Error(
         "VITE_API_BASE must be set for a production build — the localhost default would ship a bundle pointing at the visitor's own machine.",
       );
     }
-    if (process.env.VITE_USE_MOCK === "1") {
+    if (env.VITE_USE_MOCK === "1") {
       throw new Error("VITE_USE_MOCK=1 must never be set for a production build.");
     }
   }
