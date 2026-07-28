@@ -73,6 +73,13 @@
   --p8-shadow:    0 6px 24px rgba(27,30,24,0.10);
   --p8-shadow-lg: 0 18px 50px rgba(27,30,24,0.18);
 
+  /* ---- Stacking ----
+     The public site has exactly one layer that must win: the sticky nav and
+     the mobile menu it contains. Without this, nav and `.lp-hero` are both
+     positioned at `z-index: auto`, so the later-in-DOM hero paints over an
+     open menu. Well below the app's own bands in tokens.css. */
+  --p8-z-nav: 20;
+
   /* ---- Motion ---- */
   --p8-ease:      cubic-bezier(0.22, 1, 0.36, 1);
   --p8-dur-fast:  120ms;

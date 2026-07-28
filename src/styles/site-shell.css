@@ -41,6 +41,7 @@
 .ss-nav {
   position: sticky;
   top: 0;
+  z-index: var(--p8-z-nav);
   display: flex;
   align-items: center;
   gap: var(--p8-space-6);
@@ -138,7 +139,9 @@
   border-radius: var(--p8-radius);
 }
 
-.ss-menu a {
+/* :not(.ss-cta) so the pill keeps its bone label — a bare `.ss-menu a` (0,2,1)
+   outranks `.ss-cta` (0,1,0) and would paint ink text on the ink pill. */
+.ss-menu a:not(.ss-cta) {
   color: var(--p8-ink);
   text-decoration: none;
   font-size: var(--p8-text-sm);
