@@ -153,17 +153,8 @@
   background: var(--green);
 }
 
-.sb-dot--mock {
+.sb-dot--down {
   background: var(--chrome-accent);
-}
-
-.sb-mock-badge {
-  padding: 0 6px;
-  border: 1px solid var(--accent);
-  border-radius: var(--r-1);
-  color: var(--accent);
-  letter-spacing: 0.12em;
-  background: var(--accent-dim);
 }
 
 .sb-action {

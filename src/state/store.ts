@@ -7,6 +7,7 @@
 
 import { create } from "zustand";
 import * as api from "../api/client";
+import { getEngineState, onEngineStateChange } from "../api/engineStatus";
 import type {
   Finding,
   FindingRow,
@@ -48,7 +49,7 @@ export type FindingCacheEntry =
 const SCOPE_KEY = "delapan.scope";
 
 interface AppState {
-  mode: api.ApiMode;
+  readOnly: boolean;
   booting: boolean;
   bootError: string | null;
   projects: ProjectInfo[];
@@ -137,7 +138,7 @@ function loadSavedScope(): { project: string; kb: string } | null {
 }
 
 export const useStore = create<AppState>((set, get) => ({
-  mode: api.getApiMode(),
+  readOnly: false,
   booting: true,
   bootError: null,
   projects: [],
@@ -177,7 +178,7 @@ export const useStore = create<AppState>((set, get) => ({
     set({ booting: true, bootError: null });
     try {
       const { projects } = await api.getProjects();
-      set({ projects, mode: api.getApiMode() });
+      set({ projects });
       const saved = loadSavedScope();
       const valid =
         saved &&
@@ -241,7 +242,6 @@ export const useStore = create<AppState>((set, get) => ({
         stats: statsRes.status === "fulfilled" ? statsRes.value : null,
         schema: schemaRes.status === "fulfilled" ? schemaRes.value : null,
         synopsis: synopsisRes.status === "fulfilled" ? synopsisRes.value : null,
-        mode: api.getApiMode(),
         lastAction: `loaded ${project}/${kb} — ${graphRes.value.nodes.length} nodes, ${graphRes.value.edges.length} edges`,
       });
     } catch (err) {
@@ -645,7 +645,7 @@ export const useStore = create<AppState>((set, get) => ({
 }));
 
 // ---------------------------------------------------------------------------
-// wiring: graph mutations → version bump; undo stack → flags; api mode → badge
+// wiring: graph mutations → version bump; undo stack → flags; engine liveness → read-only
 
 onGraphTouched(() => {
   useStore.setState((s) => ({ graphVersion: s.graphVersion + 1 }));
@@ -660,9 +660,9 @@ undoManager.subscribe(() => {
   });
 });
 
-api.onApiModeChange((mode) => {
-  useStore.setState({ mode });
-  if (mode === "mock") {
-    useStore.getState().pushToast("info", "engine unreachable — switched to built-in mock data");
-  }
+// engine liveness → read-only. An unreachable engine cannot accept a mutation,
+// so the affordances go away rather than letting an edit apply-then-rollback.
+useStore.setState({ readOnly: getEngineState() === "unreachable" });
+onEngineStateChange((state) => {
+  useStore.setState({ readOnly: state === "unreachable" });
 });
