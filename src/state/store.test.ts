@@ -13,6 +13,7 @@ vi.mock("../api/client", async () => {
 
 import * as api from "../api/client";
 import { useStore } from "./store";
+import { undoManager, type Command } from "./undo";
 
 // loadScope/setScope persist the scope to localStorage, which isn't present
 // in vitest's "node" test environment — stub it so setScope can run for real.
@@ -63,5 +64,59 @@ describe("hasLoadedData", () => {
     await useStore.getState().setScope("knowledge-engine", "other-kb");
 
     expect(useStore.getState().hasLoadedData).toBe(true);
+  });
+});
+
+describe("readOnly guards — mutations must not reach graphology or the API during an outage", () => {
+  beforeEach(() => {
+    stubWindowTimers();
+    useStore.setState({ readOnly: false, toasts: [] });
+    undoManager.clear();
+  });
+
+  it("runCmd refuses to run the command and returns false when readOnly", async () => {
+    useStore.setState({ readOnly: true });
+    const execute = vi.fn(async () => {});
+    const invert = vi.fn(async () => {});
+    const cmd: Command = { label: "add node \"x\"", execute, invert };
+
+    const ok = await useStore.getState().runCmd(cmd);
+
+    expect(ok).toBe(false);
+    expect(execute).not.toHaveBeenCalled();
+    expect(useStore.getState().toasts.some((t) => t.kind === "error")).toBe(true);
+  });
+
+  it("runCmd runs the command normally when not readOnly (control case)", async () => {
+    const execute = vi.fn(async () => {});
+    const invert = vi.fn(async () => {});
+    const cmd: Command = { label: "add node \"x\"", execute, invert };
+
+    const ok = await useStore.getState().runCmd(cmd);
+
+    expect(ok).toBe(true);
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
+  it("undo() does not invoke the undo manager when readOnly", async () => {
+    useStore.setState({ readOnly: true });
+    const undoSpy = vi.spyOn(undoManager, "undo");
+
+    await useStore.getState().undo();
+
+    expect(undoSpy).not.toHaveBeenCalled();
+    expect(useStore.getState().toasts.some((t) => t.kind === "error")).toBe(true);
+    undoSpy.mockRestore();
+  });
+
+  it("redo() does not invoke the undo manager when readOnly", async () => {
+    useStore.setState({ readOnly: true });
+    const redoSpy = vi.spyOn(undoManager, "redo");
+
+    await useStore.getState().redo();
+
+    expect(redoSpy).not.toHaveBeenCalled();
+    expect(useStore.getState().toasts.some((t) => t.kind === "error")).toBe(true);
+    redoSpy.mockRestore();
   });
 });

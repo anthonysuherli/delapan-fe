@@ -381,6 +381,10 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async runCmd(cmd, opts = {}) {
+    if (get().readOnly) {
+      get().pushToast("error", `${cmd.label} failed: engine unreachable`);
+      return false;
+    }
     try {
       await undoManager.run(cmd);
       set({
@@ -398,6 +402,10 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async undo() {
+    if (get().readOnly) {
+      get().pushToast("error", "undo failed: engine unreachable");
+      return;
+    }
     try {
       const label = await undoManager.undo();
       if (label) {
@@ -414,6 +422,10 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async redo() {
+    if (get().readOnly) {
+      get().pushToast("error", "redo failed: engine unreachable");
+      return;
+    }
     try {
       const label = await undoManager.redo();
       if (label) {
