@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Session } from "@supabase/supabase-js";
 import type { BetaAccess } from "../auth/betaAccess";
 import type { EngineState } from "../api/engineStatus";
+import type { EngineFailureKind } from "../api/failure";
 import { resolveAppState } from "./appState";
 
 const SESSION = { user: { id: "u1", email: "a@b.com" } } as unknown as Session;
@@ -12,7 +13,8 @@ const at = (
   access: BetaAccess,
   engine: EngineState,
   hasLoadedData = false,
-) => resolveAppState({ surface, session, access, engine, hasLoadedData });
+  bootFailure: EngineFailureKind | null = null,
+) => resolveAppState({ surface, session, access, engine, hasLoadedData, bootFailure });
 
 describe("resolveAppState", () => {
   it("waits while the session is still resolving", () => {
@@ -82,5 +84,25 @@ describe("resolveAppState", () => {
 
   it("treats an unknown engine as not-yet-a-problem", () => {
     expect(at("console", SESSION, "approved", "unknown")).toBe("console");
+  });
+
+  // Regression guard. Before this branch, Root ran the beta probe for BOTH the
+  // console and the panel and rendered PendingApp on "pending". Removing the
+  // panel's duplicate probe left it with no waitlist signal at all, so a
+  // waitlisted user opening /kg got boot()'s raw 403 response body on the
+  // boot-error screen. boot()'s own failure kind is now that signal.
+  it("shows the waitlist when the panel's own boot() was forbidden — it has no probe of its own", () => {
+    expect(at("panel", SESSION, "idle", "reachable", false, "forbidden")).toBe("pending");
+    expect(at("panel", SESSION, "idle", "reachable", true, "forbidden")).toBe("pending");
+  });
+
+  it("does not treat a non-403 boot failure as a waitlist", () => {
+    expect(at("panel", SESSION, "idle", "reachable", false, "server")).toBe("panel");
+    expect(at("panel", SESSION, "idle", "reachable", false, "parse")).toBe("panel");
+    expect(at("panel", SESSION, "idle", "reachable", false, null)).toBe("panel");
+  });
+
+  it("still puts an unreachable engine ahead of a forbidden boot — liveness outranks authorization", () => {
+    expect(at("panel", SESSION, "idle", "unreachable", false, "forbidden")).toBe("engine-down");
   });
 });

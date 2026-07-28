@@ -65,7 +65,14 @@ function drain(instance: PostHog): void {
 
 /** Schedules the real posthog-js import + init for the next idle window. No-op if `key` is empty. */
 function init(key: string, config: Partial<PostHogConfig>): void {
-  if (!key) return;
+  // No key means the real client is never coming, so stop queueing — otherwise
+  // every captureError/captureEvent piles onto an array nothing drains for the
+  // life of the session. This is the unset-key case, not the failed-load one.
+  if (!key) {
+    loadFailed = true;
+    queue = [];
+    return;
+  }
   runWhenIdle(() => {
     import("posthog-js")
       .then(({ default: posthog }) => {

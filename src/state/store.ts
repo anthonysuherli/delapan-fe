@@ -8,6 +8,7 @@
 import { create } from "zustand";
 import * as api from "../api/client";
 import { getEngineState, onEngineStateChange } from "../api/engineStatus";
+import { EngineFailure, type EngineFailureKind } from "../api/failure";
 import type {
   Finding,
   FindingRow,
@@ -52,6 +53,12 @@ interface AppState {
   readOnly: boolean;
   booting: boolean;
   bootError: string | null;
+  /** How boot()'s own getProjects() failed. The panel does not run the beta
+   *  probe (App.boot's call IS its gate), so this is the only place a 403
+   *  surfaces for that surface — without it a waitlisted user reaching /kg
+   *  gets the raw response body on the boot-error screen instead of the
+   *  waitlist. Regression introduced when the duplicate probe was removed. */
+  bootFailure: EngineFailureKind | null;
   scopeError: string | null;
   /** Has a scope load ever actually succeeded this session? Set once, on a
    *  successful loadScope, and never reset — a later failed scope switch
@@ -147,6 +154,7 @@ export const useStore = create<AppState>((set, get) => ({
   readOnly: false,
   booting: true,
   bootError: null,
+  bootFailure: null,
   scopeError: null,
   hasLoadedData: false,
   projects: [],
@@ -183,7 +191,7 @@ export const useStore = create<AppState>((set, get) => ({
   flyTo: null,
 
   async boot() {
-    set({ booting: true, bootError: null });
+    set({ booting: true, bootError: null, bootFailure: null });
     try {
       const { projects } = await api.getProjects();
       set({ projects });
@@ -203,7 +211,11 @@ export const useStore = create<AppState>((set, get) => ({
       await get().loadScope();
       set({ booting: false });
     } catch (err) {
-      set({ booting: false, bootError: err instanceof Error ? err.message : String(err) });
+      set({
+        booting: false,
+        bootError: err instanceof Error ? err.message : String(err),
+        bootFailure: err instanceof EngineFailure ? err.kind : null,
+      });
     }
   },
 

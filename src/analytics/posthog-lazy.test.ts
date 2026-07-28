@@ -110,6 +110,21 @@ describe("posthog-lazy", () => {
     expect(mockPosthogInstance.capture).not.toHaveBeenCalled();
   });
 
+  it("stops queueing when the key is absent — the real client is never coming", async () => {
+    const { default: posthog } = await import("./posthog-lazy");
+
+    posthog.init("", {});
+    // Without the no-key guard these pile onto a module-level array that nothing
+    // ever drains, for the life of the session — a leak in every deploy where
+    // VITE_POSTHOG_KEY is unset (which is what shipped).
+    for (let i = 0; i < 50; i += 1) posthog.captureException(new Error(`boom ${i}`));
+
+    // a later init WITH a key must not replay any of them
+    posthog.init("phc_test", {});
+    await vi.waitFor(() => expect(mockPosthogInstance.init).toHaveBeenCalled());
+    expect(mockPosthogInstance.captureException).not.toHaveBeenCalled();
+  });
+
   it("falls back to a setTimeout when requestIdleCallback is unavailable (Safari)", async () => {
     (globalThis as { requestIdleCallback?: typeof requestIdleCallback }).requestIdleCallback =
       undefined;

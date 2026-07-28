@@ -17,6 +17,7 @@
  */
 import type { Session } from "@supabase/supabase-js";
 import type { EngineState } from "../api/engineStatus";
+import type { EngineFailureKind } from "../api/failure";
 import type { BetaAccess } from "../auth/betaAccess";
 
 export type AppScreen = "checking" | "engine-down" | "signin" | "pending" | "console" | "panel";
@@ -32,6 +33,10 @@ export interface AppStateInput {
    *  replacing it with an error would take away more than it explains, so the
    *  outage becomes a banner over the surface instead. */
   hasLoadedData: boolean;
+  /** How the panel's own boot() call failed, if it did. The panel does not
+   *  run the beta probe, so a `forbidden` here is the ONLY signal that a
+   *  waitlisted user reached it. */
+  bootFailure: EngineFailureKind | null;
 }
 
 export function resolveAppState({
@@ -40,11 +45,14 @@ export function resolveAppState({
   access,
   engine,
   hasLoadedData,
+  bootFailure,
 }: AppStateInput): AppScreen {
   if (session === undefined) return "checking";
   if (!session) return "signin";
   if (engine === "unreachable" && !hasLoadedData) return "engine-down";
-  if (access === "pending") return "pending";
+  // `bootFailure === "forbidden"` is the panel's waitlist signal — it has no
+  // probe of its own, so without this a waitlisted user gets a raw error blob.
+  if (access === "pending" || bootFailure === "forbidden") return "pending";
   // The panel never runs the probe (App.boot's own getProjects is the gate), so
   // an idle/checking access there is not something to wait on.
   if (surface === "console" && (access === "checking" || access === "idle")) return "checking";

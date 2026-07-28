@@ -95,6 +95,7 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   // outage; the console has none, so it never claims hasLoadedData. The hook
   // itself is always called (Rules of Hooks) — only its result is gated.
   const storeHasLoadedData = useStore((s) => s.hasLoadedData);
+  const bootFailure = useStore((s) => s.bootFailure);
   const hasLoadedData = surface === "panel" && storeHasLoadedData;
 
   if (surface === "tracking") return <TrackingApp />;
@@ -129,7 +130,7 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   }
   if (!isApp) return <LandingApp />;
 
-  const screen = resolveAppState({ surface, session, access, engine, hasLoadedData });
+  const screen = resolveAppState({ surface, session, access, engine, hasLoadedData, bootFailure });
   switch (screen) {
     case "checking":
       // NOT "checking session…": the guard above already resolved the session,
