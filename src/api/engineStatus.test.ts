@@ -121,7 +121,7 @@ describe("engineStatus", () => {
     vi.stubGlobal("window", { addEventListener: vi.fn(), removeEventListener: vi.fn() });
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
 
-    const { startEngineWatch, probeEngine } = await import("./engineStatus");
+    const { startEngineWatch, probeEngine, BACKOFF_MS } = await import("./engineStatus");
     const stop = startEngineWatch();
     await probeEngine(); // unreachable — schedules a retry timer
 
@@ -134,5 +134,12 @@ describe("engineStatus", () => {
     // automatically — EngineDown's own "we're retrying automatically" promise
     // depends on this timer surviving
     expect(vi.getTimerCount()).toBe(1);
+
+    // …and the surviving timer must actually probe. Counting timers alone
+    // would also pass if stop() swapped in an inert one, so pin the effect:
+    // after the backoff elapses, /health is hit again.
+    const before = vi.mocked(fetch).mock.calls.length;
+    await vi.advanceTimersByTimeAsync(BACKOFF_MS[0]);
+    expect(vi.mocked(fetch).mock.calls.length).toBeGreaterThan(before);
   });
 });

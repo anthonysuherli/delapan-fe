@@ -132,9 +132,11 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const screen = resolveAppState({ surface, session, access, engine, hasLoadedData });
   switch (screen) {
     case "checking":
+      // NOT "checking session…": the guard above already resolved the session,
+      // so the only way into this branch is an in-flight access probe.
       return (
         <div className="site">
-          <Interstitial line="checking session…" />
+          <Interstitial line="checking access…" />
         </div>
       );
     case "engine-down":
