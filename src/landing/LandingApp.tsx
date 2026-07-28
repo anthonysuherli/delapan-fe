@@ -6,6 +6,7 @@
  * hardcoded per component) can't desync.
  */
 import { SiteShell } from "../site/SiteShell";
+import { useReveal } from "../site/useReveal";
 import { ClosingCta } from "./ClosingCta";
 import { Coverage } from "./Coverage";
 import { Hero } from "./Hero";
@@ -18,6 +19,7 @@ import { WhereItPlugsIn } from "./WhereItPlugsIn";
 const SECTIONS = [Problem, Pillars, Resolution, Coverage, WhereItPlugsIn, WhatItIsnt];
 
 export function LandingApp() {
+  useReveal(".lp-section, .lp-close");
   return (
     <SiteShell>
       <div className="lp">

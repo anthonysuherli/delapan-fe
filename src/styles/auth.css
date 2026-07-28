@@ -101,13 +101,31 @@
   background: var(--p8-bone);
 }
 
+.site .auth-state {
+  color: var(--p8-muted);
+  font-family: var(--p8-font-mono);
+}
+
 .site .auth-card {
   background: var(--p8-panel);
   border-color: var(--p8-line);
-  border-radius: var(--p8-radius);
-  box-shadow: var(--p8-shadow);
+  border-radius: var(--p8-radius-lg);
+  box-shadow: none;
   color: var(--p8-ink);
   font-family: var(--p8-font-body);
+}
+
+/* the base .auth-card h1 rule (0,1,1) sits above :where(.site) h1's
+   zero-specificity default, so it still wins here even under .site and
+   paints the app's Big Shoulders Display instrument-panel face onto the
+   parchment card. Override at .site specificity. Also drop the app's
+   uppercase + wide tracking: every other heading on this editorial site
+   (docs, changelog, landing) sits in sentence case at normal tracking, and
+   an all-caps tracked h1 reads as console chrome, not as part of the card. */
+.site .auth-card h1 {
+  font-family: var(--p8-font-display);
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .site .auth-card label {
@@ -115,14 +133,39 @@
   font-family: var(--p8-font-mono);
 }
 
+/* the base rule pays out the app's --text-dim (a cool blue-grey) onto the
+   warm card — the one palette leak left on this surface. */
+.site .auth-card > p {
+  color: var(--p8-muted);
+}
+
+/* submit: ink pill, same recipe as .ss-cta (site-shell.css). The rename
+   left an accent (moss) fill here, which breaks accent discipline on a
+   CTA — moss is links/underlines/small marks only. */
 .site .auth-card .btn--accent {
-  background: var(--p8-coral);
-  border-color: var(--p8-coral-deep);
+  background: var(--p8-ink);
+  border-color: var(--p8-ink);
   color: var(--p8-bone);
+  border-radius: var(--p8-radius-pill);
 }
 
 .site .auth-card .btn--accent:hover:not(:disabled) {
-  background: var(--p8-coral-deep);
+  background: var(--p8-ink-2);
+  border-color: var(--p8-ink-2);
+}
+
+/* secondary actions on a card (e.g. PendingApp's sign-out) — outline pill,
+   no fill, so they read as lower emphasis than the ink pill submit. */
+.site .auth-card .btn:not(.btn--accent) {
+  color: var(--p8-ink);
+  background: transparent;
+  border-color: var(--p8-line);
+  border-radius: var(--p8-radius-pill);
+  font-family: var(--p8-font-body);
+}
+
+.site .auth-card .btn:not(.btn--accent):hover:not(:disabled) {
+  border-color: var(--p8-ink);
 }
 
 .site .auth-err {
@@ -130,7 +173,27 @@
 }
 
 .site .auth-card a {
-  color: var(--p8-coral-deep);
+  color: var(--p8-accent-deep);
+}
+
+/* legacy .pending-* rules (tracking.css) render inside auth-card too, on
+   SignUpForm's confirmation screen and PendingApp — reskin them here rather
+   than touch tracking.css, which is out of this restage's scope. */
+.site .auth-card .pending-note {
+  color: var(--p8-muted);
+}
+
+.site .auth-card .pending-email {
+  color: var(--p8-ink);
+  font-family: var(--p8-font-mono);
+}
+
+.site .auth-card .pending-note a {
+  color: var(--p8-accent-deep);
+}
+
+.site .auth-card .pending-note a:hover {
+  color: var(--p8-ink);
 }
 
 .site .auth-card .inp {
@@ -139,12 +202,12 @@
 }
 
 .site .auth-card .inp:focus {
-  border-color: var(--p8-coral);
+  border-color: var(--p8-accent);
 }
 
-/* brand rule: the wordmark's 8 takes coral everywhere under .site */
+/* brand rule: the wordmark's 8 takes accent everywhere under .site */
 .site .wm-8 {
-  color: var(--p8-coral);
+  color: var(--p8-accent);
 }
 
 .site .engine-down-note {

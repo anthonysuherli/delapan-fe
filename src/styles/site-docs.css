@@ -38,7 +38,8 @@
 
 .docs-rail a {
   display: block;
-  padding: var(--p8-space-1) 0;
+  padding: var(--p8-space-1) 0 var(--p8-space-1) var(--p8-space-3);
+  border-left: 2px solid transparent;
   color: var(--p8-muted);
   text-decoration: none;
   font-size: var(--p8-text-sm);
@@ -49,6 +50,7 @@
 }
 
 .docs-rail a[aria-current="page"] {
+  border-left-color: var(--p8-accent);
   color: var(--p8-ink);
   font-weight: 600;
 }
@@ -59,11 +61,11 @@
 
 .docs-rail-group h2 {
   margin: 0 0 var(--p8-space-2);
-  color: var(--p8-muted-2);
-  font-family: var(--p8-font-body);
+  color: var(--p8-muted);
+  font-family: var(--p8-font-display);
   font-size: var(--p8-text-xs);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -85,7 +87,7 @@
 
 .docs-article p {
   margin: 0 0 var(--p8-space-4);
-  max-width: 72ch;
+  max-width: 70ch;
   line-height: 1.6;
 }
 
@@ -160,7 +162,10 @@
 }
 
 .docs-code-copy:hover {
-  border-color: var(--p8-coral);
+  /* --p8-accent (moss) on --p8-ink is 2.65:1 — below WCAG 1.4.11's 3:1 for
+     a UI boundary and effectively invisible. --p8-accent-d is the on-ink
+     moss, built for exactly this surface. */
+  border-color: var(--p8-accent-d);
 }
 
 .docs-code pre {

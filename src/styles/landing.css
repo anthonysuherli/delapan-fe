@@ -12,10 +12,17 @@
   flex-direction: column;
 }
 
+/* longhand left/right (not the `padding` shorthand): .lp-hero and .lp-close
+   also carry this class and set their own vertical padding at (0,1,0) — a
+   shorthand here would reset their padding-top/bottom to 0 on whichever of
+   this rule / theirs is later in source (see the media queries below, and
+   the responsive section's comment). Longhand only ever touches horizontal,
+   so it composes with any padding-top/bottom regardless of source order. */
 .lp-inner {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 0 var(--p8-space-6);
+  padding-left: var(--p8-space-6);
+  padding-right: var(--p8-space-6);
 }
 
 /* --- hero ------------------------------------------------------------------ */
@@ -35,16 +42,17 @@
 .lp-hero h1 {
   margin: 0 0 var(--p8-space-4);
   max-width: 18ch;
-  font-family: var(--p8-font-display);
-  font-size: clamp(var(--p8-text-3xl), 6vw, var(--p8-text-5xl));
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  font-family: var(--p8-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(2.5rem, 6vw, 3.9rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
 }
 
 .lp-lede {
   margin: 0 0 var(--p8-space-6);
-  max-width: 72ch;
+  max-width: 60ch;
   font-size: var(--p8-text-lg);
   line-height: 1.6;
   color: var(--p8-muted);
@@ -62,7 +70,9 @@
 }
 
 .mf-cell {
-  animation: dlpn-cellfade var(--p8-dur) var(--p8-ease) both;
+  animation:
+    dlpn-cellfade var(--p8-dur) var(--p8-ease) both,
+    mf-breathe 9s var(--p8-ease) infinite;
 }
 
 .mf-ink {
@@ -71,7 +81,7 @@
 }
 
 .mf-coral {
-  fill: var(--p8-coral);
+  fill: var(--p8-accent);
   --mf-o: 0.5;
 }
 
@@ -84,18 +94,34 @@
   }
 }
 
+/* Targets `filter`, not `opacity`: a second animation on the same property
+   as `dlpn-cellfade` would win the compositing (later in the `animation`
+   list beats earlier for a shared property) and replace the entrance fade
+   outright instead of layering over it — the cell would just pop straight
+   to its resting opacity. `filter` sidesteps that entirely, so the entrance
+   still visibly ramps 0 -> var(--mf-o) before the breathing takes over. */
+@keyframes mf-breathe {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(0.35);
+  }
+}
+
 /* --- shared section furniture ----------------------------------------------- */
 
 .lp-section {
-  padding: var(--p8-space-9) 0;
-  border-top: 1px solid var(--p8-line);
+  margin-top: var(--p8-space-section);
 }
 
 .lp-kicker {
   margin: 0 0 var(--p8-space-3);
-  font-family: var(--p8-font-mono);
+  font-family: var(--p8-font-display);
   font-size: var(--p8-text-xs);
-  letter-spacing: 0.16em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--p8-muted);
 }
@@ -130,6 +156,36 @@
   color: var(--p8-ink);
 }
 
+/* --- inverted band (Resolution) ------------------------------------------------ */
+
+.lp-band {
+  background: var(--p8-ink);
+  color: var(--p8-bone);
+  padding: var(--p8-space-9) 0;
+}
+
+.lp-band h2 {
+  color: var(--p8-bone);
+}
+
+.lp-band .lp-kicker {
+  color: var(--p8-muted-d);
+}
+
+.lp-band .lp-body {
+  color: var(--p8-muted-d);
+}
+
+.lp-band .lp-code {
+  background: var(--p8-ink-2);
+  color: var(--p8-accent-d);
+}
+
+.lp-band .lp-demo-video {
+  background: var(--p8-ink-2);
+  border: 1px solid var(--p8-line-d2);
+}
+
 /* --- pillars ------------------------------------------------------------------ */
 
 .lp-pillars {
@@ -152,11 +208,13 @@
   color: var(--p8-muted);
 }
 
+/* the flat top-rule treatment: the div itself carries the hairline so a
+   `.lp-pillar` never gets a border-top AND this in the same box. */
 .lp-pillar-rule {
-  width: 24px;
-  height: 2px;
-  margin-bottom: var(--p8-space-3);
-  background: var(--p8-coral);
+  width: 100%;
+  height: 1px;
+  margin-bottom: var(--p8-space-5);
+  background: var(--p8-line);
 }
 
 /* --- demo video ---------------------------------------------------------------- */
@@ -247,6 +305,11 @@
   margin-top: var(--p8-space-6);
 }
 
+.lp-target {
+  padding-top: var(--p8-space-5);
+  border-top: 1px solid var(--p8-line);
+}
+
 .lp-target h3 {
   margin: 0 0 var(--p8-space-2);
   font-family: var(--p8-font-mono);
@@ -272,8 +335,8 @@
 }
 
 .lp-contrast {
-  padding-left: var(--p8-space-4);
-  border-left: 2px solid var(--p8-line);
+  padding-top: var(--p8-space-5);
+  border-top: 1px solid var(--p8-line);
 }
 
 .lp-contrast b {
@@ -319,27 +382,43 @@
 /* --- close -------------------------------------------------------------------------- */
 
 .lp-close {
-  padding: var(--p8-space-9) 0;
+  padding: var(--p8-space-section) 0;
   border-top: 1px solid var(--p8-line);
+}
+
+.lp-close h2 {
+  margin: 0 0 var(--p8-space-6);
+  max-width: 20ch;
+  font-family: var(--p8-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: var(--p8-text-3xl);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
 }
 
 /* --- responsive ----------------------------------------------------------------------- */
 
 @media (max-width: 1024px) {
   .lp-inner {
-    padding: 0 var(--p8-space-5);
+    padding-left: var(--p8-space-5);
+    padding-right: var(--p8-space-5);
   }
 }
 
 @media (max-width: 768px) {
   .lp-hero,
-  .lp-section,
   .lp-close {
     padding: var(--p8-space-7) 0;
   }
 
+  .lp-section {
+    margin-top: var(--p8-space-7);
+  }
+
   .lp-inner {
-    padding: 0 var(--p8-space-4);
+    padding-left: var(--p8-space-4);
+    padding-right: var(--p8-space-4);
   }
 
   .mf-field {
