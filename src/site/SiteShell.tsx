@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Logomark } from "../panels/Logomark";
 import { Wordmark } from "../panels/Wordmark";
 
@@ -21,13 +21,28 @@ const NAV_LINKS: { key: ActiveSurface; href: string; label: string }[] = [
  * Marketing pages render as `<SiteShell active="docs">…</SiteShell>`.
  */
 export function SiteShell({ children, active }: SiteShellProps) {
+  const navRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const sentinel = document.getElementById("ss-top-sentinel");
+    if (!nav || !sentinel) return;
+    const io = new IntersectionObserver(([entry]) => {
+      nav.classList.toggle("is-scrolled", !entry.isIntersecting);
+    });
+    io.observe(sentinel);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div className="site">
+      <div id="ss-top-sentinel" aria-hidden="true" />
+
       <a className="ss-skip" href="#main">
         skip to content
       </a>
 
-      <nav className="ss-nav">
+      <nav className="ss-nav" ref={navRef}>
         <a className="ss-brand" href="/">
           <Logomark size={32} />
           <Wordmark form="lower" />

@@ -46,7 +46,15 @@
   gap: var(--p8-space-6);
   padding: var(--p8-space-3) var(--p8-space-6);
   background: var(--p8-bone);
-  border-bottom: 1px solid var(--p8-line);
+  border-bottom: 1px solid transparent;
+}
+
+.ss-nav.is-scrolled {
+  border-bottom: 1px solid var(--p8-line-2);
+}
+
+#ss-top-sentinel {
+  height: 1px;
 }
 
 .ss-brand {
@@ -94,6 +102,11 @@
   font-size: var(--p8-text-sm);
 }
 
+.ss-signin:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--p8-accent);
+}
+
 .ss-menu {
   position: relative;
   display: none;
@@ -123,7 +136,6 @@
   background: var(--p8-panel);
   border: 1px solid var(--p8-line);
   border-radius: var(--p8-radius);
-  box-shadow: var(--p8-shadow);
 }
 
 .ss-menu a {
@@ -132,14 +144,14 @@
   font-size: var(--p8-text-sm);
 }
 
-/* ---- cta — the one place accent fills --------------------------------------- */
+/* ---- cta — the one ink pill, accent-free ------------------------------------ */
 
 .ss-cta {
   display: inline-block;
   padding: var(--p8-space-2) var(--p8-space-5);
-  background: var(--p8-accent);
+  background: var(--p8-ink);
   color: var(--p8-bone);
-  border-radius: var(--p8-radius);
+  border-radius: var(--p8-radius-pill);
   text-decoration: none;
   font-size: var(--p8-text-sm);
   font-weight: 500;
@@ -147,7 +159,7 @@
 }
 
 .ss-cta:hover {
-  background: var(--p8-accent-deep);
+  background: var(--p8-ink-2);
 }
 
 .ss-cta-row {
@@ -171,13 +183,14 @@
   gap: var(--p8-space-6);
   margin-top: var(--p8-space-9);
   padding: var(--p8-space-8) var(--p8-space-6) var(--p8-space-6);
-  border-top: 1px solid var(--p8-line);
-  color: var(--p8-muted);
+  background: var(--p8-ink);
+  border-top: 1px solid var(--p8-line-d2);
+  color: var(--p8-muted-d);
 }
 
 .ss-footer-col h2 {
   margin: 0 0 var(--p8-space-3);
-  color: var(--p8-ink);
+  color: var(--p8-bone);
   font-family: var(--p8-font-body);
   font-size: var(--p8-text-xs);
   font-weight: 600;
@@ -195,21 +208,22 @@
 }
 
 .ss-footer-col a {
-  color: var(--p8-muted);
+  color: var(--p8-bone);
   text-decoration: none;
+  text-decoration-color: var(--p8-accent-d);
   font-size: var(--p8-text-sm);
 }
 
 .ss-footer-col a:hover {
-  color: var(--p8-ink);
+  text-decoration: underline;
 }
 
 .ss-footer-bottom {
   grid-column: 1 / -1;
   margin: var(--p8-space-6) 0 0;
   padding-top: var(--p8-space-4);
-  border-top: 1px solid var(--p8-line);
-  color: var(--p8-muted);
+  border-top: 1px solid var(--p8-line-d2);
+  color: var(--p8-muted-d);
   font-size: var(--p8-text-xs);
 }
 
