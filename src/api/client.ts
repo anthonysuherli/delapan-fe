@@ -97,6 +97,10 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     return (await res.json()) as T;
   } catch (err) {
+    // a dropped connection mid-body throws TypeError here too, not just
+    // malformed JSON (SyntaxError) — classify() maps that to "unreachable",
+    // so the probe must fire the same way it does on the initial fetch reject.
+    if (err instanceof TypeError) reportUnreachable();
     throw report(
       new EngineFailure(classify(err), res.status, "the engine returned an unreadable body"),
       path,
@@ -104,13 +108,19 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-/** Only `server` and `parse` are bugs. `unreachable`, `unauthorized` and
- *  `forbidden` are expected states with their own screens — filing them as
- *  exceptions would bury the real ones. */
+/** Only `server` and `parse` are bugs — and not every `server` status is one.
+ *  404 is the documented "citation unavailable" path (a deleted finding whose
+ *  grounded_in reference survives, by design); 503 is "embeddings unavailable",
+ *  which LeftRail surfaces with its own message. Filing either as an exception
+ *  buries the real ones. `unreachable`, `unauthorized` and `forbidden` are
+ *  expected states with their own screens and never reach here. */
+const EXPECTED_STATUSES = new Set([404, 503]);
+
 function report(failure: EngineFailure, path: string): EngineFailure {
-  if (failure.kind === "server" || failure.kind === "parse") {
-    captureError(failure, { path, status: failure.status, kind: failure.kind });
-  }
+  const isBug =
+    failure.kind === "parse" ||
+    (failure.kind === "server" && !EXPECTED_STATUSES.has(failure.status));
+  if (isBug) captureError(failure, { path, status: failure.status, kind: failure.kind });
   return failure;
 }
 
@@ -239,7 +249,9 @@ export function getSynopsis(project: string, kb: string): Promise<Synopsis | nul
   return call(() => http(`${kbPath(project, kb)}/synopsis`), (m) => m.getSynopsis(project, kb));
 }
 
-/** May reject with ApiError(503) when embeddings are unavailable. */
+/** May reject with EngineFailure(kind: "server", status: 503) when embeddings are
+ *  unavailable — LeftRail's CoverageProbe special-cases that status; report() does
+ *  not send it to error tracking since it's an expected, not exceptional, state. */
 export function getResume(project: string, kb: string, query: string, depth?: number): Promise<ResumeResponse> {
   return call(
     () => http(`${kbPath(project, kb)}/resume${qs({ query, depth })}`),
@@ -266,9 +278,15 @@ async function* liveExplore(
     reportUnreachable();
     throw new EngineFailure(classify(err), 0, "the engine is not reachable");
   }
-  if (!res.ok || !res.body) {
+  const explorePath = `${kbPath(project, kb)}/explore`;
+  if (!res.ok) {
     if (res.status === 401) on401SignOut(res.status, getSupabaseClient());
-    throw new EngineFailure(classify(null, res.status), res.status, res.statusText);
+    throw report(new EngineFailure(classify(null, res.status), res.status, res.statusText), explorePath);
+  }
+  if (!res.body) {
+    // res.ok but no stream body isn't a server-side fault by status — "parse"
+    // names what actually happened instead of a misleading "server error: OK".
+    throw report(new EngineFailure("parse", res.status, "the engine returned no stream body"), explorePath);
   }
 
   const reader = res.body.getReader();

@@ -115,7 +115,7 @@ src/
 ├─ main.tsx            React root + global stylesheet imports
 ├─ App.tsx             Shell layout — boots the store, mounts every panel
 ├─ api/
-│  ├─ client.ts        Typed HTTP client with transparent mock fallback
+│  ├─ client.ts        Typed HTTP client; mock is an explicit VITE_USE_MOCK=1 dev mode, never a fallback
 │  ├─ types.ts         Wire types (GraphNode, EdgeSpec, Finding, …)
 │  └─ mock.ts          In-memory mock backend (the offline dataset)
 ├─ graph/

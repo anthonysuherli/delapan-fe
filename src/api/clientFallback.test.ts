@@ -6,7 +6,7 @@ vi.mock("../tracking/supabaseClient", () => ({
 vi.mock("./engineStatus", () => ({ reportUnreachable: vi.fn() }));
 vi.mock("../analytics", () => ({ captureError: vi.fn(), captureEvent: vi.fn() }));
 
-import { getProjects } from "./client";
+import { explore, getProjects } from "./client";
 import { EngineFailure } from "./failure";
 import { reportUnreachable } from "./engineStatus";
 import { captureError } from "../analytics";
@@ -73,5 +73,57 @@ describe("client no longer falls back to mock data", () => {
     const mod: Record<string, unknown> = await import("./client");
     expect(mod.getApiMode).toBeUndefined();
     expect(mod.onApiModeChange).toBeUndefined();
+  });
+
+  it("does NOT report a 404 as an exception — a deleted finding's citation survives by design", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 404, statusText: "not found", text: async () => "x" }),
+    );
+
+    await getProjects().catch(() => undefined);
+
+    expect(captureError).not.toHaveBeenCalled();
+  });
+
+  it("does NOT report a 503 as an exception — that's the coverage probe's embeddings-unavailable state", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: "unavailable", text: async () => "x" }),
+    );
+
+    await getProjects().catch(() => undefined);
+
+    expect(captureError).not.toHaveBeenCalled();
+  });
+
+  it("reports an unreadable body to error tracking — a parse failure is a bug", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => {
+          throw new SyntaxError("Unexpected token");
+        },
+      }),
+    );
+
+    await getProjects().catch(() => undefined);
+
+    expect(captureError).toHaveBeenCalled();
+  });
+
+  it("reports a failing /explore call to error tracking too, not just http() endpoints", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: "err", body: null }),
+    );
+
+    await explore("p", "k", { prompt: "x" })
+      .next()
+      .catch(() => undefined);
+
+    expect(captureError).toHaveBeenCalled();
   });
 });
