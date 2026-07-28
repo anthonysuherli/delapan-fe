@@ -108,18 +108,30 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-/** Only `server` and `parse` are bugs — and not every `server` status is one.
- *  404 is the documented "citation unavailable" path (a deleted finding whose
- *  grounded_in reference survives, by design); 503 is "embeddings unavailable",
- *  which LeftRail surfaces with its own message. Filing either as an exception
- *  buries the real ones. `unreachable`, `unauthorized` and `forbidden` are
+/** Only `server` and `parse` are bugs — and not every `server` status/path pair
+ *  is one, but the exclusion is scoped to the specific path it was ruled on, not
+ *  the status alone. A 404 is only the documented "citation unavailable" path
+ *  when it's on /findings/{id} — a deleted finding whose grounded_in reference
+ *  survives, by design. A 404 on a mutation path (patchNode, deleteNode,
+ *  deleteEdge) is the alias-map gotcha surfacing for real (delete-then-undo
+ *  re-mints a server id; a resolution regression looks exactly like a 404) and
+ *  must still report. Likewise 503 is only "embeddings unavailable" (LeftRail's
+ *  own message) on /resume — a 503 from anywhere else means the whole engine is
+ *  failing every request, which is the single most important thing to know
+ *  about and must not go silent. `parse` always short-circuits first: a
+ *  404-with-unreadable-body must not go silent just because its status matches
+ *  an expected-path entry. `unreachable`, `unauthorized` and `forbidden` are
  *  expected states with their own screens and never reach here. */
-const EXPECTED_STATUSES = new Set([404, 503]);
+const EXPECTED: ReadonlyArray<{ status: number; path: RegExp }> = [
+  { status: 404, path: /\/findings\// }, // deleted finding, citation survives by design
+  { status: 503, path: /\/resume/ }, // embeddings unavailable — LeftRail's own message
+];
 
 function report(failure: EngineFailure, path: string): EngineFailure {
   const isBug =
     failure.kind === "parse" ||
-    (failure.kind === "server" && !EXPECTED_STATUSES.has(failure.status));
+    (failure.kind === "server" &&
+      !EXPECTED.some((e) => e.status === failure.status && e.path.test(path)));
   if (isBug) captureError(failure, { path, status: failure.status, kind: failure.kind });
   return failure;
 }
