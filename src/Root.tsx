@@ -10,10 +10,12 @@ import { useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import App from "./App";
 import { AuthGate } from "./auth/AuthGate";
+import { EngineDown } from "./auth/EngineDown";
 import { Interstitial } from "./auth/Interstitial";
 import { PendingApp } from "./auth/PendingApp";
 import { SignUpForm } from "./auth/SignUpForm";
 import { useBetaAccess } from "./auth/useBetaAccess";
+import { useEngineState } from "./auth/useEngineState";
 import { useSession } from "./auth/useSession";
 import { ConsoleApp } from "./console/ConsoleApp";
 import { DuetApp } from "./duet/DuetApp";
@@ -25,6 +27,8 @@ import { DocsPage } from "./site/DocsPage";
 import { NotFound } from "./site/NotFound";
 import { PrivacyPage } from "./site/PrivacyPage";
 import { TermsPage } from "./site/TermsPage";
+import { resolveAppState } from "./state/appState";
+import { useStore } from "./state/store";
 import { SignInForm } from "./tracking/SignInForm";
 import { getSupabaseClient } from "./tracking/supabaseClient";
 import { TrackingApp } from "./tracking/TrackingApp";
@@ -84,14 +88,22 @@ function RedirectHome() {
 function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const session = useSession(supabase);
   const surface = resolveRoute(window.location.pathname, Boolean(session));
-  const access = useBetaAccess(surface === "console" || surface === "panel" ? session : null);
+  const engine = useEngineState();
+  const isApp = surface === "console" || surface === "panel";
+  const access = useBetaAccess(surface === "console" ? session : null);
+  // Only the panel ever renders engine data worth preserving through an
+  // outage; the console has none, so it never claims hasLoadedData. The hook
+  // itself is always called (Rules of Hooks) — only its result is gated.
+  const storeHasLoadedData = useStore((s) => s.hasLoadedData);
+  const hasLoadedData = surface === "panel" && storeHasLoadedData;
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
 
-  // panel, redirect-home, signup, console, signin, and the landing default
-  // (six branches) all depend on the session, so wait for it to resolve.
-  // Rendering early would flash the landing page at an already-signed-in
+  // redirect-home, signup, signin, and the app surfaces (console/panel, via
+  // resolveAppState below) all depend on the session, so wait for it to
+  // resolve before committing to any of them. Rendering early would flash
+  // the landing page (or the wrong auth form) at an already-signed-in
   // visitor.
   if (session === undefined) {
     return (
@@ -99,16 +111,6 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
         <Interstitial line="checking session…" />
       </div>
     );
-  }
-  if (surface === "panel") {
-    if (access === "pending") {
-      return (
-        <div className="site">
-          <PendingApp session={session!} />
-        </div>
-      );
-    }
-    return PANEL;
   }
   if (surface === "redirect-home") return <RedirectHome />;
   if (surface === "signup") {
@@ -118,26 +120,6 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
       </div>
     );
   }
-  if (surface === "console" && session) {
-    // The gate is only real if the client honours it. "error" deliberately
-    // falls through to the console rather than accusing an approved user of
-    // being waitlisted because a request failed.
-    if (access === "checking" || access === "idle") {
-      return (
-        <div className="site">
-          <Interstitial line="checking access…" />
-        </div>
-      );
-    }
-    if (access === "pending") {
-      return (
-        <div className="site">
-          <PendingApp session={session} />
-        </div>
-      );
-    }
-    return <ConsoleApp session={session} />;
-  }
   if (surface === "signin") {
     return (
       <div className="site">
@@ -145,5 +127,52 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
       </div>
     );
   }
-  return <LandingApp />;
+  if (!isApp) return <LandingApp />;
+
+  const screen = resolveAppState({ surface, session, access, engine, hasLoadedData });
+  switch (screen) {
+    case "checking":
+      // NOT "checking session…": the guard above already resolved the session,
+      // so the only way into this branch is an in-flight access probe.
+      return (
+        <div className="site">
+          <Interstitial line="checking access…" />
+        </div>
+      );
+    case "engine-down":
+      return (
+        <div className="site">
+          <EngineDown />
+        </div>
+      );
+    case "signin":
+      // The surface === "console" branch is currently unreachable: resolveRoute
+      // only ever returns "console" when Boolean(session) was already true at
+      // that same render (session and surface are read from the same local
+      // session value), and resolveAppState only returns "signin" when
+      // !session — the two can't both hold in one render. Kept anyway, as
+      // defence: this is the one case the task that wrote this switch was
+      // explicitly warned is expensive to get wrong (a login form shown to
+      // every anonymous visitor to the marketing site) — if a future change
+      // to resolveRoute or resolveAppState ever decouples that invariant,
+      // this branch is what stops the regression instead of silently falling
+      // through to the sign-in form below.
+      return surface === "console" ? (
+        <LandingApp />
+      ) : (
+        <div className="site">
+          <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />
+        </div>
+      );
+    case "pending":
+      return (
+        <div className="site">
+          <PendingApp session={session!} />
+        </div>
+      );
+    case "console":
+      return <ConsoleApp session={session!} />;
+    case "panel":
+      return PANEL;
+  }
 }

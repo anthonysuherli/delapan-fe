@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/assert-no-mock.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "video:render": "HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 render video/resolution-demo --output public/demo-resolution.mp4",
@@ -17,6 +17,7 @@
     "graphology": "^0.26.0",
     "graphology-layout-forceatlas2": "^0.10.1",
     "graphology-types": "^0.24.8",
+    "posthog-js": "^1.379.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sigma": "^3.0.2",

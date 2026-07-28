@@ -29,6 +29,7 @@ export function TopBar() {
   const pushToast = useStore((s) => s.pushToast);
   const view = useStore((s) => s.view);
   const setView = useStore((s) => s.setView);
+  const readOnly = useStore((s) => s.readOnly);
 
   const toggleConnect = () => {
     if (connectFrom) {
@@ -75,13 +76,14 @@ export function TopBar() {
       <GraphSearch />
 
       <div className="tb-actions">
-        <button className="btn" onClick={() => setAddNodeOpen(true)} title="Add a node">
+        <button className="btn" onClick={() => setAddNodeOpen(true)} title="Add a node" disabled={readOnly}>
           + node
         </button>
         <button
           className={`btn${connectFrom ? " btn--active" : ""}`}
           onClick={toggleConnect}
           title="Draw an edge from the selected node (E)"
+          disabled={readOnly}
         >
           ⌁ connect <span className="kbd">E</span>
         </button>
@@ -93,6 +95,7 @@ export function TopBar() {
             graphTouched();
             setLastAction("re-ran layout (200 iterations)");
           }}
+          disabled={readOnly}
         >
           ⟲ layout
         </button>

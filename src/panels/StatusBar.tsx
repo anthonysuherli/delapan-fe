@@ -5,7 +5,7 @@
 import { useStore } from "../state/store";
 
 export function StatusBar() {
-  const mode = useStore((s) => s.mode);
+  const readOnly = useStore((s) => s.readOnly);
   const lastAction = useStore((s) => s.lastAction);
   const canUndo = useStore((s) => s.canUndo);
   const canRedo = useStore((s) => s.canRedo);
@@ -17,17 +17,16 @@ export function StatusBar() {
   return (
     <footer className="sb">
       <span className="sb-conn">
-        <span className={`sb-dot${mode === "mock" ? " sb-dot--mock" : ""}`} />
-        {mode === "live" ? "live api" : "offline"}
+        <span className={`sb-dot${readOnly ? " sb-dot--down" : ""}`} />
+        {readOnly ? "engine unreachable" : "live api"}
       </span>
-      {mode === "mock" && <span className="sb-mock-badge">MOCK DATA</span>}
       <span className="sb-action">
         last: <b>{lastAction}</b>
       </span>
       <span className="sb-history">
         <button
           className="btn"
-          disabled={!canUndo}
+          disabled={!canUndo || readOnly}
           onClick={() => void undo()}
           title={undoLabel ? `undo: ${undoLabel} (⌘Z)` : "nothing to undo"}
         >
@@ -35,7 +34,7 @@ export function StatusBar() {
         </button>
         <button
           className="btn"
-          disabled={!canRedo}
+          disabled={!canRedo || readOnly}
           onClick={() => void redo()}
           title={redoLabel ? `redo: ${redoLabel} (⌘⇧Z)` : "nothing to redo"}
         >

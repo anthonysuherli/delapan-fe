@@ -9,15 +9,25 @@
  * Anything else — network failure, 500, 401 — is reported as "error" rather
  * than guessed at. Falsely reporting "pending" would tell an approved user
  * they are waitlisted every time the network hiccups.
+ *
+ * "unreachable" is its own answer: an engine that never responded cannot have
+ * told us anything about this user's access, so we must not borrow the leniency
+ * that "error" gets.
  */
+import { EngineFailure } from "../api/failure";
 import { ApiError } from "../api/types";
 
-export type BetaAccess = "idle" | "checking" | "approved" | "pending" | "error";
+export type BetaAccess = "idle" | "checking" | "approved" | "pending" | "unreachable" | "error";
 
 export type ProbeOutcome = { ok: true } | { ok: false; error: unknown };
 
-export function classifyProbe(outcome: ProbeOutcome): "approved" | "pending" | "error" {
+export function classifyProbe(
+  outcome: ProbeOutcome,
+): "approved" | "pending" | "unreachable" | "error" {
   if (outcome.ok) return "approved";
+  if (outcome.error instanceof EngineFailure && outcome.error.kind === "unreachable") {
+    return "unreachable";
+  }
   if (outcome.error instanceof ApiError && outcome.error.status === 403) return "pending";
   return "error";
 }

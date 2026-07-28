@@ -188,11 +188,17 @@ Create `src/analytics/posthog-lazy.ts`. Ported from the site verbatim; only the 
  *
  *   call ──▶ real client loaded? ──yes──▶ delegate
  *                              └──no───▶ queue ──(on load)──▶ replay in order
+ *                                          └──(load failed)──▶ drop
  *
  * init() defers BOTH the dynamic import and posthog.init() to the browser's next
  * idle window (requestIdleCallback, falling back to a 2s setTimeout on browsers
  * without it, e.g. Safari). Calls made before then — including captureException
- * for errors thrown during that window — are queued, so nothing is dropped.
+ * for errors thrown during that window — are queued and replayed on load.
+ *
+ * If the chunk fails to load, that queue is dropped and every later call becomes
+ * a no-op. Analytics is best-effort: holding calls for a client that is never
+ * coming would grow without bound for the life of the session, and the global
+ * unhandledrejection handler feeds this same path.
  */
 import type { PostHog, PostHogConfig } from "posthog-js";
 
@@ -204,6 +210,13 @@ type QueuedCall =
 
 let real: PostHog | null = null;
 let queue: QueuedCall[] = [];
+let loadFailed = false;
+
+/** Enqueues a call unless the real client failed to load — see init()'s .catch(). */
+function enqueue(call: QueuedCall): void {
+  if (loadFailed) return;
+  queue.push(call);
+}
 
 function runWhenIdle(fn: () => void): void {
   if (typeof requestIdleCallback === "function") {
@@ -238,11 +251,18 @@ function drain(instance: PostHog): void {
 function init(key: string, config: Partial<PostHogConfig>): void {
   if (!key) return;
   runWhenIdle(() => {
-    import("posthog-js").then(({ default: posthog }) => {
-      posthog.init(key, config);
-      real = posthog;
-      drain(posthog);
-    });
+    import("posthog-js")
+      .then(({ default: posthog }) => {
+        posthog.init(key, config);
+        real = posthog;
+        drain(posthog);
+      })
+      .catch(() => {
+        // No reporting channel exists when the analytics client itself failed to
+        // load, so there's nowhere to send this — swallow it and stop queueing.
+        loadFailed = true;
+        queue = [];
+      });
   });
 }
 
@@ -251,7 +271,7 @@ function capture(...args: Parameters<PostHog["capture"]>): void {
     real.capture(...args);
     return;
   }
-  queue.push({ fn: "capture", args });
+  enqueue({ fn: "capture", args });
 }
 
 function identify(...args: Parameters<PostHog["identify"]>): void {
@@ -259,7 +279,7 @@ function identify(...args: Parameters<PostHog["identify"]>): void {
     real.identify(...args);
     return;
   }
-  queue.push({ fn: "identify", args });
+  enqueue({ fn: "identify", args });
 }
 
 function reset(...args: Parameters<PostHog["reset"]>): void {
@@ -267,7 +287,7 @@ function reset(...args: Parameters<PostHog["reset"]>): void {
     real.reset(...args);
     return;
   }
-  queue.push({ fn: "reset", args });
+  enqueue({ fn: "reset", args });
 }
 
 function captureException(...args: Parameters<PostHog["captureException"]>): void {
@@ -275,7 +295,7 @@ function captureException(...args: Parameters<PostHog["captureException"]>): voi
     real.captureException(...args);
     return;
   }
-  queue.push({ fn: "captureException", args });
+  enqueue({ fn: "captureException", args });
 }
 
 /** Only meaningful once the real client has loaded; undefined before then. */
@@ -287,6 +307,17 @@ const posthogLazy = { init, capture, identify, reset, captureException, get_dist
 
 export default posthogLazy;
 ```
+
+> **Amendment (2026-07-28, after Task 1 review).** The `.catch()` on the dynamic
+> import and the `enqueue()` guard above are a deliberate deviation from the
+> `delapan-ai-site` source, authorised by the human during Task 1's review. Without
+> them a failed chunk load leaves `real` null forever, so every later call
+> accumulates in a queue that can never drain — and Task 2's global
+> `unhandledrejection` handler routes into that same queue, making the growth
+> self-feeding. The source repo still carries this bug; the two files are no longer
+> byte-identical, so a future re-sync needs a manual merge on `init()` and the four
+> dispatch functions. The reviewer also flagged those four functions as verbatim
+> duplication; the human ruled the plan governs and they stay as they are.
 
 - [ ] **Step 5: Run the test to verify it passes**
 
@@ -908,15 +939,21 @@ git commit -m "feat(api): engineStatus — /health liveness with backoff and rec
 
 **Files:**
 - Modify: `src/api/client.ts:1-121` (header, mock import, mode plumbing, `http`, `call`) and `:285-310` (`explore`)
+- Modify: `src/state/store.ts` (`mode` → `readOnly`)
+- Modify: `src/panels/StatusBar.tsx:8,20-23`
+- Modify: `src/panels/ConceptDocReader.tsx:37,59,83-88`
+- Modify: `src/styles/layout.css` (`.sb-dot--mock` → `.sb-dot--down`, drop `.sb-mock-badge`)
 - Create: `scripts/assert-no-mock.mjs`
 - Modify: `package.json` (build script)
 - Modify: `vite.config.ts:9-24`
 
 **Interfaces:**
-- Consumes: `classify`, `EngineFailure` (Task 3); `reportUnreachable` (Task 4).
-- Produces: `client.ts` no longer exports `ApiMode`, `getApiMode`, or `onApiModeChange`. Every endpoint still exports the same signature. Task 6 and Task 9 depend on the removal.
+- Consumes: `classify`, `EngineFailure` (Task 3); `reportUnreachable`, `getEngineState`, `onEngineStateChange` (Task 4); `captureError` (Task 2).
+- Produces: `client.ts` no longer exports `ApiMode`, `getApiMode`, or `onApiModeChange`. `useStore(s => s.readOnly): boolean` replaces `s.mode`. Every endpoint keeps its signature. Task 8 gates affordances on `readOnly`.
 
-> **Deletion checklist** — `noUnusedLocals` will fail the build if you miss one: `mode`, `modeListeners`, `getApiMode`, `onApiModeChange`, `setMode`, `isNetworkError`, `ApiMode`, and the static `import { mockApi } from "./mock"`.
+> **Deletion checklist** — `noUnusedLocals` will fail the build if you miss one: in `client.ts`, `mode`, `modeListeners`, `getApiMode`, `onApiModeChange`, `setMode`, `isNetworkError`, `ApiMode`, and the static `import { mockApi } from "./mock"`.
+>
+> **⚠️ `mode` must die in ONE commit.** Three files outside `client.ts` read it — `store.ts` (5 sites), `StatusBar.tsx`, `ConceptDocReader.tsx`. Deleting the client exports without migrating all three leaves `tsc` broken, so this task's build gate would be unsatisfiable. Steps 7-8 below are not optional cleanup; they are what keeps the task green.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1061,7 +1098,12 @@ import type { mockApi as MockApi } from "./mock";
 Replace the block from `export type ApiMode = "live" | "mock";` through the end of `function call(...)` (originally lines 55-111) with:
 
 ```ts
-const USE_MOCK = env.VITE_USE_MOCK === "1";
+// MUST read import.meta.env.VITE_USE_MOCK literally, NOT through the `env`
+// alias above: Vite only static-replaces the literal `import.meta.env.KEY`
+// expression. Via the alias the value stays dynamic, the branch below is not
+// provably dead, and rollup keeps the fixture in the production bundle — the
+// exact failure this task exists to prevent. Caught by assert-no-mock.mjs.
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === "1";
 
 /** Resolved once, on first use, and only when the mock flag is on. In a
  *  production build USE_MOCK is statically false, so this import is unreachable
@@ -1098,6 +1140,9 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     return (await res.json()) as T;
   } catch (err) {
+    // A TypeError here means the connection dropped mid-body — that is an
+    // unreachable, and engineStatus must be told or readOnly never flips.
+    if (err instanceof TypeError) reportUnreachable();
     throw report(
       new EngineFailure(classify(err), res.status, "the engine returned an unreadable body"),
       path,
@@ -1105,13 +1150,32 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-/** Only `server` and `parse` are bugs. `unreachable`, `unauthorized` and
- *  `forbidden` are expected states with their own screens — filing them as
- *  exceptions would bury the real ones. */
+/** Only `server` and `parse` are bugs — and not every `server` status is one.
+ *  404 is the documented "citation unavailable" path (a deleted finding whose
+ *  grounded_in reference survives, by design — see CLAUDE.md); 503 is
+ *  "embeddings unavailable", which LeftRail surfaces with its own message.
+ *  Filing either as an exception buries the real ones. `unreachable`,
+ *  `unauthorized` and `forbidden` are expected states with their own screens
+ *  and never reach here. */
+// Scoped to (status, path) pairs, NOT bare statuses. Excluding 404 everywhere
+// would silence a genuine desync: patchNode/deleteNode/deleteEdge all 404 on an
+// unknown id, which is exactly how a regression in commands.ts's alias map
+// surfaces (see CLAUDE.md's delete-then-undo gotcha). Excluding 503 everywhere
+// is worse still — no HTTP status triggers a liveness probe, so an engine
+// 503ing every request would report nothing, never flip readOnly, and leave the
+// StatusBar showing a green "live api" dot.
+const EXPECTED: ReadonlyArray<{ status: number; path: RegExp }> = [
+  { status: 404, path: /\/findings\// }, // deleted finding, citation survives by design
+  { status: 503, path: /\/resume/ },      // embeddings unavailable — LeftRail's own message
+];
+
 function report(failure: EngineFailure, path: string): EngineFailure {
-  if (failure.kind === "server" || failure.kind === "parse") {
-    captureError(failure, { path, status: failure.status, kind: failure.kind });
-  }
+  // `parse` short-circuits FIRST so a 404-with-unreadable-body is never silenced.
+  const isBug =
+    failure.kind === "parse" ||
+    (failure.kind === "server" &&
+      !EXPECTED.some((e) => e.status === failure.status && e.path.test(path)));
+  if (isBug) captureError(failure, { path, status: failure.status, kind: failure.kind });
   return failure;
 }
 
@@ -1178,11 +1242,82 @@ And in `liveExplore`, wrap the initial fetch the same way `http` does:
   }
   if (!res.ok || !res.body) {
     if (res.status === 401) on401SignOut(res.status, getSupabaseClient());
-    throw new EngineFailure(classify(null, res.status), res.status, res.statusText);
+    // Wrap in report() exactly like http() does. Explore is the longest-running
+    // and most failure-prone call in the app; leaving it unwrapped would make
+    // PostHog read "explore never fails" while /graph/stats 500s show up.
+    // An ok response with a null body is a parse fault, not a server one —
+    // classify(null, 200) would otherwise yield "server error: OK".
+    const kind = res.ok ? "parse" : classify(null, res.status);
+    throw report(
+      new EngineFailure(kind, res.status, res.ok ? "the engine returned no body" : res.statusText),
+      `${kbPath(project, kb)}/explore`,
+    );
   }
 ```
 
-- [ ] **Step 7: Run both client test files**
+- [ ] **Step 7: Migrate the store off `mode`, onto `readOnly`**
+
+In `src/state/store.ts`:
+
+Replace `mode: api.ApiMode;` in the `AppState` interface with:
+
+```ts
+  readOnly: boolean;
+```
+
+Replace the initialiser `mode: api.getApiMode(),` with `readOnly: false,`. Delete `mode: api.getApiMode()` from the `set({ projects, … })` call in `boot()` and from the `set({ … })` call in `loadScope()` — both become plain removals, leaving the surrounding object intact.
+
+Add the import:
+
+```ts
+import { getEngineState, onEngineStateChange } from "../api/engineStatus";
+```
+
+Replace the trailing `api.onApiModeChange((mode) => { … });` block with:
+
+```ts
+// engine liveness → read-only. An unreachable engine cannot accept a mutation,
+// so the affordances go away rather than letting an edit apply-then-rollback.
+useStore.setState({ readOnly: getEngineState() === "unreachable" });
+onEngineStateChange((state) => {
+  useStore.setState({ readOnly: state === "unreachable" });
+});
+```
+
+- [ ] **Step 8: Migrate the two components that read `mode`**
+
+`src/panels/StatusBar.tsx` — replace the `mode` selector and the connection span, and delete the mock badge line entirely:
+
+```tsx
+  const readOnly = useStore((s) => s.readOnly);
+```
+
+```tsx
+      <span className="sb-conn">
+        <span className={`sb-dot${readOnly ? " sb-dot--down" : ""}`} />
+        {readOnly ? "engine unreachable" : "live api"}
+      </span>
+```
+
+Delete `{mode === "mock" && <span className="sb-mock-badge">MOCK DATA</span>}`.
+
+`src/panels/ConceptDocReader.tsx` — swap the selector at line 37 for `const readOnly = useStore((s) => s.readOnly);`, then:
+
+```tsx
+  const canSynthesize = !readOnly && doc.findings.length > 0 && !synthesizing;
+```
+
+```tsx
+  const synthDisabledTitle = readOnly
+    ? "the engine isn't responding"
+    : doc.findings.length === 0
+      ? "no grounded findings to synthesize from"
+      : "";
+```
+
+`src/styles/layout.css` — rename `.sb-dot--mock` to `.sb-dot--down` and delete the `.sb-mock-badge` rule (nothing references it once the badge line is gone).
+
+- [ ] **Step 9: Run both client test files**
 
 ```bash
 npx vitest run src/api/clientFallback.test.ts src/api/authHeaders.test.ts
@@ -1190,7 +1325,7 @@ npx vitest run src/api/clientFallback.test.ts src/api/authHeaders.test.ts
 
 Expected: PASS — 7 new tests, and all 6 existing `authHeaders` tests still green (`EngineFailure extends ApiError`, so their `instanceof ApiError` assertions hold).
 
-- [ ] **Step 8: Write the build guard**
+- [ ] **Step 10: Write the build guard**
 
 Create `scripts/assert-no-mock.mjs`:
 
@@ -1205,6 +1340,20 @@ import { join } from "node:path";
 
 const NEEDLE = "Findings are the atomic unit of delapan knowledge";
 const DIR = "dist/assets";
+const SOURCE = "src/api/mock.ts";
+
+// The needle is fixture CONTENT. If someone edits or regenerates the dataset it
+// vanishes from the source and from any emitted chunk alike, the grep below
+// matches nothing, and this script would print "ok" forever while the fixture
+// ships. Assert the needle still exists at its source first, so a stale gate
+// fails loudly instead of silently passing.
+if (!readFileSync(SOURCE, "utf8").includes(NEEDLE)) {
+  console.error(
+    `assert-no-mock: FAIL — NEEDLE no longer appears in ${SOURCE}, so this gate ` +
+      "would pass vacuously. Update NEEDLE to a string the fixture still contains.",
+  );
+  process.exit(1);
+}
 
 let offenders = [];
 try {
@@ -1226,7 +1375,7 @@ if (offenders.length) {
 console.log("assert-no-mock: ok — no fixture in dist/");
 ```
 
-- [ ] **Step 9: Wire the guard and the env guard**
+- [ ] **Step 11: Wire the guard and the env guard**
 
 In `package.json`, change the build script:
 
@@ -1234,17 +1383,18 @@ In `package.json`, change the build script:
     "build": "tsc --noEmit && vite build && node scripts/assert-no-mock.mjs",
 ```
 
-In `vite.config.ts`, change the exported config to a function so it can see the mode, and add the production guard. Replace `export default defineConfig({` with:
+In `vite.config.ts`, change the exported config to a function so it can see the mode, and add the production guard. Use Vite's `loadEnv` — **not** `process.env` directly: Vite loads `.env*` files into `import.meta.env` for the app but NOT into `process.env`, so a bare `process.env.VITE_API_BASE` is undefined locally even when `.env.local` sets it, and the guard fires on every local production build. `loadEnv` reads the files *and* respects real environment variables, so it is correct locally and on Vercel. Import it alongside `defineConfig`, and replace `export default defineConfig({` with:
 
 ```ts
 export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
   if (mode === "production") {
-    if (!process.env.VITE_API_BASE) {
+    if (!env.VITE_API_BASE) {
       throw new Error(
         "VITE_API_BASE must be set for a production build — the localhost default would ship a bundle pointing at the visitor's own machine.",
       );
     }
-    if (process.env.VITE_USE_MOCK === "1") {
+    if (env.VITE_USE_MOCK === "1") {
       throw new Error("VITE_USE_MOCK=1 must never be set for a production build.");
     }
   }
@@ -1258,7 +1408,7 @@ and close the function at the end of the file by replacing the final `});` with:
 });
 ```
 
-- [ ] **Step 10: Verify the guards actually fire**
+- [ ] **Step 12: Verify the guards actually fire**
 
 ```bash
 npm test && npm run build && VITE_API_BASE= npx vite build --mode production
@@ -1266,7 +1416,7 @@ npm test && npm run build && VITE_API_BASE= npx vite build --mode production
 
 Expected: the suite passes; `npm run build` succeeds and prints `assert-no-mock: ok`; the final command **fails** with the `VITE_API_BASE must be set` error. If that last command succeeds, the guard is not wired.
 
-- [ ] **Step 11: Verify the fixture is gone from the bundle**
+- [ ] **Step 13: Verify the fixture is gone from the bundle**
 
 ```bash
 grep -c "rag-ecosystem" dist/assets/*.js || echo "GONE — correct"
@@ -1274,10 +1424,12 @@ grep -c "rag-ecosystem" dist/assets/*.js || echo "GONE — correct"
 
 Expected: `GONE — correct`.
 
-- [ ] **Step 12: Commit**
+- [ ] **Step 14: Commit**
 
 ```bash
-git add src/api/client.ts src/api/clientFallback.test.ts scripts/assert-no-mock.mjs package.json vite.config.ts
+git add src/api/client.ts src/api/clientFallback.test.ts src/state/store.ts \
+        src/panels/StatusBar.tsx src/panels/ConceptDocReader.tsx src/styles/layout.css \
+        scripts/assert-no-mock.mjs package.json vite.config.ts
 git commit -m "feat(api): remove the silent mock fallback; gate the fixture out of production builds"
 ```
 
@@ -1712,51 +1864,30 @@ git commit -m "feat(ui): EngineDown screen and mid-session outage banner"
 
 ---
 
-### Task 8: Read-only mode while the engine is unreachable
+### Task 8: Gate the mutation affordances on read-only
 
 **Files:**
-- Modify: `src/state/store.ts` (add `readOnly` flag + subscription)
-- Modify: `src/panels/TopBar.tsx:77-107` (action buttons)
-- Modify: `src/panels/StatusBar.tsx:17-46` (undo/redo, remove the mock badge)
-- Modify: `src/panels/Inspector.tsx` (edit affordances)
-- Modify: `src/styles/layout.css` (remove `.sb-dot--mock`, `.sb-mock-badge`)
+- Modify: `src/panels/TopBar.tsx:19-107`
+- Modify: `src/panels/StatusBar.tsx:27-44` (undo/redo)
+- Modify: `src/panels/Inspector.tsx`
 
 **Interfaces:**
-- Consumes: `getEngineState`, `onEngineStateChange` (Task 4).
-- Produces: `useStore(s => s.readOnly): boolean`.
+- Consumes: `useStore(s => s.readOnly)` — introduced in Task 5.
+- Produces: nothing new. This is the UI half of read-only; Task 5 built the state half.
 
-> **Why this exists:** under the optimistic-mutation architecture an edit during an outage applies to graphology, fails the API call, and rolls back — the user watches their own edit undo itself. Disabling the control is quieter and more honest.
+> **Why this exists:** under the optimistic-mutation architecture an edit during an outage applies to graphology, fails the API call, and rolls back — the user watches their own edit undo itself. Disabling the control is quieter and more honest than letting that happen.
+>
+> **Scope note:** `StatusBar`'s connection text and `ConceptDocReader`'s synthesize gate were already migrated in Task 5 (they had to be, to keep `tsc` green when `mode` was deleted). This task adds only what remains.
 
-- [ ] **Step 1: Add `readOnly` to the store**
+- [ ] **Step 1: Gate the TopBar actions**
 
-In `src/state/store.ts`, delete `mode: api.ApiMode;` from `AppState` and add:
+In `src/panels/TopBar.tsx`, add the selector alongside the others:
 
-```ts
-  readOnly: boolean;
+```tsx
+  const readOnly = useStore((s) => s.readOnly);
 ```
 
-Delete the three `mode:` initialisers/setters (originally lines 140, 180, 244) and the whole `api.onApiModeChange(...)` block at the end of the file (originally 663-668). Replace that trailing block with:
-
-```ts
-// engine liveness → read-only. An unreachable engine cannot accept a mutation,
-// so the affordances go away rather than letting an edit apply-then-rollback.
-useStore.setState({ readOnly: getEngineState() === "unreachable" });
-onEngineStateChange((state) => {
-  useStore.setState({ readOnly: state === "unreachable" });
-});
-```
-
-and update the import at the top from `import * as api from "../api/client";` to keep that plus:
-
-```ts
-import { getEngineState, onEngineStateChange } from "../api/engineStatus";
-```
-
-Add `readOnly: false,` to the store's initial state object.
-
-- [ ] **Step 2: Gate the TopBar actions**
-
-In `src/panels/TopBar.tsx`, add `const readOnly = useStore((s) => s.readOnly);` alongside the other selectors, then add `disabled={readOnly}` to the `+ node`, `connect`, and `layout` buttons. Leave `travel` enabled — it is read-only navigation. For example:
+Add `disabled={readOnly}` to the `+ node`, `connect`, and `layout` buttons. Leave `travel` enabled — it is read-only navigation and stays useful during an outage. For example:
 
 ```tsx
         <button className="btn" onClick={() => setAddNodeOpen(true)} title="Add a node" disabled={readOnly}>
@@ -1764,20 +1895,9 @@ In `src/panels/TopBar.tsx`, add `const readOnly = useStore((s) => s.readOnly);` 
         </button>
 ```
 
-- [ ] **Step 3: Update the StatusBar**
+- [ ] **Step 2: Disable undo/redo in the StatusBar**
 
-Replace `src/panels/StatusBar.tsx`'s `mode` usage. The connection span and the mock badge become:
-
-```tsx
-  const readOnly = useStore((s) => s.readOnly);
-  ...
-      <span className="sb-conn">
-        <span className={`sb-dot${readOnly ? " sb-dot--down" : ""}`} />
-        {readOnly ? "engine unreachable" : "live api"}
-      </span>
-```
-
-Delete the `{mode === "mock" && <span className="sb-mock-badge">MOCK DATA</span>}` line and the `const mode = useStore((s) => s.mode);` selector. Add `|| readOnly` to both undo/redo `disabled` props:
+`readOnly` is already selected in this component from Task 5. Add it to both history buttons:
 
 ```tsx
           disabled={!canUndo || readOnly}
@@ -1786,27 +1906,37 @@ Delete the `{mode === "mock" && <span className="sb-mock-badge">MOCK DATA</span>
           disabled={!canRedo || readOnly}
 ```
 
-- [ ] **Step 4: Update the stylesheet**
+- [ ] **Step 3: Gate the Inspector's edit affordances**
 
-In `src/styles/layout.css`, rename `.sb-dot--mock` to `.sb-dot--down` and delete the `.sb-mock-badge` rule entirely (nothing references it once Step 3 lands).
+Read `src/panels/Inspector.tsx` first — it has three editing components (`NodeInspector`, `EdgeInspector`, `BulkInspector`) and the exact controls differ between them. In each, add:
 
-- [ ] **Step 5: Gate the Inspector**
+```tsx
+  const readOnly = useStore((s) => s.readOnly);
+```
 
-In `src/panels/Inspector.tsx`, add `const readOnly = useStore((s) => s.readOnly);` in `NodeInspector`, `EdgeInspector` and `BulkInspector`, and add `disabled={readOnly}` to the label input, the `TypeSelect`, the property key/value inputs, and every delete/connect button in those components.
+then add `disabled={readOnly}` to every control that mutates: the label input, the `TypeSelect`, the relation input, the property key/value inputs, the "+ property" and property-delete buttons, the connect button, and the delete buttons. Do **not** disable navigation controls (the endpoint buttons that select another node, the "open concept doc" action) — those are reads.
 
-- [ ] **Step 6: Verify the suite and build**
+Verify by grepping for mutation entry points and checking each one is covered:
+
+```bash
+grep -n "renameNode\|setNodeType\|setNodeProperties\|replaceEdge\|deleteElements\|bulkSetProperty" src/panels/Inspector.tsx
+```
+
+Every call site listed must sit behind a control that is `disabled` when `readOnly`.
+
+- [ ] **Step 4: Verify the suite and build**
 
 ```bash
 npm test && npm run build
 ```
 
-Expected: all tests pass; `tsc` clean. If `tsc` complains about an unused `api` import in `store.ts`, keep it — `api` is still used by `boot`, `loadScope`, `mergeGraphDelta`, `refreshStats`, `fetchFinding`, `loadFindings`.
+Expected: all tests pass; `tsc` clean.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/state/store.ts src/panels/TopBar.tsx src/panels/StatusBar.tsx src/panels/Inspector.tsx src/styles/layout.css
-git commit -m "feat(ui): read-only mode while the engine is unreachable; drop the mock badge"
+git add src/panels/TopBar.tsx src/panels/StatusBar.tsx src/panels/Inspector.tsx
+git commit -m "feat(ui): disable mutation affordances while the engine is unreachable"
 ```
 
 ---

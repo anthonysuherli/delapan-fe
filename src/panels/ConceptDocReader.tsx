@@ -34,7 +34,7 @@ export function ConceptDocReader() {
   const openFinding = useStore((s) => s.openFinding);
   const project = useStore((s) => s.project);
   const kb = useStore((s) => s.kb);
-  const mode = useStore((s) => s.mode);
+  const readOnly = useStore((s) => s.readOnly);
   const pushToast = useStore((s) => s.pushToast);
   void graphVersion; // re-derive on graph mutations (e.g. after synthesize persists)
 
@@ -56,7 +56,7 @@ export function ConceptDocReader() {
 
   if (!nodeId || !doc) return null;
   const fm = doc.frontmatter;
-  const canSynthesize = mode === "live" && doc.findings.length > 0 && !synthesizing;
+  const canSynthesize = !readOnly && doc.findings.length > 0 && !synthesizing;
 
   const synthesize = async () => {
     if (!project || !kb || !graph.hasNode(nodeId)) return;
@@ -80,12 +80,11 @@ export function ConceptDocReader() {
     }
   };
 
-  const synthDisabledTitle =
-    mode === "mock"
-      ? "needs the live engine + an LLM key"
-      : doc.findings.length === 0
-        ? "no grounded findings to synthesize from"
-        : "";
+  const synthDisabledTitle = readOnly
+    ? "the engine isn't responding"
+    : doc.findings.length === 0
+      ? "no grounded findings to synthesize from"
+      : "";
 
   return (
     <>
