@@ -131,6 +131,35 @@
   color: var(--p8-ink);
 }
 
+/* --- inverted band (Resolution) ------------------------------------------------ */
+
+.lp-band {
+  background: var(--p8-ink);
+  color: var(--p8-bone);
+  padding: var(--p8-space-9) 0;
+}
+
+.lp-band.lp-section h2 {
+  color: var(--p8-bone);
+}
+
+.lp-band .lp-kicker {
+  color: var(--p8-muted-d);
+}
+
+.lp-band .lp-body {
+  color: var(--p8-muted-d);
+}
+
+.lp-band .lp-code {
+  color: var(--p8-accent-d);
+}
+
+.lp-band .lp-demo-video {
+  background: var(--p8-ink-2);
+  border: 1px solid var(--p8-line-d2);
+}
+
 /* --- pillars ------------------------------------------------------------------ */
 
 .lp-pillars {
