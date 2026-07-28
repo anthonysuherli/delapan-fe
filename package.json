@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "video:render": "npx --yes hyperframes render video/resolution-demo --output public/demo-resolution.mp4"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",

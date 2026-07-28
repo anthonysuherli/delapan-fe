@@ -31,3 +31,7 @@ yarn-error.log*
 
 # truenorth SDD scratch (progress ledger, briefs, review packages)
 .truenorth/
+
+# HyperFrames render scratch — the shipped artifacts live in public/
+video/**/out/
+video/**/node_modules/
