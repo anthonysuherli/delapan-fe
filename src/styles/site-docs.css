@@ -160,7 +160,7 @@
 }
 
 .docs-code-copy:hover {
-  border-color: var(--p8-coral);
+  border-color: var(--p8-accent);
 }
 
 .docs-code pre {

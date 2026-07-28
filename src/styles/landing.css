@@ -70,8 +70,8 @@
   --mf-o: 0.06;
 }
 
-.mf-coral {
-  fill: var(--p8-coral);
+.mf-accent {
+  fill: var(--p8-accent);
   --mf-o: 0.5;
 }
 
@@ -156,7 +156,7 @@
   width: 24px;
   height: 2px;
   margin-bottom: var(--p8-space-3);
-  background: var(--p8-coral);
+  background: var(--p8-accent);
 }
 
 /* --- demo video ---------------------------------------------------------------- */

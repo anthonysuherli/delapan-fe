@@ -1,41 +1,42 @@
 /* ============================================================
-   site.css — pixel-8 brand token bridge for the delapan.ai public site
-   Source of truth: delapan-ai-site/docs/branding/tokens.css (lines 9-79)
+   site.css — moss-on-parchment brand token bridge for the delapan.ai public site
    Scoped to `.site` — the app's own identity (tokens.css) is untouched.
    Never hardcode a hex anywhere else; reference these tokens.
    ============================================================ */
 
 .site {
   /* ---- Core brand palette ---- */
-  --p8-ink:        #0B0F14; /* primary surface (near-black), text on light     */
-  --p8-bone:       #F7F6F2; /* light surface, figure on dark, text on dark      */
-  --p8-coral:      #FF6B4A; /* THE accent — the 8's intersection, one hot color */
-  --p8-coral-deep: #E8431F; /* coral pressed / hover / emphasis                 */
+  --p8-ink:        #1B1E18; /* primary surface (near-black), text on light     */
+  --p8-bone:       #FAF8F1; /* light surface, figure on dark, text on dark      */
+  --p8-accent:     #4C6640; /* THE accent — moss foundation, grounded          */
+  --p8-accent-deep: #3B5233; /* accent pressed / hover / emphasis              */
+  --p8-accent-d:   #A9BF97; /* accent light, on dark surfaces                  */
 
   /* ---- Neutral ramp (on bone) ---- */
-  --p8-ink-2:      #1C2530; /* raised dark panel                               */
-  --p8-muted:      #6B7785; /* secondary text, metadata                        */
-  --p8-muted-2:    #9AA6B4; /* tertiary text, disabled                         */
-  --p8-line:       rgba(11,15,20,0.12);  /* hairline / border on light         */
-  --p8-line-2:     rgba(11,15,20,0.06);  /* faint rule, the mark's grid        */
+  --p8-ink-2:      #252A22; /* raised dark panel                               */
+  --p8-muted:      #5C5F52; /* secondary text, metadata                        */
+  --p8-muted-2:    #8F927F; /* tertiary text, disabled                         */
+  --p8-line:       rgba(27,30,24,0.12);  /* hairline / border on light         */
+  --p8-line-2:     rgba(27,30,24,0.06);  /* faint rule, the mark's grid        */
   --p8-panel:      #FFFFFF; /* card on bone                                    */
-  --p8-panel-2:    #EFEDE6; /* recessed panel on bone                          */
+  --p8-panel-2:    #F1EEE3; /* recessed panel on bone                          */
 
   /* ---- Neutral ramp (on ink) ---- */
-  --p8-line-d:     rgba(247,246,242,0.14);
-  --p8-line-d2:    rgba(247,246,242,0.07);
-  --p8-muted-d:    #8A95A3;
+  --p8-line-d:     rgba(250,248,241,0.14);
+  --p8-line-d2:    rgba(250,248,241,0.07);
+  --p8-muted-d:    #A3A89A;
 
-  /* ---- Functional / status (use sparingly; never coral for error) ---- */
+  /* ---- Functional / status (use sparingly; never accent for error) ---- */
   --p8-positive:   #1F9D6B; /* success, grounded, complete                     */
   --p8-warning:    #D98A2B; /* caution, partial                                */
-  --p8-critical:   #C2453B; /* error, blocked  (distinct from brand coral)     */
+  --p8-critical:   #C2453B; /* error, blocked  (distinct from brand accent)    */
   --p8-info:       #3D7BFF; /* neutral information                             */
 
   /* ---- Type ---- */
   --p8-font-display: "Space Grotesk", "Söhne", system-ui, sans-serif; /* headings, wordmark */
   --p8-font-body:    "Inter", "IBM Plex Sans", system-ui, sans-serif; /* body, UI           */
   --p8-font-mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace; /* code, ids, labels */
+  --p8-font-serif:   "Lora", Georgia, serif; /* italic statement register — never body */
 
   /* ---- Type scale (1.25 major-third, 16px base) ---- */
   --p8-text-xs:   12px;
@@ -58,6 +59,7 @@
   --p8-space-7: 48px;
   --p8-space-8: 64px;
   --p8-space-9: 96px;
+  --p8-space-section: clamp(64px, 12vw, 160px); /* landing section rhythm */
 
   /* ---- Radii ---- */
   --p8-radius-sm:  8px;
@@ -67,14 +69,21 @@
   --p8-radius-icon: 22px; /* app-icon / mark tile corner (on 100-unit grid)    */
 
   /* ---- Elevation ---- */
-  --p8-shadow-sm: 0 1px 2px rgba(11,15,20,0.08);
-  --p8-shadow:    0 6px 24px rgba(11,15,20,0.10);
-  --p8-shadow-lg: 0 18px 50px rgba(11,15,20,0.18);
+  --p8-shadow-sm: 0 1px 2px rgba(27,30,24,0.08);
+  --p8-shadow:    0 6px 24px rgba(27,30,24,0.10);
+  --p8-shadow-lg: 0 18px 50px rgba(27,30,24,0.18);
 
   /* ---- Motion ---- */
   --p8-ease:      cubic-bezier(0.22, 1, 0.36, 1);
   --p8-dur-fast:  120ms;
   --p8-dur:       220ms;
+
+  /* Shared mark components (panels/Logomark, Wordmark) resolve their fills
+     through the app's --brand-* custom properties; remapping them here
+     recolors the mark on public surfaces without touching the component. */
+  --brand-ink: var(--p8-ink);
+  --brand-bone: var(--p8-bone);
+  --brand-coral: var(--p8-accent);
 }
 
 /* ---- scope base -------------------------------------------------------- */
@@ -106,13 +115,13 @@
 
 .site a {
   color: var(--p8-ink);
-  text-decoration-color: var(--p8-coral);
+  text-decoration-color: var(--p8-accent);
   text-underline-offset: 3px;
   transition: color var(--p8-dur-fast) var(--p8-ease);
 }
 
 .site a:hover {
-  color: var(--p8-coral-deep);
+  color: var(--p8-accent-deep);
 }
 
 .site code,

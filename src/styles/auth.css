@@ -110,13 +110,13 @@
 }
 
 .site .auth-card .btn--accent {
-  background: var(--p8-coral);
-  border-color: var(--p8-coral-deep);
+  background: var(--p8-accent);
+  border-color: var(--p8-accent-deep);
   color: var(--p8-bone);
 }
 
 .site .auth-card .btn--accent:hover:not(:disabled) {
-  background: var(--p8-coral-deep);
+  background: var(--p8-accent-deep);
 }
 
 .site .auth-err {
@@ -124,7 +124,7 @@
 }
 
 .site .auth-card a {
-  color: var(--p8-coral-deep);
+  color: var(--p8-accent-deep);
 }
 
 .site .auth-card .inp {
@@ -133,10 +133,10 @@
 }
 
 .site .auth-card .inp:focus {
-  border-color: var(--p8-coral);
+  border-color: var(--p8-accent);
 }
 
-/* brand rule: the wordmark's 8 takes coral everywhere under .site */
+/* brand rule: the wordmark's 8 takes accent everywhere under .site */
 .site .wm-8 {
-  color: var(--p8-coral);
+  color: var(--p8-accent);
 }

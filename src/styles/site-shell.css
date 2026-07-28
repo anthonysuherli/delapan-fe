@@ -132,12 +132,12 @@
   font-size: var(--p8-text-sm);
 }
 
-/* ---- cta — the one place coral fills --------------------------------------- */
+/* ---- cta — the one place accent fills --------------------------------------- */
 
 .ss-cta {
   display: inline-block;
   padding: var(--p8-space-2) var(--p8-space-5);
-  background: var(--p8-coral);
+  background: var(--p8-accent);
   color: var(--p8-bone);
   border-radius: var(--p8-radius);
   text-decoration: none;
@@ -147,7 +147,7 @@
 }
 
 .ss-cta:hover {
-  background: var(--p8-coral-deep);
+  background: var(--p8-accent-deep);
 }
 
 .ss-cta-row {
