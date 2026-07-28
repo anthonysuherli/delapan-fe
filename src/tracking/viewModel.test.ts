@@ -42,9 +42,9 @@ describe("linkForSpecOrPlan", () => {
     expect(linkForSpecOrPlan("https://example.com/a")).toBe("https://example.com/a");
   });
 
-  it("maps relative paths to delapan-be", () => {
+  it("maps relative paths to delapan", () => {
     expect(linkForSpecOrPlan("docs/x.md")).toBe(
-      "https://github.com/anthonysuherli/delapan-be/blob/master/docs/x.md",
+      "https://github.com/anthonysuherli/delapan/blob/master/docs/x.md",
     );
   });
 });
@@ -57,7 +57,7 @@ describe("branchUrl", () => {
   });
 
   it("uses be repo for backend/both", () => {
-    expect(branchUrl("both", "feat/x")).toContain("delapan-be");
+    expect(branchUrl("both", "feat/x")).toContain("anthonysuherli/delapan");
   });
 });
 
