@@ -116,7 +116,7 @@ describe("engineStatus", () => {
     expect(winRemove).toHaveBeenCalledWith("online", winAdd.mock.calls[0][1]);
   });
 
-  it("stop() clears the pending backoff retry timer", async () => {
+  it("stop() does NOT cancel the pending backoff retry — it's module-level liveness, not per-watcher state", async () => {
     vi.stubGlobal("document", { visibilityState: "visible", addEventListener: vi.fn(), removeEventListener: vi.fn() });
     vi.stubGlobal("window", { addEventListener: vi.fn(), removeEventListener: vi.fn() });
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
@@ -129,6 +129,10 @@ describe("engineStatus", () => {
 
     stop();
 
-    expect(vi.getTimerCount()).toBe(0);
+    // a detaching watcher (e.g. App unmounting because Root swapped to
+    // EngineDown) must not cancel the retry that brings the engine back
+    // automatically — EngineDown's own "we're retrying automatically" promise
+    // depends on this timer surviving
+    expect(vi.getTimerCount()).toBe(1);
   });
 });

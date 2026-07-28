@@ -99,6 +99,19 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
+
+  // redirect-home, signup, signin, and the app surfaces (console/panel, via
+  // resolveAppState below) all depend on the session, so wait for it to
+  // resolve before committing to any of them. Rendering early would flash
+  // the landing page (or the wrong auth form) at an already-signed-in
+  // visitor.
+  if (session === undefined) {
+    return (
+      <div className="site">
+        <Interstitial line="checking session…" />
+      </div>
+    );
+  }
   if (surface === "redirect-home") return <RedirectHome />;
   if (surface === "signup") {
     return (
@@ -108,13 +121,6 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
     );
   }
   if (surface === "signin") {
-    if (session === undefined) {
-      return (
-        <div className="site">
-          <Interstitial line="checking session…" />
-        </div>
-      );
-    }
     return (
       <div className="site">
         <SignInForm supabase={supabase} title="delapan" subtitle="Sign in to your delapan account." />
@@ -138,6 +144,17 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
         </div>
       );
     case "signin":
+      // The surface === "console" branch is currently unreachable: resolveRoute
+      // only ever returns "console" when Boolean(session) was already true at
+      // that same render (session and surface are read from the same local
+      // session value), and resolveAppState only returns "signin" when
+      // !session — the two can't both hold in one render. Kept anyway, as
+      // defence: this is the one case the task that wrote this switch was
+      // explicitly warned is expensive to get wrong (a login form shown to
+      // every anonymous visitor to the marketing site) — if a future change
+      // to resolveRoute or resolveAppState ever decouples that invariant,
+      // this branch is what stops the regression instead of silently falling
+      // through to the sign-in form below.
       return surface === "console" ? (
         <LandingApp />
       ) : (

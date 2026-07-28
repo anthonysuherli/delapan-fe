@@ -105,6 +105,16 @@ export function startEngineWatch(): () => void {
   return () => {
     document.removeEventListener("visibilitychange", onVisible);
     window.removeEventListener("online", onOnline);
-    clearRetry();
+    // Deliberately does NOT clearRetry() here. The backoff timer is
+    // module-level liveness, not per-watcher state — Root.tsx and App.tsx
+    // both call startEngineWatch(), and a detaching watcher (e.g. App
+    // unmounting because Root swapped to EngineDown) has no business
+    // cancelling a retry the other watcher, or the user reading "we're
+    // retrying automatically" on EngineDown itself, is relying on. The timer
+    // self-manages: scheduleRetry() re-arms it on every failed probe, and
+    // probeEngine()'s success path clears it. If a future change removes
+    // this comment and adds clearRetry() back, it will silently reintroduce
+    // a dead EngineDown screen the instant the first watcher to unmount
+    // cancels everyone else's pending retry.
   };
 }
