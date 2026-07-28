@@ -35,3 +35,4 @@ yarn-error.log*
 # HyperFrames render scratch — the shipped artifacts live in public/
 video/**/out/
 video/**/node_modules/
+video/**/.thumbnails/
