@@ -52,6 +52,10 @@ interface AppState {
   readOnly: boolean;
   booting: boolean;
   bootError: string | null;
+  /** Has a scope load ever actually succeeded this session? Set once, on a
+   *  successful loadScope, and never reset — a later failed scope switch
+   *  must not erase it, since the graph already on screen is still real. */
+  hasLoadedData: boolean;
   projects: ProjectInfo[];
   project: string | null;
   kb: string | null;
@@ -141,6 +145,7 @@ export const useStore = create<AppState>((set, get) => ({
   readOnly: false,
   booting: true,
   bootError: null,
+  hasLoadedData: false,
   projects: [],
   project: null,
   kb: null,
@@ -243,6 +248,7 @@ export const useStore = create<AppState>((set, get) => ({
         schema: schemaRes.status === "fulfilled" ? schemaRes.value : null,
         synopsis: synopsisRes.status === "fulfilled" ? synopsisRes.value : null,
         lastAction: `loaded ${project}/${kb} — ${graphRes.value.nodes.length} nodes, ${graphRes.value.edges.length} edges`,
+        hasLoadedData: true,
       });
     } catch (err) {
       get().pushToast("error", `failed to load graph: ${err instanceof Error ? err.message : err}`);

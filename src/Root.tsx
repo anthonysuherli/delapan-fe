@@ -28,6 +28,7 @@ import { NotFound } from "./site/NotFound";
 import { PrivacyPage } from "./site/PrivacyPage";
 import { TermsPage } from "./site/TermsPage";
 import { resolveAppState } from "./state/appState";
+import { useStore } from "./state/store";
 import { SignInForm } from "./tracking/SignInForm";
 import { getSupabaseClient } from "./tracking/supabaseClient";
 import { TrackingApp } from "./tracking/TrackingApp";
@@ -90,6 +91,11 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   const engine = useEngineState();
   const isApp = surface === "console" || surface === "panel";
   const access = useBetaAccess(isApp ? session : null);
+  // Only the panel ever renders engine data worth preserving through an
+  // outage; the console has none, so it never claims hasLoadedData. The hook
+  // itself is always called (Rules of Hooks) — only its result is gated.
+  const storeHasLoadedData = useStore((s) => s.hasLoadedData);
+  const hasLoadedData = surface === "panel" && storeHasLoadedData;
 
   if (surface === "tracking") return <TrackingApp />;
   if (surface === "duet") return <DuetApp />;
@@ -117,7 +123,7 @@ function ConfiguredRoot({ supabase }: { supabase: SupabaseClient }) {
   }
   if (!isApp) return <LandingApp />;
 
-  const screen = resolveAppState({ surface, session, access, engine });
+  const screen = resolveAppState({ surface, session, access, engine, hasLoadedData });
   switch (screen) {
     case "checking":
       return (

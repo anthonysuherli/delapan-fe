@@ -8,6 +8,12 @@
  * Precedence — session, then liveness, then authorization. Liveness outranks
  * authorization deliberately: an unreachable engine cannot have answered the
  * access probe truthfully, so "approved" is not a claim we may act on.
+ *
+ * Liveness itself is gated on hasLoadedData: at boot there is nothing on screen
+ * worth preserving, so an unreachable engine blocks. Once real data has loaded,
+ * discarding it to report the same failure would take away more than it
+ * explains — the surface renders and the outage becomes a banner over it
+ * instead (Root/App, not this function, own that banner).
  */
 import type { Session } from "@supabase/supabase-js";
 import type { EngineState } from "../api/engineStatus";
@@ -20,12 +26,24 @@ export interface AppStateInput {
   session: Session | null | undefined;
   access: BetaAccess;
   engine: EngineState;
+  /** Has this session already rendered real engine data? At boot there is
+   *  nothing worth preserving, so an unreachable engine is a blocking screen.
+   *  Once real data is on screen it is the user's own, truthfully loaded —
+   *  replacing it with an error would take away more than it explains, so the
+   *  outage becomes a banner over the surface instead. */
+  hasLoadedData: boolean;
 }
 
-export function resolveAppState({ surface, session, access, engine }: AppStateInput): AppScreen {
+export function resolveAppState({
+  surface,
+  session,
+  access,
+  engine,
+  hasLoadedData,
+}: AppStateInput): AppScreen {
   if (session === undefined) return "checking";
   if (!session) return "signin";
-  if (engine === "unreachable") return "engine-down";
+  if (engine === "unreachable" && !hasLoadedData) return "engine-down";
   if (access === "pending") return "pending";
   if (access === "checking" || access === "idle") return "checking";
   // "approved" and "error" both proceed: a probe failure must never accuse an
