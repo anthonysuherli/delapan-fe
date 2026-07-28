@@ -908,15 +908,21 @@ git commit -m "feat(api): engineStatus — /health liveness with backoff and rec
 
 **Files:**
 - Modify: `src/api/client.ts:1-121` (header, mock import, mode plumbing, `http`, `call`) and `:285-310` (`explore`)
+- Modify: `src/state/store.ts` (`mode` → `readOnly`)
+- Modify: `src/panels/StatusBar.tsx:8,20-23`
+- Modify: `src/panels/ConceptDocReader.tsx:37,59,83-88`
+- Modify: `src/styles/layout.css` (`.sb-dot--mock` → `.sb-dot--down`, drop `.sb-mock-badge`)
 - Create: `scripts/assert-no-mock.mjs`
 - Modify: `package.json` (build script)
 - Modify: `vite.config.ts:9-24`
 
 **Interfaces:**
-- Consumes: `classify`, `EngineFailure` (Task 3); `reportUnreachable` (Task 4).
-- Produces: `client.ts` no longer exports `ApiMode`, `getApiMode`, or `onApiModeChange`. Every endpoint still exports the same signature. Task 6 and Task 9 depend on the removal.
+- Consumes: `classify`, `EngineFailure` (Task 3); `reportUnreachable`, `getEngineState`, `onEngineStateChange` (Task 4); `captureError` (Task 2).
+- Produces: `client.ts` no longer exports `ApiMode`, `getApiMode`, or `onApiModeChange`. `useStore(s => s.readOnly): boolean` replaces `s.mode`. Every endpoint keeps its signature. Task 8 gates affordances on `readOnly`.
 
-> **Deletion checklist** — `noUnusedLocals` will fail the build if you miss one: `mode`, `modeListeners`, `getApiMode`, `onApiModeChange`, `setMode`, `isNetworkError`, `ApiMode`, and the static `import { mockApi } from "./mock"`.
+> **Deletion checklist** — `noUnusedLocals` will fail the build if you miss one: in `client.ts`, `mode`, `modeListeners`, `getApiMode`, `onApiModeChange`, `setMode`, `isNetworkError`, `ApiMode`, and the static `import { mockApi } from "./mock"`.
+>
+> **⚠️ `mode` must die in ONE commit.** Three files outside `client.ts` read it — `store.ts` (5 sites), `StatusBar.tsx`, `ConceptDocReader.tsx`. Deleting the client exports without migrating all three leaves `tsc` broken, so this task's build gate would be unsatisfiable. Steps 7-8 below are not optional cleanup; they are what keeps the task green.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1182,7 +1188,69 @@ And in `liveExplore`, wrap the initial fetch the same way `http` does:
   }
 ```
 
-- [ ] **Step 7: Run both client test files**
+- [ ] **Step 7: Migrate the store off `mode`, onto `readOnly`**
+
+In `src/state/store.ts`:
+
+Replace `mode: api.ApiMode;` in the `AppState` interface with:
+
+```ts
+  readOnly: boolean;
+```
+
+Replace the initialiser `mode: api.getApiMode(),` with `readOnly: false,`. Delete `mode: api.getApiMode()` from the `set({ projects, … })` call in `boot()` and from the `set({ … })` call in `loadScope()` — both become plain removals, leaving the surrounding object intact.
+
+Add the import:
+
+```ts
+import { getEngineState, onEngineStateChange } from "../api/engineStatus";
+```
+
+Replace the trailing `api.onApiModeChange((mode) => { … });` block with:
+
+```ts
+// engine liveness → read-only. An unreachable engine cannot accept a mutation,
+// so the affordances go away rather than letting an edit apply-then-rollback.
+useStore.setState({ readOnly: getEngineState() === "unreachable" });
+onEngineStateChange((state) => {
+  useStore.setState({ readOnly: state === "unreachable" });
+});
+```
+
+- [ ] **Step 8: Migrate the two components that read `mode`**
+
+`src/panels/StatusBar.tsx` — replace the `mode` selector and the connection span, and delete the mock badge line entirely:
+
+```tsx
+  const readOnly = useStore((s) => s.readOnly);
+```
+
+```tsx
+      <span className="sb-conn">
+        <span className={`sb-dot${readOnly ? " sb-dot--down" : ""}`} />
+        {readOnly ? "engine unreachable" : "live api"}
+      </span>
+```
+
+Delete `{mode === "mock" && <span className="sb-mock-badge">MOCK DATA</span>}`.
+
+`src/panels/ConceptDocReader.tsx` — swap the selector at line 37 for `const readOnly = useStore((s) => s.readOnly);`, then:
+
+```tsx
+  const canSynthesize = !readOnly && doc.findings.length > 0 && !synthesizing;
+```
+
+```tsx
+  const synthDisabledTitle = readOnly
+    ? "the engine isn't responding"
+    : doc.findings.length === 0
+      ? "no grounded findings to synthesize from"
+      : "";
+```
+
+`src/styles/layout.css` — rename `.sb-dot--mock` to `.sb-dot--down` and delete the `.sb-mock-badge` rule (nothing references it once the badge line is gone).
+
+- [ ] **Step 9: Run both client test files**
 
 ```bash
 npx vitest run src/api/clientFallback.test.ts src/api/authHeaders.test.ts
@@ -1190,7 +1258,7 @@ npx vitest run src/api/clientFallback.test.ts src/api/authHeaders.test.ts
 
 Expected: PASS — 7 new tests, and all 6 existing `authHeaders` tests still green (`EngineFailure extends ApiError`, so their `instanceof ApiError` assertions hold).
 
-- [ ] **Step 8: Write the build guard**
+- [ ] **Step 10: Write the build guard**
 
 Create `scripts/assert-no-mock.mjs`:
 
@@ -1226,7 +1294,7 @@ if (offenders.length) {
 console.log("assert-no-mock: ok — no fixture in dist/");
 ```
 
-- [ ] **Step 9: Wire the guard and the env guard**
+- [ ] **Step 11: Wire the guard and the env guard**
 
 In `package.json`, change the build script:
 
@@ -1258,7 +1326,7 @@ and close the function at the end of the file by replacing the final `});` with:
 });
 ```
 
-- [ ] **Step 10: Verify the guards actually fire**
+- [ ] **Step 12: Verify the guards actually fire**
 
 ```bash
 npm test && npm run build && VITE_API_BASE= npx vite build --mode production
@@ -1266,7 +1334,7 @@ npm test && npm run build && VITE_API_BASE= npx vite build --mode production
 
 Expected: the suite passes; `npm run build` succeeds and prints `assert-no-mock: ok`; the final command **fails** with the `VITE_API_BASE must be set` error. If that last command succeeds, the guard is not wired.
 
-- [ ] **Step 11: Verify the fixture is gone from the bundle**
+- [ ] **Step 13: Verify the fixture is gone from the bundle**
 
 ```bash
 grep -c "rag-ecosystem" dist/assets/*.js || echo "GONE — correct"
@@ -1274,10 +1342,12 @@ grep -c "rag-ecosystem" dist/assets/*.js || echo "GONE — correct"
 
 Expected: `GONE — correct`.
 
-- [ ] **Step 12: Commit**
+- [ ] **Step 14: Commit**
 
 ```bash
-git add src/api/client.ts src/api/clientFallback.test.ts scripts/assert-no-mock.mjs package.json vite.config.ts
+git add src/api/client.ts src/api/clientFallback.test.ts src/state/store.ts \
+        src/panels/StatusBar.tsx src/panels/ConceptDocReader.tsx src/styles/layout.css \
+        scripts/assert-no-mock.mjs package.json vite.config.ts
 git commit -m "feat(api): remove the silent mock fallback; gate the fixture out of production builds"
 ```
 
@@ -1712,51 +1782,30 @@ git commit -m "feat(ui): EngineDown screen and mid-session outage banner"
 
 ---
 
-### Task 8: Read-only mode while the engine is unreachable
+### Task 8: Gate the mutation affordances on read-only
 
 **Files:**
-- Modify: `src/state/store.ts` (add `readOnly` flag + subscription)
-- Modify: `src/panels/TopBar.tsx:77-107` (action buttons)
-- Modify: `src/panels/StatusBar.tsx:17-46` (undo/redo, remove the mock badge)
-- Modify: `src/panels/Inspector.tsx` (edit affordances)
-- Modify: `src/styles/layout.css` (remove `.sb-dot--mock`, `.sb-mock-badge`)
+- Modify: `src/panels/TopBar.tsx:19-107`
+- Modify: `src/panels/StatusBar.tsx:27-44` (undo/redo)
+- Modify: `src/panels/Inspector.tsx`
 
 **Interfaces:**
-- Consumes: `getEngineState`, `onEngineStateChange` (Task 4).
-- Produces: `useStore(s => s.readOnly): boolean`.
+- Consumes: `useStore(s => s.readOnly)` — introduced in Task 5.
+- Produces: nothing new. This is the UI half of read-only; Task 5 built the state half.
 
-> **Why this exists:** under the optimistic-mutation architecture an edit during an outage applies to graphology, fails the API call, and rolls back — the user watches their own edit undo itself. Disabling the control is quieter and more honest.
+> **Why this exists:** under the optimistic-mutation architecture an edit during an outage applies to graphology, fails the API call, and rolls back — the user watches their own edit undo itself. Disabling the control is quieter and more honest than letting that happen.
+>
+> **Scope note:** `StatusBar`'s connection text and `ConceptDocReader`'s synthesize gate were already migrated in Task 5 (they had to be, to keep `tsc` green when `mode` was deleted). This task adds only what remains.
 
-- [ ] **Step 1: Add `readOnly` to the store**
+- [ ] **Step 1: Gate the TopBar actions**
 
-In `src/state/store.ts`, delete `mode: api.ApiMode;` from `AppState` and add:
+In `src/panels/TopBar.tsx`, add the selector alongside the others:
 
-```ts
-  readOnly: boolean;
+```tsx
+  const readOnly = useStore((s) => s.readOnly);
 ```
 
-Delete the three `mode:` initialisers/setters (originally lines 140, 180, 244) and the whole `api.onApiModeChange(...)` block at the end of the file (originally 663-668). Replace that trailing block with:
-
-```ts
-// engine liveness → read-only. An unreachable engine cannot accept a mutation,
-// so the affordances go away rather than letting an edit apply-then-rollback.
-useStore.setState({ readOnly: getEngineState() === "unreachable" });
-onEngineStateChange((state) => {
-  useStore.setState({ readOnly: state === "unreachable" });
-});
-```
-
-and update the import at the top from `import * as api from "../api/client";` to keep that plus:
-
-```ts
-import { getEngineState, onEngineStateChange } from "../api/engineStatus";
-```
-
-Add `readOnly: false,` to the store's initial state object.
-
-- [ ] **Step 2: Gate the TopBar actions**
-
-In `src/panels/TopBar.tsx`, add `const readOnly = useStore((s) => s.readOnly);` alongside the other selectors, then add `disabled={readOnly}` to the `+ node`, `connect`, and `layout` buttons. Leave `travel` enabled — it is read-only navigation. For example:
+Add `disabled={readOnly}` to the `+ node`, `connect`, and `layout` buttons. Leave `travel` enabled — it is read-only navigation and stays useful during an outage. For example:
 
 ```tsx
         <button className="btn" onClick={() => setAddNodeOpen(true)} title="Add a node" disabled={readOnly}>
@@ -1764,20 +1813,9 @@ In `src/panels/TopBar.tsx`, add `const readOnly = useStore((s) => s.readOnly);` 
         </button>
 ```
 
-- [ ] **Step 3: Update the StatusBar**
+- [ ] **Step 2: Disable undo/redo in the StatusBar**
 
-Replace `src/panels/StatusBar.tsx`'s `mode` usage. The connection span and the mock badge become:
-
-```tsx
-  const readOnly = useStore((s) => s.readOnly);
-  ...
-      <span className="sb-conn">
-        <span className={`sb-dot${readOnly ? " sb-dot--down" : ""}`} />
-        {readOnly ? "engine unreachable" : "live api"}
-      </span>
-```
-
-Delete the `{mode === "mock" && <span className="sb-mock-badge">MOCK DATA</span>}` line and the `const mode = useStore((s) => s.mode);` selector. Add `|| readOnly` to both undo/redo `disabled` props:
+`readOnly` is already selected in this component from Task 5. Add it to both history buttons:
 
 ```tsx
           disabled={!canUndo || readOnly}
@@ -1786,27 +1824,37 @@ Delete the `{mode === "mock" && <span className="sb-mock-badge">MOCK DATA</span>
           disabled={!canRedo || readOnly}
 ```
 
-- [ ] **Step 4: Update the stylesheet**
+- [ ] **Step 3: Gate the Inspector's edit affordances**
 
-In `src/styles/layout.css`, rename `.sb-dot--mock` to `.sb-dot--down` and delete the `.sb-mock-badge` rule entirely (nothing references it once Step 3 lands).
+Read `src/panels/Inspector.tsx` first — it has three editing components (`NodeInspector`, `EdgeInspector`, `BulkInspector`) and the exact controls differ between them. In each, add:
 
-- [ ] **Step 5: Gate the Inspector**
+```tsx
+  const readOnly = useStore((s) => s.readOnly);
+```
 
-In `src/panels/Inspector.tsx`, add `const readOnly = useStore((s) => s.readOnly);` in `NodeInspector`, `EdgeInspector` and `BulkInspector`, and add `disabled={readOnly}` to the label input, the `TypeSelect`, the property key/value inputs, and every delete/connect button in those components.
+then add `disabled={readOnly}` to every control that mutates: the label input, the `TypeSelect`, the relation input, the property key/value inputs, the "+ property" and property-delete buttons, the connect button, and the delete buttons. Do **not** disable navigation controls (the endpoint buttons that select another node, the "open concept doc" action) — those are reads.
 
-- [ ] **Step 6: Verify the suite and build**
+Verify by grepping for mutation entry points and checking each one is covered:
+
+```bash
+grep -n "renameNode\|setNodeType\|setNodeProperties\|replaceEdge\|deleteElements\|bulkSetProperty" src/panels/Inspector.tsx
+```
+
+Every call site listed must sit behind a control that is `disabled` when `readOnly`.
+
+- [ ] **Step 4: Verify the suite and build**
 
 ```bash
 npm test && npm run build
 ```
 
-Expected: all tests pass; `tsc` clean. If `tsc` complains about an unused `api` import in `store.ts`, keep it — `api` is still used by `boot`, `loadScope`, `mergeGraphDelta`, `refreshStats`, `fetchFinding`, `loadFindings`.
+Expected: all tests pass; `tsc` clean.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/state/store.ts src/panels/TopBar.tsx src/panels/StatusBar.tsx src/panels/Inspector.tsx src/styles/layout.css
-git commit -m "feat(ui): read-only mode while the engine is unreachable; drop the mock badge"
+git add src/panels/TopBar.tsx src/panels/StatusBar.tsx src/panels/Inspector.tsx
+git commit -m "feat(ui): disable mutation affordances while the engine is unreachable"
 ```
 
 ---
