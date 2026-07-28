@@ -218,7 +218,11 @@
 }
 
 .ss-footer-col a:hover {
+  /* text-decoration-color must come after the text-decoration shorthand —
+     the shorthand resets decoration-color to currentColor, same fix as
+     .ss-signin:hover above. */
   text-decoration: underline;
+  text-decoration-color: var(--p8-accent-d);
 }
 
 .ss-footer-bottom {

@@ -51,3 +51,27 @@ describe("site.css defines the moss-on-parchment brand", () => {
     expect(siteCss).not.toMatch(/--p8-coral/);
   });
 });
+
+describe("the :where() zero-specificity contract (see file header)", () => {
+  // `.site` base element rules must stay inside :where() — that's what
+  // keeps them at zero specificity so any class rule anywhere (including
+  // the app's own sheets) can beat them. A bare `.site h1` etc sits at
+  // (0,1,1), which ties or beats a plain single-class surface rule and
+  // wins on stylesheet import order instead of cascade intent — exactly
+  // the auth.css h1 regression this branch's review caught.
+  it("targets bare element names only inside :where(), never as `.site <elem>`", () => {
+    // strip comments first — the file's own header/prose quotes the bad
+    // pattern (`.site h1`) as an example, which would otherwise self-match.
+    const code = siteCss.replace(/\/\*[\s\S]*?\*\//g, "");
+    const unwrapped = /\.site\s+(h[1-6]|a|code|pre|p|ul|li)\b/g;
+    const hits: string[] = [];
+    for (const match of code.matchAll(unwrapped)) {
+      const before = code.slice(0, match.index);
+      const openWhere = before.lastIndexOf(":where(");
+      const closeWhere = before.lastIndexOf(")");
+      const insideWhere = openWhere > -1 && openWhere > closeWhere;
+      if (!insideWhere) hits.push(match[0]);
+    }
+    expect(hits, `found un-:where()'d element rules: ${hits.join(", ")}`).toEqual([]);
+  });
+});

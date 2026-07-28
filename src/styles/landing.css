@@ -12,10 +12,17 @@
   flex-direction: column;
 }
 
+/* longhand left/right (not the `padding` shorthand): .lp-hero and .lp-close
+   also carry this class and set their own vertical padding at (0,1,0) — a
+   shorthand here would reset their padding-top/bottom to 0 on whichever of
+   this rule / theirs is later in source (see the media queries below, and
+   the responsive section's comment). Longhand only ever touches horizontal,
+   so it composes with any padding-top/bottom regardless of source order. */
 .lp-inner {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 0 var(--p8-space-6);
+  padding-left: var(--p8-space-6);
+  padding-right: var(--p8-space-6);
 }
 
 /* --- hero ------------------------------------------------------------------ */
@@ -157,7 +164,7 @@
   padding: var(--p8-space-9) 0;
 }
 
-.lp-band.lp-section h2 {
+.lp-band h2 {
   color: var(--p8-bone);
 }
 
@@ -394,7 +401,8 @@
 
 @media (max-width: 1024px) {
   .lp-inner {
-    padding: 0 var(--p8-space-5);
+    padding-left: var(--p8-space-5);
+    padding-right: var(--p8-space-5);
   }
 }
 
@@ -409,7 +417,8 @@
   }
 
   .lp-inner {
-    padding: 0 var(--p8-space-4);
+    padding-left: var(--p8-space-4);
+    padding-right: var(--p8-space-4);
   }
 
   .mf-field {

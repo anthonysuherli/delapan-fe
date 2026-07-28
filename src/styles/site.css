@@ -2,6 +2,12 @@
    site.css — moss-on-parchment brand token bridge for the delapan.ai public site
    Scoped to `.site` — the app's own identity (tokens.css) is untouched.
    Never hardcode a hex anywhere else; reference these tokens.
+   Contract: the `.site` base element rules below (h1/h2/h3, a, code/pre)
+   are wrapped in `:where()` and so carry ZERO specificity — they are
+   defaults, not overrides. Any class rule anywhere, including the app's
+   own sheets (auth.css, tokens.css, etc.), beats them. A future element
+   rule added to this file's base layer must stay inside `:where()`, or it
+   will silently start winning fights it was never meant to be in.
    ============================================================ */
 
 .site {

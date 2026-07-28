@@ -109,6 +109,19 @@
   font-family: var(--p8-font-body);
 }
 
+/* the base .auth-card h1 rule (0,1,1) sits above :where(.site) h1's
+   zero-specificity default, so it still wins here even under .site and
+   paints the app's Big Shoulders Display instrument-panel face onto the
+   parchment card. Override at .site specificity. Also drop the app's
+   uppercase + wide tracking: every other heading on this editorial site
+   (docs, changelog, landing) sits in sentence case at normal tracking, and
+   an all-caps tracked h1 reads as console chrome, not as part of the card. */
+.site .auth-card h1 {
+  font-family: var(--p8-font-display);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
 .site .auth-card label {
   color: var(--p8-muted);
   font-family: var(--p8-font-mono);

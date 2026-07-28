@@ -162,7 +162,10 @@
 }
 
 .docs-code-copy:hover {
-  border-color: var(--p8-accent);
+  /* --p8-accent (moss) on --p8-ink is 2.65:1 — below WCAG 1.4.11's 3:1 for
+     a UI boundary and effectively invisible. --p8-accent-d is the on-ink
+     moss, built for exactly this surface. */
+  border-color: var(--p8-accent-d);
 }
 
 .docs-code pre {
