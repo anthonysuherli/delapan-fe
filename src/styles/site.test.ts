@@ -12,6 +12,7 @@ const BRAND: Record<string, string> = {
   "--p8-accent": "#4C6640",
   "--p8-accent-deep": "#3B5233",
   "--p8-accent-d": "#A9BF97",
+  "--p8-muted-d": "#9AA08E",
   "--p8-positive": "#1F9D6B",
   "--p8-warning": "#D98A2B",
   "--p8-critical": "#C2453B",
@@ -37,8 +38,8 @@ describe("site.css defines the moss-on-parchment brand", () => {
     expect(siteCss).toContain('"JetBrains Mono"');
   });
 
-  it("keeps coral out of body text color declarations", () => {
-    // coral may fill CTAs/accents; `.site` base color must be ink
+  it("keeps accent out of body text color declarations", () => {
+    // accent may fill CTAs/accents; `.site` base color must be ink
     expect(/\.site\s*\{[^}]*color:\s*var\(--p8-ink\)/s.test(siteCss)).toBe(true);
   });
 

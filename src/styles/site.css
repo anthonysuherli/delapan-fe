@@ -24,7 +24,7 @@
   /* ---- Neutral ramp (on ink) ---- */
   --p8-line-d:     rgba(250,248,241,0.14);
   --p8-line-d2:    rgba(250,248,241,0.07);
-  --p8-muted-d:    #A3A89A;
+  --p8-muted-d:    #9AA08E;
 
   /* ---- Functional / status (use sparingly; never accent for error) ---- */
   --p8-positive:   #1F9D6B; /* success, grounded, complete                     */
