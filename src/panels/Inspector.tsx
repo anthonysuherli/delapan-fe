@@ -77,6 +77,7 @@ function NodeInspector({ id }: { id: string }) {
   const startConnect = useStore((s) => s.startConnect);
   const openConcept = useStore((s) => s.openConcept);
   const schema = useStore((s) => s.schema);
+  const readOnly = useStore((s) => s.readOnly);
   const attrs = graph.getNodeAttributes(id);
 
   const [label, setLabel] = useState(attrs.label);
@@ -112,6 +113,7 @@ function NodeInspector({ id }: { id: string }) {
               if (e.key === "Enter") (e.target as HTMLInputElement).blur();
               if (e.key === "Escape") setLabel(attrs.label);
             }}
+            disabled={readOnly}
           />
         </div>
         <div className="ins-row">
@@ -120,6 +122,7 @@ function NodeInspector({ id }: { id: string }) {
             value={attrs.nodeType}
             options={knownTypes(schema?.intent, schema?.emergent)}
             onChange={(type) => void setNodeType(id, type)}
+            readOnly={readOnly}
           />
         </div>
         <div className="ins-row">
@@ -137,6 +140,7 @@ function NodeInspector({ id }: { id: string }) {
         <PropertiesEditor
           properties={attrs.properties}
           onCommit={(next, action) => void setNodeProperties(id, next, action)}
+          readOnly={readOnly}
         />
       </div>
 
@@ -155,12 +159,13 @@ function NodeInspector({ id }: { id: string }) {
         <button className="btn" onClick={() => openConcept(id)}>
           read <span className="kbd">R</span>
         </button>
-        <button className="btn" onClick={() => startConnect(id)}>
+        <button className="btn" onClick={() => startConnect(id)} disabled={readOnly}>
           ⌁ connect <span className="kbd">E</span>
         </button>
         <button
           className="btn btn--danger ml-auto"
           onClick={() => void deleteElements([id], [])}
+          disabled={readOnly}
         >
           ✕ delete
         </button>
@@ -173,10 +178,12 @@ function TypeSelect({
   value,
   options,
   onChange,
+  readOnly,
 }: {
   value: string;
   options: string[];
   onChange: (type: string) => void;
+  readOnly: boolean;
 }) {
   const [custom, setCustom] = useState(false);
   const [draft, setDraft] = useState("");
@@ -199,6 +206,7 @@ function TypeSelect({
             }
             if (e.key === "Escape") setCustom(false);
           }}
+          disabled={readOnly}
         />
         <button className="btn" onClick={() => setCustom(false)}>
           ✕
@@ -215,6 +223,7 @@ function TypeSelect({
         if (e.target.value === "__new__") setCustom(true);
         else onChange(e.target.value);
       }}
+      disabled={readOnly}
     >
       {all.map((t) => (
         <option key={t} value={t}>
@@ -229,6 +238,7 @@ function TypeSelect({
 // ---------------------------------------------------------------------------
 
 function EdgeInspector({ id }: { id: string }) {
+  const readOnly = useStore((s) => s.readOnly);
   const attrs = graph.getEdgeAttributes(id);
   const source = graph.source(id);
   const target = graph.target(id);
@@ -264,6 +274,7 @@ function EdgeInspector({ id }: { id: string }) {
               if (e.key === "Enter") (e.target as HTMLInputElement).blur();
               if (e.key === "Escape") setRelation(attrs.relation);
             }}
+            disabled={readOnly}
           />
         </div>
         <EndpointButton role="from" id={source} />
@@ -277,6 +288,7 @@ function EdgeInspector({ id }: { id: string }) {
         <PropertiesEditor
           properties={attrs.properties}
           onCommit={(next) => void replaceEdge(id, { properties: next })}
+          readOnly={readOnly}
         />
       </div>
 
@@ -295,6 +307,7 @@ function EdgeInspector({ id }: { id: string }) {
         <button
           className="btn btn--danger ml-auto"
           onClick={() => void deleteElements([], [id])}
+          disabled={readOnly}
         >
           ✕ delete
         </button>
@@ -333,6 +346,7 @@ function EndpointButton({ role, id }: { role: string; id: string }) {
 // ---------------------------------------------------------------------------
 
 function BulkInspector({ nodes, edges }: { nodes: string[]; edges: string[] }) {
+  const readOnly = useStore((s) => s.readOnly);
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
 
@@ -362,15 +376,22 @@ function BulkInspector({ nodes, edges }: { nodes: string[]; edges: string[] }) {
         <div className="sect">
           <h2 className="sect-title">Set property on all nodes</h2>
           <div className="ins-bulk-form">
-            <input className="inp" placeholder="key" value={key} onChange={(e) => setKey(e.target.value)} />
+            <input
+              className="inp"
+              placeholder="key"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              disabled={readOnly}
+            />
             <input
               className="inp"
               placeholder="value"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && apply()}
+              disabled={readOnly}
             />
-            <button className="btn" onClick={apply} disabled={!key.trim()}>
+            <button className="btn" onClick={apply} disabled={!key.trim() || readOnly}>
               apply
             </button>
           </div>
@@ -380,6 +401,7 @@ function BulkInspector({ nodes, edges }: { nodes: string[]; edges: string[] }) {
         <button
           className="btn btn--danger ml-auto"
           onClick={() => void deleteElements(nodes, edges)}
+          disabled={readOnly}
         >
           ✕ delete all ({nodes.length + edges.length})
         </button>
@@ -408,9 +430,11 @@ function displayValue(value: unknown): string {
 function PropertiesEditor({
   properties,
   onCommit,
+  readOnly,
 }: {
   properties: Record<string, unknown>;
   onCommit: (next: Record<string, unknown>, action: string) => void;
+  readOnly: boolean;
 }) {
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
@@ -453,14 +477,21 @@ function PropertiesEditor({
             defaultValue={key}
             onBlur={(e) => renameKey(key, e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+            disabled={readOnly}
           />
           <input
             className="inp"
             defaultValue={displayValue(value)}
             onBlur={(e) => commitValue(key, e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+            disabled={readOnly}
           />
-          <button className="ins-prop-del" title={`remove ${key}`} onClick={() => removeKey(key)}>
+          <button
+            className="ins-prop-del"
+            title={`remove ${key}`}
+            onClick={() => removeKey(key)}
+            disabled={readOnly}
+          >
             ✕
           </button>
         </div>
@@ -472,6 +503,7 @@ function PropertiesEditor({
           placeholder="key"
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
+          disabled={readOnly}
         />
         <input
           className="inp"
@@ -479,8 +511,14 @@ function PropertiesEditor({
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
+          disabled={readOnly}
         />
-        <button className="ins-prop-del ins-prop-add" title="add property" onClick={add}>
+        <button
+          className="ins-prop-del ins-prop-add"
+          title="add property"
+          onClick={add}
+          disabled={readOnly}
+        >
           +
         </button>
       </div>

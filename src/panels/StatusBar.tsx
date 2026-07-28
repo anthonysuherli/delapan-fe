@@ -26,7 +26,7 @@ export function StatusBar() {
       <span className="sb-history">
         <button
           className="btn"
-          disabled={!canUndo}
+          disabled={!canUndo || readOnly}
           onClick={() => void undo()}
           title={undoLabel ? `undo: ${undoLabel} (⌘Z)` : "nothing to undo"}
         >
@@ -34,7 +34,7 @@ export function StatusBar() {
         </button>
         <button
           className="btn"
-          disabled={!canRedo}
+          disabled={!canRedo || readOnly}
           onClick={() => void redo()}
           title={redoLabel ? `redo: ${redoLabel} (⌘⇧Z)` : "nothing to redo"}
         >
