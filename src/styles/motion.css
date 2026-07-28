@@ -171,6 +171,17 @@
   animation: dlpn-ring var(--t-ring) ease-out forwards;
 }
 
+/* ---- public site: one-shot section reveal ---- */
+.site .rv {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 500ms var(--p8-ease), transform 500ms var(--p8-ease);
+}
+.site .rv-in {
+  opacity: 1;
+  transform: none;
+}
+
 /* --- reduced motion: kill ambient loops + boot/settle --------------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -195,5 +206,10 @@
   }
   .skel-row {
     animation: none;
+  }
+  .site .rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

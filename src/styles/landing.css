@@ -63,7 +63,9 @@
 }
 
 .mf-cell {
-  animation: dlpn-cellfade var(--p8-dur) var(--p8-ease) both;
+  animation:
+    dlpn-cellfade var(--p8-dur) var(--p8-ease) both,
+    mf-breathe 9s var(--p8-ease) infinite;
 }
 
 .mf-ink {
@@ -82,6 +84,22 @@
   }
   to {
     opacity: var(--mf-o);
+  }
+}
+
+/* Targets `filter`, not `opacity`: a second animation on the same property
+   as `dlpn-cellfade` would win the compositing (later in the `animation`
+   list beats earlier for a shared property) and replace the entrance fade
+   outright instead of layering over it — the cell would just pop straight
+   to its resting opacity. `filter` sidesteps that entirely, so the entrance
+   still visibly ramps 0 -> var(--mf-o) before the breathing takes over. */
+@keyframes mf-breathe {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(0.35);
   }
 }
 
