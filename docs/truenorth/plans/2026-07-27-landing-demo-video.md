@@ -208,9 +208,17 @@ Total 30s at 1920×1080. Use the `data-*` timing hooks from `hyperframes-core/` 
 
 Constraints: no numbers that are not literal field names. No sound. No live-graph footage (it is a `planned` feature and may not be shown). `coral` is used exactly once, on `supersede`.
 
-- [ ] **Step 3: Preview before rendering**
+- [ ] **Step 3: Preview, then run the composition gate**
 
 Open `video/resolution-demo/index.html` directly in a browser — HyperFrames compositions play as-is with no build step. Scrub it. Fix pacing here, where iteration is instant, rather than after a render.
+
+Then run the toolchain's own gate before spending a render on it:
+
+```bash
+npx --yes hyperframes@0.7.76 check video/resolution-demo
+```
+
+`check` runs lint, runtime validation in headless Chrome (JS errors, missing assets, contrast), and layout inspection as one pass. Fix everything it reports. A contrast warning here is a real accessibility finding, not noise — treat it as blocking.
 
 - [ ] **Step 4: Render**
 
@@ -223,21 +231,29 @@ Expected: both files exist.
 
 - [ ] **Step 5: Check the budget and the duration**
 
-```bash
-ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 public/demo-resolution.mp4
-```
+**There is no `ffmpeg` or `ffprobe` on this machine** — Task 1 verified both are absent from PATH, and HyperFrames renders anyway because it bundles its own encoder. Do not reach for them.
 
-Expected: `duration` ≈ 30 (±3s), `size` **under 3145728** (3 MB).
-
-If over budget: drop to 1280×720, or lower the bitrate, then re-render and re-check. Do not proceed over budget.
-
-- [ ] **Step 6: Confirm the poster is frame one**
-
-Open `public/demo-resolution-poster.png` and compare it against the first frame of the video. They must match — a poster that differs from frame one produces a visible jump on play. If the CLI cannot export a poster, extract it from the MP4 so it cannot drift:
+The renderer prints a summary line on completion, like `25.6 KB · 10.0s video`. Read it. Cross-check the file size directly:
 
 ```bash
-ffmpeg -y -i public/demo-resolution.mp4 -vf "select=eq(n\,0)" -vframes 1 public/demo-resolution-poster.png
+ls -l public/demo-resolution.mp4
 ```
+
+Expected: duration ≈ 30s (±3s), size **under 3145728 bytes** (3 MB).
+
+If over budget: drop to 1280×720, or lower the quality preset, then re-render and re-check. `npx --yes hyperframes@0.7.76 benchmark` renders across preset fps/quality/worker configs and compares speed against file size — use it if you need to find a setting that fits. Do not proceed over budget.
+
+- [ ] **Step 6: Produce the poster with `snapshot`**
+
+The poster must be frame one of this exact render, or it produces a visible jump on play. HyperFrames has a first-class command for this:
+
+```bash
+npx --yes hyperframes@0.7.76 snapshot --help
+```
+
+Read its options, then capture frame one (t=0) and write it to `public/demo-resolution-poster.png`. Confirm by eye that it matches the video's opening frame.
+
+If `snapshot` cannot target t=0 or cannot write a PNG to an arbitrary path, stop and report it rather than substituting a hand-made image — a poster that is not literally frame one is the defect this step exists to prevent.
 
 - [ ] **Step 7: Commit**
 

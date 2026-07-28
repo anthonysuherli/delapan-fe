@@ -24,7 +24,10 @@ open work for the composition task. It must match frame one of the MP4.
 - CLI version: `0.7.76` (package is `hyperframes` on npm, not `@hyperframes/cli`
   — see "Deviation from plan" below)
 - Create command: `npx --yes hyperframes init video/resolution-demo --example blank --non-interactive --skip-transcribe`
-- Render command: `npx --yes hyperframes render video/resolution-demo --output public/demo-resolution.mp4`
+- Render command: `HYPERFRAMES_SKIP_SKILLS=1 npx --yes hyperframes@0.7.76 render video/resolution-demo --output public/demo-resolution.mp4` (this is what `npm run video:render` runs)
+- Poster command: `npx --yes hyperframes@0.7.76 snapshot` — captures key frames as
+  PNGs, which is how the poster gets made without ffmpeg
+- Composition gates: `lint`, `validate`, and `check` (which runs all of them)
 - FFmpeg: **not required and not installed.** HyperFrames bundles its own
   encoder — verified by rendering successfully on a machine where both `ffmpeg`
   and `ffprobe` are absent from PATH. Do not reach for `ffprobe` to inspect
