@@ -27,6 +27,11 @@ describe("resolveAppState", () => {
   it("shows engine-down ahead of any access verdict", () => {
     expect(at("console", SESSION, "approved", "unreachable")).toBe("engine-down");
     expect(at("panel", SESSION, "approved", "unreachable")).toBe("engine-down");
+    // the case that matters most: a waitlisted user must not read as "in" during an outage
+    expect(at("console", SESSION, "pending", "unreachable")).toBe("engine-down");
+    expect(at("panel", SESSION, "pending", "unreachable")).toBe("engine-down");
+    expect(at("console", SESSION, "checking", "unreachable")).toBe("engine-down");
+    expect(at("console", SESSION, "idle", "unreachable")).toBe("engine-down");
   });
 
   it("never claims approved on an unreachable engine — the 2026-07-28 review's finding #4", () => {
