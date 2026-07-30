@@ -42,6 +42,9 @@ export function LandingApp() {
   const narrow = useIsNarrow(GRAPH_NARROW_BREAKPOINT_PX);
 
   useEffect(() => {
+    // Spec Deviation 3: prefers-reduced-motion disables smooth scroll too —
+    // don't impose animated scrolling on a user who asked the OS to suppress it.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const html = document.documentElement;
     const prev = html.style.scrollBehavior;
     html.style.scrollBehavior = "smooth";

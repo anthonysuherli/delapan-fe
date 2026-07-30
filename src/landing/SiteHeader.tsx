@@ -15,8 +15,12 @@ export function SiteHeader() {
           <span className="lpv2-wordmark">delapan</span>
         </a>
         <nav className="lpv2-nav">
-          <a href="#how">how it works</a>
-          <a href="#faq">faq</a>
+          <a href="#how" className="lpv2-nav-link">
+            how it works
+          </a>
+          <a href="#faq" className="lpv2-nav-link">
+            faq
+          </a>
           <DsButton href="/docs" kind="nav">
             read the docs
           </DsButton>

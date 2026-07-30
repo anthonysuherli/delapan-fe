@@ -235,7 +235,9 @@
   font-size: var(--dlpv2-text-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--dlpv2-text-faint);
+  /* text-faint on bg0 is ~2.85:1 — fails 4.5:1, and this HUD line ("22 nodes
+     · 31 edges · …") is informative, not decorative. text-dim is ~5.41:1. */
+  color: var(--dlpv2-text-dim);
 }
 
 .lpv2-graph-evidence {
@@ -268,12 +270,18 @@
   font-size: var(--dlpv2-text-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--dlpv2-text-faint);
+  /* text-faint on bg1 is ~2.70:1 — fails 4.5:1, and "grounded in N findings"
+     is informative. text-dim on bg1 is ~5.13:1. */
+  color: var(--dlpv2-text-dim);
 }
 
 .lpv2-graph-evidence-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* min(300px, 100%) instead of a bare 300px: at the 251px-ish content width
+     available at 375px viewports (graph-section padding + evidence padding),
+     a hard 300px minimum forced this grid wider than its container —
+     horizontal scroll. min() caps the track to whatever room actually exists. */
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 26px;
 }
 
@@ -296,7 +304,11 @@
   gap: 12px;
   font-family: var(--dlpv2-font-mono);
   font-size: var(--dlpv2-text-xs);
-  color: var(--dlpv2-text-faint);
+  /* Governs .lpv2-graph-finding-category's text color (the evidence category
+     label, e.g. "grounding") — text-faint on bg1 is ~2.70:1, fails 4.5:1.
+     text-dim on bg1 is ~5.13:1. (.lpv2-graph-finding-prov overrides with
+     --dlpv2-cyan below and is unaffected.) */
+  color: var(--dlpv2-text-dim);
 }
 
 .lpv2-graph-finding-category {
@@ -595,5 +607,14 @@
 
   .lpv2-close {
     padding: 76px 32px 96px;
+  }
+}
+
+/* Spec Deviation 4: below 480px the header nav keeps only the CTA — "how it
+   works"/"faq" links are still reachable via scroll, they just don't cost
+   header width on the narrowest screens. */
+@media (max-width: 480px) {
+  .lpv2-nav-link {
+    display: none;
   }
 }
