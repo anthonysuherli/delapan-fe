@@ -117,6 +117,16 @@
   --dlpv2-selection: rgba(180, 83, 9, 0.14);
   --dlpv2-z-nav: 40;
 
+  /* graph island (README §3) — hero proof canvas: vignette, node shadow/halo,
+     edge strokes, frame shadow. Not reused elsewhere, so kept distinct from
+     the shadow-pop/glow-accent tokens above rather than overloading them. */
+  --dlpv2-graph-vignette: radial-gradient(ellipse 70% 60% at 50% 46%, #ffffff, rgba(255, 255, 255, 0) 72%);
+  --dlpv2-graph-frame-shadow: 0 1px 2px rgba(31, 43, 58, 0.04);
+  --dlpv2-graph-node-shadow: 0 1px 3px rgba(31, 43, 58, 0.14);
+  --dlpv2-graph-node-halo: 0 0 0 5px rgba(180, 83, 9, 0.16), 0 1px 3px rgba(31, 43, 58, 0.2);
+  --dlpv2-graph-edge-lit: #c4cedb;
+  --dlpv2-graph-edge-dim: #e9edf3;
+
   /* ---- tokens/semantic.css ---- */
   /* text roles */
   --dlpv2-text-body: var(--dlpv2-text);
