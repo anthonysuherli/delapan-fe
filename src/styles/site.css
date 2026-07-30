@@ -81,9 +81,9 @@
 
   /* ---- Stacking ----
      The public site has exactly one layer that must win: the sticky nav and
-     the mobile menu it contains. Without this, nav and `.lp-hero` are both
-     positioned at `z-index: auto`, so the later-in-DOM hero paints over an
-     open menu. Well below the app's own bands in tokens.css. */
+     the mobile menu it contains. Without this, nav and the page content are
+     both positioned at `z-index: auto`, so later-in-DOM content paints over
+     an open menu. Well below the app's own bands in tokens.css. */
   --p8-z-nav: 20;
 
   /* ---- Motion ---- */
@@ -120,8 +120,9 @@
 /* :where() zero-specificity wrap: these are DEFAULTS, not overrides — any
    single-class surface rule (site-shell.css, landing.css, auth.css) must be
    able to beat them regardless of stylesheet import order. Without this,
-   `.site h1` etc sit at (0,1,1), which ties or beats a plain `.lp-hero h1`
-   / `.ss-cta` and silently wins on import order instead of cascade intent.
+   `.site h1` etc sit at (0,1,1), which ties or beats a plain single-class
+   heading rule / `.ss-cta` and silently wins on import order instead of
+   cascade intent.
    `:focus-visible` below is deliberately left un-wrapped — that outline
    should stay hard to override. */
 

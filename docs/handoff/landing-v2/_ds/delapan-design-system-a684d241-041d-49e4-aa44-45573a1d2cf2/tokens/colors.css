@@ -1,0 +1,47 @@
+/* delapan color system — a "daylight instrument panel": cool paper surfaces,
+   hairline rules, amber annunciators. Base values here; semantic aliases in
+   semantic.css. All ink/accent pairs hold WCAG contrast on --bg0. */
+:root {
+  /* surfaces — cool paper, lightest to deepest */
+  --bg0: #f5f7fa;
+  --bg1: #eef1f6;
+  --bg2: #e6ebf2;
+  --bg3: #dce3ed;
+
+  /* hairline rules */
+  --line: #d3dbe6;
+  --line-bright: #b7c3d4;
+
+  /* ink */
+  --text: #1f2b3a;
+  --text-dim: #55677c;
+  --text-faint: #8595a9;
+
+  /* annunciators — amber is the single brand accent (chrome only) */
+  --accent: #b45309;
+  --accent-bright: #d97706;
+  --accent-dim: rgba(180, 83, 9, 0.1);
+
+  /* status hues */
+  --green: #15803d;
+  --red: #dc2626;
+  --cyan: #0e7490;
+
+  /* coverage verdicts.
+     NOTE: --sparse is deliberately NOT --accent. Chrome (top bar, active nav,
+     selection) owns the orange-amber --accent (#b45309); a data band must read
+     as data, not chrome (P2: colour is an encoding). --sparse is a distinct
+     dark mustard-gold — hue ~49° vs the accent's ~26°, and it holds ~4.7:1 for
+     white text on the VerdictBand fill. Always pair it with the ▲ glyph + label. */
+  --rich: #15803d;
+  --sparse: #846b00;
+  --gap: #dc2626;
+
+  /* entity type hues — consistent across canvas, legend, chips.
+     mid-lightness / high-chroma so they hold on the light canvas. */
+  --type-concept: #0284c7;
+  --type-technology: #d97706;
+  --type-person: #db2777;
+  --type-company: #059669;
+  --type-project: #7c3aed;
+}

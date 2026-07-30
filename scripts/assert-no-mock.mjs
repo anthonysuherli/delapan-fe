@@ -14,7 +14,13 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const NEEDLE = "Findings are the atomic unit of delapan knowledge";
+// Not the f01 title — the landing page's graph proof (src/landing/graphData.ts)
+// deliberately reuses that exact title as curated real content (README: "a
+// curated subset of delapan's real mock KB"), which made the title collide
+// with this gate once the graph island shipped. The long-form description is
+// unique to the mock fixture and absent from the landing data.
+const NEEDLE =
+  "Every piece of ingested knowledge in delapan is normalized into a 'finding'";
 const DIR = "dist/assets";
 const MOCK_SOURCE = "src/api/mock.ts";
 

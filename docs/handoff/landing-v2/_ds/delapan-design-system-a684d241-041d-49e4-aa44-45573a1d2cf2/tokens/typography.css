@@ -1,0 +1,37 @@
+/* delapan type system. Three families, tight tracking, small sizes.
+   Uppercase mono labels with wide letter-spacing are the signature move. */
+:root {
+  /* families */
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", sans-serif;
+
+  /* body scale */
+  --text-xs: 10px;
+  --text-sm: 11px;
+  --text-base: 13px; /* app default */
+  --text-md: 15px;
+  --text-lg: 20px;
+
+  /* display / wordmark scale */
+  --display-sm: 14px;
+  --display-md: 24px;
+  --display-lg: 44px;
+
+  /* weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* line heights */
+  --leading-tight: 1.1;
+  --leading-snug: 1.45;
+  --leading-relaxed: 1.65;
+
+  /* tracking — the instrument-panel labels */
+  --track-label: 0.14em;   /* uppercase mono field labels */
+  --track-title: 0.16em;   /* display section titles */
+  --track-wordmark: 0.1em;
+  --track-band: 0.22em;    /* verdict / HUD bands */
+}

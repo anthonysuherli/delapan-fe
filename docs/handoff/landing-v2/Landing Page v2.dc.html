@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/tokens/colors.css">
+<link rel="stylesheet" href="_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/tokens/typography.css">
+<link rel="stylesheet" href="_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/tokens/geometry.css">
+<link rel="stylesheet" href="_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/tokens/semantic.css">
+<link rel="stylesheet" href="_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/styles.css">
+<script src="_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/_ds_bundle.js"></script>
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg0);color:var(--text);font-family:var(--font-body);font-size:13px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:var(--text-dim);text-decoration:none;transition:color 240ms cubic-bezier(.2,.9,.3,1)}
+a:hover{color:var(--text)}
+p{text-wrap:pretty}
+::selection{background:rgba(180,83,9,.14)}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;background:var(--bg0)">
+
+<header style="position:sticky;top:0;z-index:40;background:rgba(245,247,250,.82);backdrop-filter:blur(14px) saturate(140%);border-bottom:1px solid rgba(211,219,230,.7)">
+  <div style="max-width:1180px;margin:0 auto;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:32px">
+    <a href="#top" style="display:inline-flex;align-items:center;gap:11px">
+      <x-import component-from-global-scope="DelapanDesignSystem_a684d2.Logomark" variant="dark" size="{{ 26 }}" hint-size="23px,26px"></x-import>
+      <span style="font-family:var(--font-display);font-weight:700;font-size:19px;letter-spacing:.05em;color:var(--text)">delapan</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:26px">
+      <a href="#how" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.05em">how it works</a>
+      <a href="#faq" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.05em">faq</a>
+      <x-import component-from-global-scope="DelapanDesignSystem_a684d2.Button" variant="active" style="{{ navCta }}" hint-size="104px,30px">read the docs</x-import>
+    </div>
+  </div>
+</header>
+
+<section id="top" style="max-width:1180px;margin:0 auto;padding:132px 32px 0;display:flex;flex-direction:column;align-items:center;text-align:center">
+  <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--text-faint)">grounding engine</span>
+  <h1 style="margin:26px 0 0;max-width:17ch;font-family:var(--font-display);font-weight:700;font-size:clamp(60px,7.8vw,108px);line-height:.86;letter-spacing:.008em;text-transform:uppercase;color:var(--text)">design an agent memory you can audit</h1>
+  <p style="margin:32px 0 0;max-width:53ch;font-size:17px;line-height:1.72;color:var(--text-dim)">delapan grounds a domain once and keeps every fact with the source it came from. when something is missing it goes and gets it. every answer arrives cited.</p>
+  <div style="margin:40px 0 0;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center">
+    <x-import component-from-global-scope="DelapanDesignSystem_a684d2.Button" variant="active" style="{{ heroCta }}" hint-size="164px,44px">read the docs</x-import>
+    <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-faint)">or <i style="font-style:normal;color:var(--text-dim)">npx delapan init</i></span>
+  </div>
+</section>
+
+<section style="max-width:1180px;margin:0 auto;padding:64px 32px 0">
+  <div style="border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg0);box-shadow:0 1px 2px rgba(31,43,58,.04)">
+    <div ref="{{ canvasRef }}" onPointerMove="{{ onMove }}" onPointerUp="{{ onUp }}" onPointerLeave="{{ onUp }}" style="position:relative;height:520px;overflow:hidden;background:radial-gradient(ellipse 70% 60% at 50% 46%, #ffffff, rgba(255,255,255,0) 72%), var(--bg0)">
+      <svg viewBox="100 80 870 590" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+        <sc-for list="{{ edges }}" as="e" hint-placeholder-count="0">
+          <line x1="{{ e.x1 }}" y1="{{ e.y1 }}" x2="{{ e.x2 }}" y2="{{ e.y2 }}" stroke="{{ e.stroke }}" stroke-width="{{ e.w }}" vector-effect="non-scaling-stroke"></line>
+        </sc-for>
+      </svg>
+      <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="0">
+        <div onPointerDown="{{ n.down }}" onMouseEnter="{{ n.enter }}" onMouseLeave="{{ n.leave }}" style="position:absolute;left:{{ n.left }}%;top:{{ n.top }}%;transform:translate(-50%,-50%);cursor:grab;z-index:{{ n.z }};opacity:{{ n.opacity }};transition:{{ n.trans }};touch-action:none">
+          <span style="display:block;border-radius:50%;width:{{ n.d }}px;height:{{ n.d }}px;background:{{ n.color }};box-shadow:{{ n.shadow }}"></span>
+          <sc-if value="{{ n.showLabel }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;left:50%;top:{{ n.labelTop }}px;transform:translateX(-50%);white-space:nowrap;font-family:var(--font-mono);font-size:10px;letter-spacing:.02em;color:{{ n.labelColor }};font-weight:{{ n.labelWeight }}">{{ n.label }}</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:14px 0 16px;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)">{{ hudLine }}</div>
+    <sc-if value="{{ showEvidence }}" hint-placeholder-val="{{ true }}">
+      <div style="border-top:1px solid var(--line);background:var(--bg1);padding:26px 30px 28px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+          <x-import component-from-global-scope="DelapanDesignSystem_a684d2.TypeChip" type="{{ selType }}" hint-size="88px,18px"></x-import>
+          <span style="flex:none;white-space:nowrap;font-size:15px;font-weight:500;color:var(--text)">{{ selLabel }}</span>
+          <span style="flex:none;white-space:nowrap;margin-left:auto;font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)">grounded in {{ selAux }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px">
+          <sc-for list="{{ selFindings }}" as="f" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <p style="margin:0;font-size:14.5px;line-height:1.55;color:var(--text)">{{ f.title }}</p>
+              <div style="display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:10px;color:var(--text-faint)">
+                <span style="letter-spacing:.12em;text-transform:uppercase">{{ f.category }}</span>
+                <x-import component-from-global-scope="DelapanDesignSystem_a684d2.ConfidenceBar" value="{{ f.confidence }}" width="{{ 54 }}" hint-size="54px,10px"></x-import>
+                <a href="#top" style="color:var(--cyan);font-size:10px">{{ f.prov }} ↗</a>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</section>
+
+<section id="how" style="max-width:1180px;margin:0 auto;padding:132px 32px 0">
+  <p style="margin:0 auto;max-width:24ch;text-align:center;font-family:var(--font-display);font-size:44px;font-weight:700;line-height:1.02;letter-spacing:.01em;text-transform:uppercase;color:var(--text)">three moves, in order</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:64px;margin-top:76px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--text-faint)">01</span>
+      <h3 style="margin:0;font-family:var(--font-display);font-size:26px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)">ground</h3>
+      <p style="margin:0;font-size:14.5px;line-height:1.78;color:var(--text-dim)">everything ingested becomes a finding — titled, scored, and stamped with the url it came from. nodes and edges hold no prose of their own; they cite findings.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--text-faint)">02</span>
+      <h3 style="margin:0;font-family:var(--font-display);font-size:26px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)">grow</h3>
+      <p style="margin:0;font-size:14.5px;line-height:1.78;color:var(--text-dim)">a query that lands short is a signal, not a failure. the engine plans, searches, crawls, extracts, and merges — and the knowledge base is larger than it was.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--text-faint)">03</span>
+      <h3 style="margin:0;font-family:var(--font-display);font-size:26px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)">answer</h3>
+      <p style="margin:0;font-size:14.5px;line-height:1.78;color:var(--text-dim)">a read assembles a preamble: only the findings that matter here, ordered by similarity and confidence, graded rich, sparse, or gap. that is what your agent consumes.</p>
+    </div>
+  </div>
+  <div style="max-width:620px;margin:76px auto 0">
+    <x-import component-from-global-scope="DelapanDesignSystem_a684d2.VerdictBand" coverage="rich" note="kb can answer" hint-size="100%,120px">preamble · 6 findings · 0.91 mean confidence
+
+f01  findings are the atomic unit …
+f25  provenance keeps every claim …
+f10  the knowledge graph is typed …
+
+grounded_in: 9 urls across 4 domains</x-import>
+    <p style="margin:16px 0 0;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)">what an answer looks like</p>
+  </div>
+</section>
+
+<section style="max-width:1180px;margin:0 auto;padding:132px 32px 0">
+  <div style="display:grid;grid-template-columns:220px 1fr;gap:56px;padding:40px 0;border-top:1px solid var(--line);align-items:start">
+    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);padding-top:5px">for agents</span>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h4 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em;color:var(--text)">memory that survives a model swap</h4>
+      <p style="margin:0;max-width:62ch;font-size:15px;line-height:1.72;color:var(--text-dim)">the knowledge base is the durable layer. change the model and the facts, the scores, and the provenance all stay. tap it over mcp for a preamble instead of stuffing context and hoping.</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:220px 1fr;gap:56px;padding:40px 0;border-top:1px solid var(--line);align-items:start">
+    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);padding-top:5px">for research</span>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h4 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em;color:var(--text)">a knowledge base you edit by hand</h4>
+      <p style="margin:0;max-width:62ch;font-size:15px;line-height:1.72;color:var(--text-dim)">nodes, edges, and findings are all editable in the control panel, with undo. a wrong relation is corrected once and stays corrected. it is a working document, not a build artifact.</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:220px 1fr;gap:56px;padding:40px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);align-items:start">
+    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);padding-top:5px">for audit</span>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h4 style="margin:0;font-size:24px;font-weight:500;letter-spacing:-.01em;color:var(--text)">every claim, one click from its source</h4>
+      <p style="margin:0;max-width:62ch;font-size:15px;line-height:1.72;color:var(--text-dim)">grounded_in ties each node and edge to finding ids, and each finding to the urls and queries that surfaced it. drift is flagged by diffing the schema you intended against the one the graph grew.</p>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="max-width:780px;margin:0 auto;padding:132px 32px 0">
+  <p style="margin:0 0 44px;font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--text-faint)">questions</p>
+  <div style="border-top:1px solid var(--line)">
+    <div onClick="{{ t0 }}" style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;cursor:pointer">
+      <span style="font-size:16.5px;font-weight:500;color:var(--text)">is this just a vector database?</span>
+      <span style="font-family:var(--font-mono);font-size:14px;color:var(--text-faint)">{{ g0 }}</span>
+    </div>
+    <sc-if value="{{ o0 }}" hint-placeholder-val="{{ true }}"><p style="margin:0;padding:0 0 24px;max-width:64ch;font-size:15px;line-height:1.75;color:var(--text-dim)">no. embeddings are only the retrieval layer. the unit of storage is a finding — text with a category, a confidence, and its provenance — and a typed graph sits over the top of it.</p></sc-if>
+  </div>
+  <div style="border-top:1px solid var(--line)">
+    <div onClick="{{ t1 }}" style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;cursor:pointer">
+      <span style="font-size:16.5px;font-weight:500;color:var(--text)">self-hosted or hosted?</span>
+      <span style="font-family:var(--font-mono);font-size:14px;color:var(--text-faint)">{{ g1 }}</span>
+    </div>
+    <sc-if value="{{ o1 }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:0 0 24px;max-width:64ch;font-size:15px;line-height:1.75;color:var(--text-dim)">both. sqlite and sqlite-vec give you a knowledge base in a single file, with no infrastructure. point it at supabase and pgvector when it needs to be shared. same engine, same api.</p></sc-if>
+  </div>
+  <div style="border-top:1px solid var(--line)">
+    <div onClick="{{ t2 }}" style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;cursor:pointer">
+      <span style="font-size:16.5px;font-weight:500;color:var(--text)">how are stale facts corrected?</span>
+      <span style="font-family:var(--font-mono);font-size:14px;color:var(--text-faint)">{{ g2 }}</span>
+    </div>
+    <sc-if value="{{ o2 }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:0 0 24px;max-width:64ch;font-size:15px;line-height:1.75;color:var(--text-dim)">re-ground the topic. new findings are merged against the old ones rather than overwriting them, so the correction and what it replaced both stay inspectable.</p></sc-if>
+  </div>
+  <div style="border-top:1px solid var(--line)">
+    <div onClick="{{ t3 }}" style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;cursor:pointer">
+      <span style="font-size:16.5px;font-weight:500;color:var(--text)">how do i plug it into my agent?</span>
+      <span style="font-family:var(--font-mono);font-size:14px;color:var(--text-faint)">{{ g3 }}</span>
+    </div>
+    <sc-if value="{{ o3 }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:0 0 24px;max-width:64ch;font-size:15px;line-height:1.75;color:var(--text-dim)">mcp. the engine ships an mcp server — tap a knowledge base for a preamble, or trigger explore when coverage comes back gap. an http api sits underneath if you prefer it.</p></sc-if>
+  </div>
+  <div style="border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div onClick="{{ t4 }}" style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;cursor:pointer">
+      <span style="font-size:16.5px;font-weight:500;color:var(--text)">license and pricing</span>
+      <span style="font-family:var(--font-mono);font-size:14px;color:var(--text-faint)">{{ g4 }}</span>
+    </div>
+    <sc-if value="{{ o4 }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:0 0 24px;max-width:64ch;font-size:15px;line-height:1.75;color:var(--text-dim)">the engine is mit and self-hostable, permanently. the hosted control panel is in private beta; pricing arrives with it.</p></sc-if>
+  </div>
+</section>
+
+<section style="max-width:1180px;margin:0 auto;padding:132px 32px 140px;display:flex;flex-direction:column;align-items:center;text-align:center">
+  <p style="margin:0;max-width:20ch;font-family:var(--font-display);font-size:52px;font-weight:700;line-height:.98;letter-spacing:.01em;text-transform:uppercase;color:var(--text)">ground it once</p>
+  <p style="margin:22px 0 0;max-width:46ch;font-size:16px;line-height:1.72;color:var(--text-dim)">one command puts a knowledge base on your machine. nothing to provision.</p>
+  <div style="margin:34px 0 0;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center">
+    <x-import component-from-global-scope="DelapanDesignSystem_a684d2.Button" variant="active" style="{{ heroCta }}" hint-size="164px,44px">read the docs</x-import>
+    <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-faint)">or <i style="font-style:normal;color:var(--text-dim)">npx delapan init</i></span>
+  </div>
+</section>
+
+<footer style="border-top:1px solid var(--line);background:var(--bg1)">
+  <div style="max-width:1180px;margin:0 auto;padding:30px 32px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:11px">
+      <x-import component-from-global-scope="DelapanDesignSystem_a684d2.Logomark" size="{{ 18 }}" hint-size="16px,18px"></x-import>
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)">delapan · mit</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:24px">
+      <a href="#top" style="font-family:var(--font-mono);font-size:11px">docs</a>
+      <a href="#top" style="font-family:var(--font-mono);font-size:11px">github</a>
+      <a href="#top" style="font-family:var(--font-mono);font-size:11px">mcp</a>
+      <a href="#top" style="font-family:var(--font-mono);font-size:11px">changelog</a>
+    </div>
+  </div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;nodeLabels&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;lit&quot;,&quot;all&quot;,&quot;none&quot;],&quot;default&quot;:&quot;lit&quot;,&quot;tsType&quot;:&quot;'lit'|'all'|'none'&quot;,&quot;section&quot;:&quot;Hero graph&quot;},&quot;showEvidence&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Hero graph&quot;},&quot;graphDensity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;full&quot;,&quot;core&quot;],&quot;default&quot;:&quot;full&quot;,&quot;tsType&quot;:&quot;'full'|'core'&quot;,&quot;section&quot;:&quot;Hero graph&quot;}}">
+const N = [
+  ["j_delapan","project","delapan",500,300,["f01","f09"],1],
+  ["c_finding","concept","Finding",360,210,["f01","f25"],1],
+  ["c_preamble","concept","Preamble",300,330,["f03"],1],
+  ["c_coverage","concept","Coverage banding",350,440,["f04"],1],
+  ["c_kg","concept","Knowledge graph",620,400,["f10"],1],
+  ["c_embedding","concept","Vector embedding",210,160,["f05"],1],
+  ["c_agentic","concept","Agentic exploration",470,470,["f09"],1],
+  ["c_synopsis","concept","Synopsis",560,190,["f12"],0],
+  ["c_drift","concept","Schema drift",700,300,["f11"],1],
+  ["t_pgvector","technology","pgvector",160,260,["f05"],1],
+  ["t_supabase","technology","Supabase",200,380,["f06"],1],
+  ["t_fastapi","technology","FastAPI",330,540,["f07"],0],
+  ["t_tavily","technology","Tavily",520,560,["f08"],1],
+  ["t_sigma","technology","sigma.js",780,420,["f13"],1],
+  ["t_graphology","technology","graphology",840,320,["f14"],0],
+  ["t_fa2","technology","ForceAtlas2",800,520,["f15"],0],
+  ["t_claude","technology","Claude Code",640,540,["f20","f21"],1],
+  ["j_br8n","project","br8n",660,130,["f22"],0],
+  ["t_sqlitevec","technology","sqlite-vec",790,150,["f23"],1],
+  ["p_ajacomy","person","Alexis Jacomy",900,450,["f16"],0],
+  ["o_ouestware","company","OuestWare",910,540,["f16"],0],
+  ["o_anthropic","company","Anthropic",720,620,["f21"],0],
+].map(a => ({ id:a[0], type:a[1], label:a[2], x:a[3], y:a[4], grounded:a[5], core:!!a[6] }));
+
+const E = [
+  ["j_delapan","builds","c_kg"],["j_delapan","normalizes into","c_finding"],
+  ["j_delapan","persists with","t_pgvector"],["j_delapan","deploys on","t_supabase"],
+  ["j_delapan","serves via","t_fastapi"],["j_delapan","searches with","t_tavily"],
+  ["j_delapan","assembles","c_preamble"],["j_delapan","grades with","c_coverage"],
+  ["j_delapan","distills","c_synopsis"],["j_delapan","runs","c_agentic"],
+  ["j_delapan","watches for","c_drift"],
+  ["c_finding","embedded as","c_embedding"],["c_preamble","summarizes","c_finding"],
+  ["c_coverage","grades","c_preamble"],["c_kg","grounds into","c_finding"],
+  ["c_agentic","crawls via","t_tavily"],["c_agentic","feeds","c_finding"],
+  ["t_pgvector","stores","c_embedding"],["t_supabase","bundles","t_pgvector"],
+  ["t_fastapi","emits SSE for","c_agentic"],
+  ["t_sigma","renders","c_kg"],["t_sigma","reads state from","t_graphology"],
+  ["t_fa2","positions","c_kg"],["t_fa2","ships with","t_graphology"],
+  ["j_br8n","forked from","j_delapan"],["j_br8n","adds","t_sqlitevec"],
+  ["p_ajacomy","created","t_sigma"],["p_ajacomy","co-founded","o_ouestware"],
+  ["o_ouestware","maintains","t_sigma"],["o_anthropic","ships","t_claude"],
+  ["t_claude","taps into","j_delapan"],
+].map((e,i) => ({ id:"e"+i, source:e[0], relation:e[1], target:e[2] }));
+
+const F = {
+  f01:["Findings are the atomic unit of delapan knowledge","architecture",0.95,2,"github.com"],
+  f03:["Preamble assembly is the always-on read path","architecture",0.92,1,"vision.md"],
+  f04:["Coverage banding grades every resume rich, sparse, or gap","architecture",0.90,1,"github.com"],
+  f05:["pgvector stores embeddings inside Postgres","retrieval",0.97,2,"github.com"],
+  f06:["Supabase bundles Postgres, pgvector, and an API gateway","ecosystem",0.93,1,"supabase.com"],
+  f07:["FastAPI serves delapan's deploy surface","architecture",0.91,1,"fastapi.tiangolo.com"],
+  f08:["Tavily is a search API purpose-built for agents","ecosystem",0.89,1,"tavily.com"],
+  f09:["Agentic exploration runs plan → search → crawl → extract → merge","architecture",0.94,2,"github.com"],
+  f10:["The knowledge graph is grounded, typed, and verb-phrased","architecture",0.93,1,"github.com"],
+  f11:["Schema drift is detected by diffing intent vs emergent ontology","architecture",0.86,1,"github.com"],
+  f12:["The synopsis is a compact topic index rebuilt after ingest","architecture",0.88,1,"github.com"],
+  f13:["sigma.js renders large graphs on WebGL","graph-viz",0.96,2,"sigmajs.org"],
+  f14:["graphology is the data layer beneath sigma","graph-viz",0.95,1,"graphology.github.io"],
+  f15:["ForceAtlas2 is a continuous force-directed layout from Gephi","graph-viz",0.94,1,"journals.plos.org"],
+  f16:["Gephi Lite is the reference sigma + graphology application","graph-viz",0.90,1,"gephi.org"],
+  f20:["Claude Code consumes delapan through MCP skills","ecosystem",0.92,1,"docs.anthropic.com"],
+  f21:["Anthropic positions Claude Code as an agentic coding harness","ecosystem",0.90,1,"anthropic.com"],
+  f22:["br8n is a hard fork of the delapan engine","architecture",0.96,1,"github.com"],
+  f23:["sqlite-vec brings vector search to embedded SQLite","retrieval",0.87,1,"github.com"],
+  f25:["Provenance keeps every claim one click from its source","architecture",0.91,2,"vision.md"],
+};
+
+const TC = { concept:"#0284c7", technology:"#d97706", person:"#db2777", company:"#059669", project:"#7c3aed" };
+const VX = 100, VY = 80, VW = 870, VH = 590;
+
+class Component extends DCLogic {
+  state = { sel:"c_finding", hover:null, pos:{}, drag:null, faq:{0:true} };
+
+  componentDidMount() {
+    this._up = () => { if (this.state.drag) this.setState({ drag:null }); };
+    window.addEventListener("pointerup", this._up);
+  }
+  componentWillUnmount() { window.removeEventListener("pointerup", this._up); }
+
+  at(n) { return this.state.pos[n.id] || { x:n.x, y:n.y }; }
+
+  visible() {
+    const core = (this.props.graphDensity ?? "full") === "core";
+    const ns = core ? N.filter(n => n.core) : N;
+    const ids = new Set(ns.map(n => n.id));
+    return { ns, es: E.filter(e => ids.has(e.source) && ids.has(e.target)) };
+  }
+
+  onMove = (ev) => {
+    const id = this.state.drag; const el = this._canvas;
+    if (!id || !el) return;
+    const r = el.getBoundingClientRect();
+    this.setState(s => ({ pos: { ...s.pos, [id]: {
+      x: VX + ((ev.clientX - r.left) / r.width) * VW,
+      y: VY + ((ev.clientY - r.top) / r.height) * VH,
+    } } }));
+  };
+
+  renderVals() {
+    const { ns, es } = this.visible();
+    const st = this.state;
+    const labelMode = this.props.nodeLabels ?? "lit";
+    const posOf = {}; ns.forEach(n => { posOf[n.id] = this.at(n); });
+    const deg = {};
+    es.forEach(e => { deg[e.source] = (deg[e.source] || 0) + 1; deg[e.target] = (deg[e.target] || 0) + 1; });
+
+    const nb = new Set();
+    if (st.sel) es.forEach(e => { if (e.source === st.sel) nb.add(e.target); if (e.target === st.sel) nb.add(e.source); });
+    const lit = id => !st.sel || id === st.sel || nb.has(id);
+
+    const nodes = ns.map(n => {
+      const p = posOf[n.id]; const sel = n.id === st.sel; const l = lit(n.id);
+      const d = 2 * (5.5 + Math.min(deg[n.id] || 0, 8) * 1.25);
+      const show = labelMode === "all" ? true : labelMode === "none" ? (sel || st.hover === n.id) : (l || st.hover === n.id);
+      return {
+        id:n.id, label:n.label, color:TC[n.type] || "#0d9488", d,
+        left:((p.x - VX) / VW * 100).toFixed(3), top:((p.y - VY) / VH * 100).toFixed(3),
+        z: sel ? 14 : 10, opacity: l ? 1 : 0.16,
+        trans: st.drag === n.id ? "none" : "left 420ms cubic-bezier(.2,.9,.3,1), top 420ms cubic-bezier(.2,.9,.3,1), opacity 320ms ease",
+        shadow: sel ? "0 0 0 5px rgba(180,83,9,.16), 0 1px 3px rgba(31,43,58,.2)" : "0 1px 3px rgba(31,43,58,.14)",
+        showLabel: show, labelTop: d + 6,
+        labelColor: sel ? "var(--text)" : "var(--text-faint)", labelWeight: sel ? 500 : 400,
+        down: (ev) => { ev.preventDefault(); ev.stopPropagation(); this.setState({ drag:n.id, sel:n.id }); },
+        enter: () => this.setState({ hover:n.id }),
+        leave: () => this.setState({ hover:null }),
+      };
+    });
+
+    const edges = es.map(e => {
+      const a = posOf[e.source], b = posOf[e.target];
+      const l = lit(e.source) && lit(e.target);
+      return { id:e.id, x1:a.x, y1:a.y, x2:b.x, y2:b.y, stroke: l ? "#c4cedb" : "#e9edf3", w: l ? 1 : 1 };
+    });
+
+    const selNode = N.find(n => n.id === st.sel) || N[1];
+    const selFindings = (selNode.grounded || []).map(k => {
+      const f = F[k]; return { key:k, title:f[0], category:f[1], confidence:f[2], sources:f[3], prov:f[4] };
+    });
+
+    const toggle = i => () => this.setState(s => ({ faq: { ...s.faq, [i]: !s.faq[i] } }));
+    const vals = {
+      nodes, edges,
+      hudLine: st.sel ? "22 nodes · 31 edges · drag any node" : "22 nodes · 31 edges · select a node",
+      canvasRef: el => { this._canvas = el; },
+      onMove: this.onMove, onUp: () => this.setState({ drag:null }),
+      showEvidence: this.props.showEvidence ?? true,
+      selLabel: selNode.label, selType: selNode.type,
+      selAux: selFindings.length + (selFindings.length === 1 ? " finding" : " findings"),
+      selFindings,
+      navCta: { fontFamily:"var(--font-mono)", fontSize:11, padding:"7px 14px", borderRadius:"var(--radius-pill)" },
+      heroCta: { fontSize:13, padding:"13px 26px", borderRadius:"var(--radius-pill)", letterSpacing:".03em" },
+    };
+    for (let i = 0; i < 5; i++) { vals["o" + i] = !!st.faq[i]; vals["g" + i] = st.faq[i] ? "−" : "+"; vals["t" + i] = toggle(i); }
+    return vals;
+  }
+}
+</script>
+</body>
+</html>
