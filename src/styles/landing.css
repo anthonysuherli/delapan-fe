@@ -12,8 +12,24 @@
   color: var(--dlpv2-text);
   font-family: var(--dlpv2-font-body);
   font-size: var(--dlpv2-text-base);
+  /* base.css sets `body { overflow: hidden }` for the full-screen graph app,
+     which freezes any page taller than the viewport. Like `.site`
+     (site.css), this page must be its OWN bounded scroll container —
+     height (not min-height) so the box never grows past the viewport and
+     gets clipped by body. The sticky header sticks to this scroller. */
+  height: 100%;
+  overflow-y: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Smooth hash-anchor scrolling belongs on the scroll container (.lpv2, not
+   html — html doesn't scroll here). The media query is spec Deviation 3:
+   never impose animated scrolling on a user who asked the OS to suppress it. */
+@media (prefers-reduced-motion: no-preference) {
+  .lpv2 {
+    scroll-behavior: smooth;
+  }
 }
 
 .lpv2 p {

@@ -2,9 +2,9 @@
  * The public landing page — v2 instrument-panel rebuild. Carries its own
  * frame (SiteHeader/SiteFooter) rather than SiteShell's site.css chrome; see
  * docs/truenorth/specs/2026-07-29-landing-v2-instrument-design.md decision 1.
- * `scroll-behavior: smooth` is applied imperatively (not via `html:has()`,
- * per the task's global constraints) so hash-anchor nav (#how, #faq) scrolls
- * smoothly only while this page is mounted.
+ * The .lpv2 root is its own scroll container (body is overflow:hidden for the
+ * graph app — see landing.css), so scroll-behavior lives there in CSS, not
+ * on documentElement.
  */
 import { useEffect, useState, type JSX } from "react";
 import { ClosingCta } from "./ClosingCta";
@@ -40,18 +40,6 @@ function useIsNarrow(breakpointPx: number): boolean {
 
 export function LandingApp() {
   const narrow = useIsNarrow(GRAPH_NARROW_BREAKPOINT_PX);
-
-  useEffect(() => {
-    // Spec Deviation 3: prefers-reduced-motion disables smooth scroll too —
-    // don't impose animated scrolling on a user who asked the OS to suppress it.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const html = document.documentElement;
-    const prev = html.style.scrollBehavior;
-    html.style.scrollBehavior = "smooth";
-    return () => {
-      html.style.scrollBehavior = prev;
-    };
-  }, []);
 
   return (
     <div className="lpv2">
