@@ -1,0 +1,25 @@
+/* Semantic aliases — resolve to base tokens. Prefer these in components. */
+:root {
+  /* text roles */
+  --text-body: var(--text);
+  --text-muted: var(--text-dim);
+  --text-subtle: var(--text-faint);
+  --text-brand: var(--accent);
+
+  /* surface roles */
+  --surface-app: var(--bg0);
+  --surface-panel: var(--bg1);
+  --surface-raised: var(--bg2);
+  --surface-sunken: var(--bg0);
+  --surface-input: var(--bg0);
+
+  /* border roles */
+  --border-hairline: var(--line);
+  --border-strong: var(--line-bright);
+  --border-focus: var(--accent);
+
+  /* interactive */
+  --control-bg: var(--bg2);
+  --control-fg: var(--text-dim);
+  --control-fg-hover: var(--text);
+}

@@ -1,0 +1,7 @@
+/* Webfonts — served from Google Fonts.
+   Big Shoulders Display: wordmark, section titles, verdict bands (condensed, industrial).
+   IBM Plex Mono: labels, data, keycaps, everything tabular.
+   IBM Plex Sans: body copy.
+   NOTE: substituted from Google Fonts CDN — the source repo links these exact
+   families from fonts.googleapis.com (no local font binaries ship with delapan). */
+@import url("https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
