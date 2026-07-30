@@ -1,34 +1,42 @@
 /**
- * The public landing page — the only fully public surface in the app.
- * One component per section, no shared state, composed top to bottom.
- * SiteShell owns the nav and footer. The numbered sections are composed
- * from an array so their kicker index (derived from array position, not
- * hardcoded per component) can't desync.
+ * The public landing page — v2 instrument-panel rebuild. Carries its own
+ * frame (SiteHeader/SiteFooter) rather than SiteShell's site.css chrome; see
+ * docs/truenorth/specs/2026-07-29-landing-v2-instrument-design.md decision 1.
+ * `scroll-behavior: smooth` is applied imperatively (not via `html:has()`,
+ * per the task's global constraints) so hash-anchor nav (#how, #faq) scrolls
+ * smoothly only while this page is mounted.
  */
-import { SiteShell } from "../site/SiteShell";
-import { useReveal } from "../site/useReveal";
+import { useEffect, type JSX } from "react";
 import { ClosingCta } from "./ClosingCta";
-import { Coverage } from "./Coverage";
 import { Hero } from "./Hero";
-import { Pillars } from "./Pillars";
-import { Problem } from "./Problem";
-import { Resolution } from "./Resolution";
-import { WhatItIsnt } from "./WhatItIsnt";
-import { WhereItPlugsIn } from "./WhereItPlugsIn";
+import { SiteFooter } from "./SiteFooter";
+import { SiteHeader } from "./SiteHeader";
 
-const SECTIONS = [Problem, Pillars, Resolution, Coverage, WhereItPlugsIn, WhatItIsnt];
+// SECTIONS: Tasks 3-4 slot the graph island and content sections here, in
+// order, between Hero and ClosingCta.
+const SECTIONS: Array<() => JSX.Element> = [];
 
 export function LandingApp() {
-  useReveal(".lp-section, .lp-close");
+  useEffect(() => {
+    const html = document.documentElement;
+    const prev = html.style.scrollBehavior;
+    html.style.scrollBehavior = "smooth";
+    return () => {
+      html.style.scrollBehavior = prev;
+    };
+  }, []);
+
   return (
-    <SiteShell>
-      <div className="lp">
+    <div className="lpv2">
+      <SiteHeader />
+      <main>
         <Hero />
         {SECTIONS.map((Section, i) => (
-          <Section key={i} index={i + 1} />
+          <Section key={i} />
         ))}
         <ClosingCta />
-      </div>
-    </SiteShell>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

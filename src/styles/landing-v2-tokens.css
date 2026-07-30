@@ -111,6 +111,12 @@
   --dlpv2-shadow-modal: 0 24px 80px rgba(31, 43, 58, 0.24);
   --dlpv2-glow-accent: 0 0 14px rgba(180, 83, 9, 0.16);
 
+  /* frame — sticky header surface (README §1) */
+  --dlpv2-header-veil: rgba(245, 247, 250, 0.82);
+  --dlpv2-header-line: rgba(211, 219, 230, 0.7);
+  --dlpv2-selection: rgba(180, 83, 9, 0.14);
+  --dlpv2-z-nav: 40;
+
   /* ---- tokens/semantic.css ---- */
   /* text roles */
   --dlpv2-text-body: var(--dlpv2-text);

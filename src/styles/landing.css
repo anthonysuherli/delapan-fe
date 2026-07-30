@@ -1,442 +1,246 @@
-/* the public landing page, restaged on the pixel-8 brand. Hairlines, and no
-   *ambient* motion — nothing moves unbidden; the one video plays only on a
-   click. Selectors are bare `.lp-*` — scoping comes from rendering only
-   inside SiteShell's `.lp` wrapper, not from a `.site .lp*` compound
-   selector. every color/spacing/radius/font value below resolves through a
-   --p8-* token (site.css). Breakpoints/measures (ch, px grid max, px
-   breakpoints) stay raw — structural, not brand-scale, same convention as
-   site-shell.css. */
+/* landing v2 — the instrument-panel rebuild. Rules are scoped under .lpv2
+   (no global element selectors — the app's own tokens.css owns the rest of
+   the page) and resolve every color/radius/z-index through the --dlpv2-*
+   tokens defined in landing-v2-tokens.css. Structural values (breakpoints,
+   ch measures, px paddings/sizes, clamp() font sizes, .Xem tracking) stay
+   raw per README "Global frame". This file currently carries the frame
+   (header/footer) plus the hero and closing sections; Tasks 3-4 append the
+   graph island and remaining content sections. */
 
-.lp {
-  display: flex;
-  flex-direction: column;
+.lpv2 {
+  background: var(--dlpv2-bg0);
+  color: var(--dlpv2-text);
+  font-family: var(--dlpv2-font-body);
+  font-size: var(--dlpv2-text-base);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* longhand left/right (not the `padding` shorthand): .lp-hero and .lp-close
-   also carry this class and set their own vertical padding at (0,1,0) — a
-   shorthand here would reset their padding-top/bottom to 0 on whichever of
-   this rule / theirs is later in source (see the media queries below, and
-   the responsive section's comment). Longhand only ever touches horizontal,
-   so it composes with any padding-top/bottom regardless of source order. */
-.lp-inner {
-  max-width: 1080px;
+.lpv2 p {
+  text-wrap: pretty;
+}
+
+.lpv2 ::selection {
+  background: var(--dlpv2-selection);
+}
+
+.lpv2 a {
+  color: var(--dlpv2-text-dim);
+  text-decoration: none;
+  transition: color 240ms var(--dlpv2-ease-out);
+}
+
+.lpv2 a:hover {
+  color: var(--dlpv2-text);
+}
+
+.lpv2 #how,
+.lpv2 #faq {
+  scroll-margin-top: 76px;
+}
+
+/* --- content column ------------------------------------------------------ */
+
+.lpv2-header-row,
+.lpv2-footer-row,
+.lpv2-hero,
+.lpv2-close {
+  max-width: 1180px;
   margin: 0 auto;
-  padding-left: var(--p8-space-6);
-  padding-right: var(--p8-space-6);
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+/* --- header ---------------------------------------------------------------- */
+
+.lpv2-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--dlpv2-z-nav);
+  background: var(--dlpv2-header-veil);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--dlpv2-header-line);
+}
+
+.lpv2-header-row {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.lpv2-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--dlpv2-text);
+}
+
+.lpv2-brand:hover {
+  color: var(--dlpv2-text);
+}
+
+.lpv2-wordmark {
+  font-family: var(--dlpv2-font-display);
+  font-weight: var(--dlpv2-weight-bold);
+  font-size: 19px;
+  letter-spacing: var(--dlpv2-track-wordmark);
+  color: var(--dlpv2-text);
+}
+
+.lpv2-nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.lpv2-nav a {
+  font-family: var(--dlpv2-font-mono);
+  font-size: var(--dlpv2-text-sm);
+  letter-spacing: 0.05em;
 }
 
 /* --- hero ------------------------------------------------------------------ */
 
-.lp-hero {
-  position: relative;
-  padding: var(--p8-space-9) 0;
-}
-
-/* positioned (not static) so it shares the "positioned, z-index:auto" paint
-   bucket with .mf-field below and — being later in the DOM — wins that tie,
-   painting on top without a z-index integer (literal-scan forbids one here). */
-.lp-hero-copy {
-  position: relative;
-}
-
-.lp-hero h1 {
-  margin: 0 0 var(--p8-space-4);
-  max-width: 18ch;
-  font-family: var(--p8-font-serif);
-  font-style: italic;
-  font-weight: 500;
-  font-size: clamp(2.5rem, 6vw, 3.9rem);
-  line-height: 1.12;
-  letter-spacing: -0.015em;
-}
-
-.lp-lede {
-  margin: 0 0 var(--p8-space-6);
-  max-width: 60ch;
-  font-size: var(--p8-text-lg);
-  line-height: 1.6;
-  color: var(--p8-muted);
-}
-
-/* --- generative mark field (hero background) --------------------------------- */
-
-.mf-field {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 50%;
-  pointer-events: none;
-}
-
-.mf-cell {
-  animation:
-    dlpn-cellfade var(--p8-dur) var(--p8-ease) both,
-    mf-breathe 9s var(--p8-ease) infinite;
-}
-
-.mf-ink {
-  fill: var(--p8-ink);
-  --mf-o: 0.06;
-}
-
-.mf-coral {
-  fill: var(--p8-accent);
-  --mf-o: 0.5;
-}
-
-@keyframes dlpn-cellfade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: var(--mf-o);
-  }
-}
-
-/* Targets `filter`, not `opacity`: a second animation on the same property
-   as `dlpn-cellfade` would win the compositing (later in the `animation`
-   list beats earlier for a shared property) and replace the entrance fade
-   outright instead of layering over it — the cell would just pop straight
-   to its resting opacity. `filter` sidesteps that entirely, so the entrance
-   still visibly ramps 0 -> var(--mf-o) before the breathing takes over. */
-@keyframes mf-breathe {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(0.35);
-  }
-}
-
-/* --- shared section furniture ----------------------------------------------- */
-
-.lp-section {
-  margin-top: var(--p8-space-section);
-}
-
-.lp-kicker {
-  margin: 0 0 var(--p8-space-3);
-  font-family: var(--p8-font-display);
-  font-size: var(--p8-text-xs);
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--p8-muted);
-}
-
-.lp-section h2 {
-  margin: 0 0 var(--p8-space-4);
-  max-width: 24ch;
-  font-family: var(--p8-font-display);
-  font-size: clamp(var(--p8-text-2xl), 4vw, var(--p8-text-3xl));
-  font-weight: 600;
-  line-height: 1.15;
-}
-
-.lp-body {
-  margin: 0 0 var(--p8-space-4);
-  max-width: 72ch;
-  font-size: var(--p8-text-base);
-  line-height: 1.65;
-  color: var(--p8-muted);
-}
-
-.lp-body:last-child {
-  margin-bottom: 0;
-}
-
-.lp-code {
-  font-family: var(--p8-font-mono);
-  font-size: 0.92em;
-  padding: 0.1em 0.4em;
-  background: var(--p8-panel-2);
-  border-radius: var(--p8-radius-sm);
-  color: var(--p8-ink);
-}
-
-/* --- inverted band (Resolution) ------------------------------------------------ */
-
-.lp-band {
-  background: var(--p8-ink);
-  color: var(--p8-bone);
-  padding: var(--p8-space-9) 0;
-}
-
-.lp-band h2 {
-  color: var(--p8-bone);
-}
-
-.lp-band .lp-kicker {
-  color: var(--p8-muted-d);
-}
-
-.lp-band .lp-body {
-  color: var(--p8-muted-d);
-}
-
-.lp-band .lp-code {
-  background: var(--p8-ink-2);
-  color: var(--p8-accent-d);
-}
-
-.lp-band .lp-demo-video {
-  background: var(--p8-ink-2);
-  border: 1px solid var(--p8-line-d2);
-}
-
-/* --- pillars ------------------------------------------------------------------ */
-
-.lp-pillars {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--p8-space-6);
-  margin-top: var(--p8-space-6);
-}
-
-.lp-pillar h3 {
-  margin: 0 0 var(--p8-space-2);
-  font-size: var(--p8-text-base);
-  font-weight: 600;
-}
-
-.lp-pillar p {
-  margin: 0;
-  font-size: var(--p8-text-sm);
-  line-height: 1.6;
-  color: var(--p8-muted);
-}
-
-/* the flat top-rule treatment: the div itself carries the hairline so a
-   `.lp-pillar` never gets a border-top AND this in the same box. */
-.lp-pillar-rule {
-  width: 100%;
-  height: 1px;
-  margin-bottom: var(--p8-space-5);
-  background: var(--p8-line);
-}
-
-/* --- demo video ---------------------------------------------------------------- */
-
-.lp-demo {
-  margin: var(--p8-space-6) 0 0;
-}
-
-.lp-demo-video {
-  display: block;
-  width: 100%;
-  max-width: 880px;
-  aspect-ratio: 16 / 9;
-  background: var(--p8-panel-2);
-  border: 1px solid var(--p8-line);
-  border-radius: var(--p8-radius);
-}
-
-.lp-demo-cap {
-  margin: var(--p8-space-3) 0 0;
-  font-family: var(--p8-font-mono);
-  font-size: var(--p8-text-xs);
-  letter-spacing: 0.08em;
-  color: var(--p8-muted);
-}
-
-/* --- coverage verdicts ---------------------------------------------------------- */
-
-.lp-verdicts {
-  display: grid;
-  gap: var(--p8-space-3);
-  margin-top: var(--p8-space-6);
-}
-
-.lp-verdict {
+.lpv2-hero {
+  padding-top: 132px;
   display: flex;
-  align-items: baseline;
-  gap: var(--p8-space-3);
-  padding: var(--p8-space-3) var(--p8-space-4);
-  border: 1px solid var(--p8-line);
-  border-radius: var(--p8-radius);
-  background: var(--p8-panel);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
-.lp-verdict-glyph {
-  font-size: var(--p8-text-xs);
-  line-height: 1;
-}
-
-.lp-verdict-name {
-  font-family: var(--p8-font-mono);
-  font-size: var(--p8-text-xs);
-  letter-spacing: 0.08em;
+.lpv2-eyebrow {
+  font-family: var(--dlpv2-font-mono);
+  font-size: var(--dlpv2-text-xs);
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  min-width: 8ch;
+  color: var(--dlpv2-text-faint);
 }
 
-.lp-verdict-note {
-  font-size: var(--p8-text-sm);
-  color: var(--p8-muted);
-}
-
-/* verdict color is the ONLY place coral-adjacent brand functional tokens
-   accent this page beyond the CTA and pillar rules — glyph + name only,
-   never the note, and never coral itself (functional set is distinct from
-   brand coral per site.css). */
-.lp-verdict--rich .lp-verdict-glyph,
-.lp-verdict--rich .lp-verdict-name {
-  color: var(--p8-positive);
-}
-
-.lp-verdict--sparse .lp-verdict-glyph,
-.lp-verdict--sparse .lp-verdict-name {
-  color: var(--p8-warning);
-}
-
-.lp-verdict--gap .lp-verdict-glyph,
-.lp-verdict--gap .lp-verdict-name {
-  color: var(--p8-critical);
-}
-
-/* --- plug-in targets -------------------------------------------------------------- */
-
-.lp-targets {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--p8-space-6);
-  margin-top: var(--p8-space-6);
-}
-
-.lp-target {
-  padding-top: var(--p8-space-5);
-  border-top: 1px solid var(--p8-line);
-}
-
-.lp-target h3 {
-  margin: 0 0 var(--p8-space-2);
-  font-family: var(--p8-font-mono);
-  font-size: var(--p8-text-xs);
-  letter-spacing: 0.14em;
+.lpv2-headline {
+  margin: 26px 0 0;
+  max-width: 17ch;
+  font-family: var(--dlpv2-font-display);
+  font-weight: var(--dlpv2-weight-bold);
+  font-size: clamp(60px, 7.8vw, 108px);
+  line-height: 0.86;
+  letter-spacing: 0.008em;
   text-transform: uppercase;
-  color: var(--p8-muted);
+  color: var(--dlpv2-text);
 }
 
-.lp-target p {
-  margin: 0;
-  font-size: var(--p8-text-sm);
-  line-height: 1.6;
-  color: var(--p8-muted);
+.lpv2-subhead {
+  margin: 32px 0 0;
+  max-width: 53ch;
+  font-size: 17px;
+  line-height: 1.72;
+  color: var(--dlpv2-text-dim);
 }
 
-/* --- what it isn't / not built yet ------------------------------------------------- */
-
-.lp-contrasts {
-  display: grid;
-  gap: var(--p8-space-4);
-  margin-top: var(--p8-space-6);
-}
-
-.lp-contrast {
-  padding-top: var(--p8-space-5);
-  border-top: 1px solid var(--p8-line);
-}
-
-.lp-contrast b {
-  display: block;
-  margin-bottom: var(--p8-space-1);
-  font-size: var(--p8-text-sm);
-  font-weight: 600;
-}
-
-.lp-contrast span {
-  font-size: var(--p8-text-sm);
-  line-height: 1.6;
-  color: var(--p8-muted);
-}
-
-.lp-planned {
-  display: grid;
-  gap: var(--p8-space-2);
-  margin-top: var(--p8-space-6);
-  padding-top: var(--p8-space-6);
-  border-top: 1px solid var(--p8-line);
-}
-
-.lp-planned-row {
+.lpv2-cta-row {
+  margin: 40px 0 0;
   display: flex;
-  align-items: baseline;
-  gap: var(--p8-space-3);
-  font-size: var(--p8-text-sm);
-  color: var(--p8-muted);
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.lp-planned-tag {
-  font-family: var(--p8-font-mono);
-  font-size: var(--p8-text-xs);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--p8-muted);
-  border: 1px solid var(--p8-line);
-  border-radius: var(--p8-radius);
-  padding: 1px var(--p8-space-2);
+.lpv2-install {
+  font-family: var(--dlpv2-font-mono);
+  font-size: 12px;
 }
 
-/* --- close -------------------------------------------------------------------------- */
-
-.lp-close {
-  padding: var(--p8-space-section) 0;
-  border-top: 1px solid var(--p8-line);
+.lpv2-install-or {
+  color: var(--dlpv2-text-faint);
 }
 
-.lp-close h2 {
-  margin: 0 0 var(--p8-space-6);
+.lpv2-install-cmd {
+  color: var(--dlpv2-text-dim);
+}
+
+/* --- closing ----------------------------------------------------------------- */
+
+.lpv2-close {
+  padding: 132px 32px 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lpv2-close-title {
+  margin: 0;
   max-width: 20ch;
-  font-family: var(--p8-font-serif);
-  font-style: italic;
-  font-weight: 500;
-  font-size: var(--p8-text-3xl);
-  line-height: 1.12;
-  letter-spacing: -0.015em;
+  font-family: var(--dlpv2-font-display);
+  font-size: 52px;
+  font-weight: var(--dlpv2-weight-bold);
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--dlpv2-text);
 }
 
-/* --- responsive ----------------------------------------------------------------------- */
-
-@media (max-width: 1024px) {
-  .lp-inner {
-    padding-left: var(--p8-space-5);
-    padding-right: var(--p8-space-5);
-  }
+.lpv2-close-support {
+  margin: 22px 0 0;
+  max-width: 46ch;
+  font-size: 16px;
+  line-height: 1.72;
+  color: var(--dlpv2-text-dim);
 }
+
+.lpv2-close .lpv2-cta-row {
+  margin-top: 34px;
+}
+
+/* --- footer ---------------------------------------------------------------- */
+
+.lpv2-footer {
+  border-top: 1px solid var(--dlpv2-line);
+  background: var(--dlpv2-bg1);
+}
+
+.lpv2-footer-row {
+  padding: 30px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.lpv2-footer-mark {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: var(--dlpv2-font-mono);
+  font-size: var(--dlpv2-text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dlpv2-text-faint);
+}
+
+.lpv2-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.lpv2-footer-links a {
+  font-family: var(--dlpv2-font-mono);
+  font-size: var(--dlpv2-text-sm);
+}
+
+/* --- responsive -------------------------------------------------------------- */
 
 @media (max-width: 768px) {
-  .lp-hero,
-  .lp-close {
-    padding: var(--p8-space-7) 0;
+  .lpv2-hero {
+    padding-top: 76px;
   }
 
-  .lp-section {
-    margin-top: var(--p8-space-7);
-  }
-
-  .lp-inner {
-    padding-left: var(--p8-space-4);
-    padding-right: var(--p8-space-4);
-  }
-
-  .mf-field {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .lp-verdict {
-    flex-wrap: wrap;
-  }
-}
-
-/* --- reduced motion: kill the cell stagger, land at final opacity --------------- */
-
-@media (prefers-reduced-motion: reduce) {
-  .mf-cell {
-    animation: none;
-    opacity: var(--mf-o);
+  .lpv2-close {
+    padding: 76px 32px 96px;
   }
 }
