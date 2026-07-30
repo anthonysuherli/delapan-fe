@@ -14,6 +14,7 @@ import "./styles/site.css";
 import "./styles/site-shell.css";
 import "./styles/site-docs.css";
 import "./styles/motion.css";
+import "./styles/landing-v2-tokens.css";
 
 initAnalytics();
 

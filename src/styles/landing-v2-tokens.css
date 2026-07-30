@@ -1,0 +1,137 @@
+/* landing-v2 instrument-panel tokens — vendored from the design-system handoff
+   at docs/handoff/landing-v2/_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/tokens/.
+   Every custom property is renamed with a --dlpv2- prefix and scoped under
+   .lpv2 (not :root) — scoping, not naming alone, is the isolation mechanism
+   that keeps this rebuild from colliding with the app's own tokens.css.
+   This file is a definition site: it is exempt from src/styles/literals.test.ts. */
+
+.lpv2 {
+  /* ---- tokens/colors.css ---- */
+  /* surfaces — cool paper, lightest to deepest */
+  --dlpv2-bg0: #f5f7fa;
+  --dlpv2-bg1: #eef1f6;
+  --dlpv2-bg2: #e6ebf2;
+  --dlpv2-bg3: #dce3ed;
+
+  /* hairline rules */
+  --dlpv2-line: #d3dbe6;
+  --dlpv2-line-bright: #b7c3d4;
+
+  /* ink */
+  --dlpv2-text: #1f2b3a;
+  --dlpv2-text-dim: #55677c;
+  --dlpv2-text-faint: #8595a9;
+
+  /* annunciators — amber is the single brand accent (chrome only) */
+  --dlpv2-accent: #b45309;
+  --dlpv2-accent-bright: #d97706;
+  --dlpv2-accent-dim: rgba(180, 83, 9, 0.1);
+
+  /* status hues */
+  --dlpv2-green: #15803d;
+  --dlpv2-red: #dc2626;
+  --dlpv2-cyan: #0e7490;
+
+  /* coverage verdicts */
+  --dlpv2-rich: #15803d;
+  --dlpv2-sparse: #846b00;
+  --dlpv2-gap: #dc2626;
+
+  /* entity type hues — consistent across canvas, legend, chips */
+  --dlpv2-type-concept: #0284c7;
+  --dlpv2-type-technology: #d97706;
+  --dlpv2-type-person: #db2777;
+  --dlpv2-type-company: #059669;
+  --dlpv2-type-project: #7c3aed;
+
+  /* ---- tokens/typography.css ---- */
+  /* families */
+  --dlpv2-font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --dlpv2-font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+  --dlpv2-font-body: "IBM Plex Sans", "Helvetica Neue", sans-serif;
+
+  /* body scale */
+  --dlpv2-text-xs: 10px;
+  --dlpv2-text-sm: 11px;
+  --dlpv2-text-base: 13px;
+  --dlpv2-text-md: 15px;
+  --dlpv2-text-lg: 20px;
+
+  /* display / wordmark scale */
+  --dlpv2-display-sm: 14px;
+  --dlpv2-display-md: 24px;
+  --dlpv2-display-lg: 44px;
+
+  /* weights */
+  --dlpv2-weight-regular: 400;
+  --dlpv2-weight-medium: 500;
+  --dlpv2-weight-semibold: 600;
+  --dlpv2-weight-bold: 700;
+
+  /* line heights */
+  --dlpv2-leading-tight: 1.1;
+  --dlpv2-leading-snug: 1.45;
+  --dlpv2-leading-relaxed: 1.65;
+
+  /* tracking — the instrument-panel labels */
+  --dlpv2-track-label: 0.14em;
+  --dlpv2-track-title: 0.16em;
+  --dlpv2-track-wordmark: 0.1em;
+  --dlpv2-track-band: 0.22em;
+
+  /* ---- tokens/geometry.css ---- */
+  /* radius */
+  --dlpv2-radius: 4px;
+  --dlpv2-radius-sm: 3px;
+  --dlpv2-radius-lg: 6px;
+  --dlpv2-radius-pill: 999px;
+
+  /* layout dims (control-panel shell) */
+  --dlpv2-rail-w: 268px;
+  --dlpv2-inspector-w: 336px;
+  --dlpv2-topbar-h: 48px;
+  --dlpv2-statusbar-h: 28px;
+
+  /* spacing scale */
+  --dlpv2-space-1: 4px;
+  --dlpv2-space-2: 6px;
+  --dlpv2-space-3: 8px;
+  --dlpv2-space-4: 10px;
+  --dlpv2-space-5: 12px;
+  --dlpv2-space-6: 14px;
+  --dlpv2-space-8: 18px;
+
+  /* transitions */
+  --dlpv2-t-fast: 120ms;
+  --dlpv2-t-med: 180ms;
+  --dlpv2-ease-out: cubic-bezier(0.2, 0.9, 0.3, 1);
+
+  /* elevation */
+  --dlpv2-shadow-pop: 0 10px 30px rgba(31, 43, 58, 0.16);
+  --dlpv2-shadow-modal: 0 24px 80px rgba(31, 43, 58, 0.24);
+  --dlpv2-glow-accent: 0 0 14px rgba(180, 83, 9, 0.16);
+
+  /* ---- tokens/semantic.css ---- */
+  /* text roles */
+  --dlpv2-text-body: var(--dlpv2-text);
+  --dlpv2-text-muted: var(--dlpv2-text-dim);
+  --dlpv2-text-subtle: var(--dlpv2-text-faint);
+  --dlpv2-text-brand: var(--dlpv2-accent);
+
+  /* surface roles */
+  --dlpv2-surface-app: var(--dlpv2-bg0);
+  --dlpv2-surface-panel: var(--dlpv2-bg1);
+  --dlpv2-surface-raised: var(--dlpv2-bg2);
+  --dlpv2-surface-sunken: var(--dlpv2-bg0);
+  --dlpv2-surface-input: var(--dlpv2-bg0);
+
+  /* border roles */
+  --dlpv2-border-hairline: var(--dlpv2-line);
+  --dlpv2-border-strong: var(--dlpv2-line-bright);
+  --dlpv2-border-focus: var(--dlpv2-accent);
+
+  /* interactive */
+  --dlpv2-control-bg: var(--dlpv2-bg2);
+  --dlpv2-control-fg: var(--dlpv2-text-dim);
+  --dlpv2-control-fg-hover: var(--dlpv2-text);
+}
