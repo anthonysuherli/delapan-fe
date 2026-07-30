@@ -31,11 +31,9 @@ export function Faq(): JSX.Element {
                   {isOpen ? "−" : "+"}
                 </span>
               </button>
-              {isOpen && (
-                <p id={answerId} className="lpv2-faq-answer">
-                  {item.a}
-                </p>
-              )}
+              <p id={answerId} className="lpv2-faq-answer" hidden={!isOpen}>
+                {item.a}
+              </p>
             </div>
           );
         })}

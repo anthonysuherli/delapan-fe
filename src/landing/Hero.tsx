@@ -6,7 +6,7 @@
 import { DsButton } from "./ds/Button";
 
 /**
- * `or git clone github.com/anthonysuherli/delapan` — spec Deviation 1.
+ * `or git clone https://github.com/anthonysuherli/delapan` — spec Deviation 1.
  * The prototype's `npx delapan init` does not exist (npm 404; the engine is
  * Python/uv). Shared by Hero and ClosingCta so the string can't drift.
  */
@@ -14,7 +14,7 @@ export function InstallLine() {
   return (
     <span className="lpv2-install">
       <span className="lpv2-install-or">or </span>
-      <span className="lpv2-install-cmd">git clone github.com/anthonysuherli/delapan</span>
+      <span className="lpv2-install-cmd">git clone https://github.com/anthonysuherli/delapan</span>
     </span>
   );
 }

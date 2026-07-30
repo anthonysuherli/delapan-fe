@@ -73,7 +73,7 @@ it belongs to the hero).
 
 1. **Install line:** `npx delapan init` does not exist (npm 404; the engine is
    Python/uv). Replace both occurrences with
-   `git clone github.com/anthonysuherli/delapan` and change the closing
+   `git clone https://github.com/anthonysuherli/delapan` and change the closing
    section's support line to "one clone puts a knowledge base on your machine.
    nothing to provision." A page arguing for auditability cannot ship a dead
    command.
@@ -91,7 +91,7 @@ it belongs to the hero).
    in the footer; `scroll-margin-top: 76px` on `#how` and `#faq`.
 4. **Responsive minimum** (the handoff leaves narrow widths undesigned):
    below 720px the use-case rows stack (the 220px label column moves above),
-   the graph canvas drops to 380px height with `graphDensity="core"` (13
+   the graph canvas drops to 380px height with `graphDensity="core"` (14
    flagged nodes) and tap-to-select only (no drag); header nav keeps only the
    CTA below 480px. These are the smallest honest choices, not a full mobile
    design pass.

@@ -181,7 +181,7 @@ export function KbGraph({ density = "full" }: KbGraphProps): JSX.Element {
           })}
         </div>
         <div className="lpv2-graph-caption">
-          {sel ? "22 nodes · 31 edges · drag any node" : "22 nodes · 31 edges · select a node"}
+          {`${ns.length} nodes · ${es.length} edges · drag any node`}
         </div>
         <div className="lpv2-graph-evidence" aria-live="polite">
           <div className="lpv2-graph-evidence-header">
