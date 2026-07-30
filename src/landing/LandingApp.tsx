@@ -8,16 +8,19 @@
  */
 import { useEffect, useState, type JSX } from "react";
 import { ClosingCta } from "./ClosingCta";
+import { Faq } from "./Faq";
 import { Hero } from "./Hero";
 import { KbGraph } from "./KbGraph";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
+import { ThreeMoves } from "./ThreeMoves";
+import { UseCases } from "./UseCases";
 
-// SECTIONS: Task 4 slots the remaining content sections here, in order,
-// between the graph island and ClosingCta. KbGraph itself is not part of
-// this array — it belongs to the hero (64px top padding, not 132px) and is
-// slotted directly after Hero below, per spec.
-const SECTIONS: Array<() => JSX.Element> = [];
+// SECTIONS: the remaining content sections, in order, between the graph
+// island and ClosingCta. KbGraph itself is not part of this array — it
+// belongs to the hero (64px top padding, not 132px) and is slotted directly
+// after Hero below, per spec.
+const SECTIONS: Array<() => JSX.Element> = [ThreeMoves, UseCases, Faq];
 
 // Spec Deviation 4: below 720px the graph switches to density="core" and a
 // shorter canvas (canvas height itself is a pure-CSS media query in landing.css).
