@@ -85,7 +85,7 @@
   font-family: var(--dlpv2-font-display);
   font-weight: var(--dlpv2-weight-bold);
   font-size: 19px;
-  letter-spacing: var(--dlpv2-track-wordmark);
+  letter-spacing: 0.05em;
   color: var(--dlpv2-text);
 }
 
