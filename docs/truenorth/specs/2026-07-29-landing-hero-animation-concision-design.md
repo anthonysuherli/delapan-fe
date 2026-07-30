@@ -89,7 +89,7 @@ Stripe rule applied throughout; keep every `lp-code` token (`grounded_in`,
 ## 4. CTA
 
 `CtaRow` keeps `create an account` as primary and gains a lighter secondary
-link — `view the engine on GitHub` → the public `delapan-be` repository —
+link — `view the engine on GitHub` → the public `delapan` repository —
 styled as the quiet/outlined counterpart per the research pattern. The beta
 note string stays single-sourced in `CtaRow`.
 

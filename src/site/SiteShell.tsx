@@ -140,8 +140,8 @@ export function SiteShell({ children, active }: SiteShellProps) {
           <h2>contact</h2>
           <ul>
             <li>
-              <a href="https://github.com/anthonysuherli/delapan-be">
-                github.com/anthonysuherli/delapan-be
+              <a href="https://github.com/anthonysuherli/delapan">
+                github.com/anthonysuherli/delapan
               </a>
             </li>
           </ul>

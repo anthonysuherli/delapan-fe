@@ -268,7 +268,7 @@ export function CtaRow() {
       <a className="ss-cta" href="/signup">
         create an account
       </a>
-      <a className="ss-cta-ghost" href="https://github.com/anthonysuherli/delapan-be">
+      <a className="ss-cta-ghost" href="https://github.com/anthonysuherli/delapan">
         view the engine on github
       </a>
       <span className="ss-cta-note">free · invite-gated beta</span>

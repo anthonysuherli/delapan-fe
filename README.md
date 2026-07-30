@@ -1,8 +1,8 @@
 # delapan-fe
 
-A knowledge-base control panel. `delapan-fe` renders a [delapan](https://github.com/anthonysuherli/delapan-be) knowledge base as an interactive force-directed graph — nodes are entities, edges are relations, and both are grounded in the findings the engine ingested from the web. You explore, edit, and audit the graph from a dark instrument-panel UI built on [sigma.js](https://www.sigmajs.org/).
+A knowledge-base control panel. `delapan-fe` renders a [delapan](https://github.com/anthonysuherli/delapan) knowledge base as an interactive force-directed graph — nodes are entities, edges are relations, and both are grounded in the findings the engine ingested from the web. You explore, edit, and audit the graph from a dark instrument-panel UI built on [sigma.js](https://www.sigmajs.org/).
 
-> Frontend half of the delapan stack. The backend (graph store, RAG, web-explore pipeline, MCP server) lives in [delapan-be](https://github.com/anthonysuherli/delapan-be).
+> Frontend half of the delapan stack. The backend (graph store, RAG, web-explore pipeline, MCP server) lives in [delapan](https://github.com/anthonysuherli/delapan).
 
 ---
 

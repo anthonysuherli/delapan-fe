@@ -186,7 +186,7 @@ export function usePageTitle(title: string): void {
 
 **Interfaces:**
 - Produces:
-  - `SiteShell({ children, active }: { children: ReactNode; active?: "docs" | "changelog" | "about" })` — renders `.site` root > skip-link > nav (Logomark 32 + `<Wordmark form="lower">` linking `/`; links `/docs`, `/changelog`, `/about` with `aria-current` on active; `sign in` link + `create account` coral CTA) > `<main id="main">{children}</main>` > footer (columns: product → `/`, `/changelog`, `/about`; docs → `/docs`, quickstart/concepts anchors; legal → `/terms`, `/privacy`; contact → `github.com/anthonysuherli/delapan-be` link; bottom line `© 2026 delapan · agent memory you can audit`).
+  - `SiteShell({ children, active }: { children: ReactNode; active?: "docs" | "changelog" | "about" })` — renders `.site` root > skip-link > nav (Logomark 32 + `<Wordmark form="lower">` linking `/`; links `/docs`, `/changelog`, `/about` with `aria-current` on active; `sign in` link + `create account` coral CTA) > `<main id="main">{children}</main>` > footer (columns: product → `/`, `/changelog`, `/about`; docs → `/docs`, quickstart/concepts anchors; legal → `/terms`, `/privacy`; contact → `github.com/anthonysuherli/delapan` link; bottom line `© 2026 delapan · agent memory you can audit`).
   - `CtaRow()` — `create an account` coral button → `/signup` + note `free · invite-gated beta` (single source of that string).
   - `NotFound()` — `usePageTitle("delapan — page not found")`, mark at 48, `this page doesn't exist`, links home / docs / sign in, wrapped in SiteShell.
 - Consumes: `Logomark` (`../panels/Logomark`), `Wordmark` (`../panels/Wordmark`), `usePageTitle` (Task 2).

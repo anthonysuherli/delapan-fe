@@ -17,8 +17,8 @@ export function Quickstart() {
 
       <h2>install</h2>
       <p>the local tier runs from a clone with uv.</p>
-      <CodeBlock lang="bash">{`git clone https://github.com/anthonysuherli/delapan-be
-cd delapan-be
+      <CodeBlock lang="bash">{`git clone https://github.com/anthonysuherli/delapan
+cd delapan
 uv sync --extra local`}</CodeBlock>
 
       <h2>run the MCP server</h2>

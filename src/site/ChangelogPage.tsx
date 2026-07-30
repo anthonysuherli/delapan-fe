@@ -15,7 +15,7 @@ interface ChangelogMonth {
 /**
  * Real milestones only, most recent first. Every entry maps to a commit or
  * merge in this repo's history, or — where tagged "· engine" — to a
- * controller-verified fact about the delapan-be engine (a separate repo this
+ * controller-verified fact about the delapan engine (a separate repo this
  * one only consumes over REST, per CLAUDE.md). See the Task 9 report for the
  * entry-to-evidence table.
  */

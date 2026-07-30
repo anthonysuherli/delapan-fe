@@ -4,7 +4,7 @@ Guidance for AI agents working in `delapan-fe`. Read this before editing.
 
 ## What this is
 
-The frontend for [delapan](https://github.com/anthonysuherli/delapan-be), a knowledge-base engine. It renders a KB as an interactive sigma.js graph and lets the user edit it with full undo/redo. React 18 + TypeScript (strict) + Vite 6 + Zustand + sigma.js/graphology. No CSS framework. See [README.md](README.md) for the user-facing overview.
+The frontend for [delapan](https://github.com/anthonysuherli/delapan), a knowledge-base engine. It renders a KB as an interactive sigma.js graph and lets the user edit it with full undo/redo. React 18 + TypeScript (strict) + Vite 6 + Zustand + sigma.js/graphology. No CSS framework. See [README.md](README.md) for the user-facing overview.
 
 ## Commands
 
@@ -68,4 +68,4 @@ There is no lint step and no formatter config — match the surrounding style. `
 
 ## Backend
 
-Lives in [delapan-be](https://github.com/anthonysuherli/delapan-be). This repo only consumes its REST API (contract in `src/api/client.ts`). For local dev the backend runs on `http://127.0.0.1:8001`; the Vite proxy forwards `/api/*` to it when `VITE_API_BASE=""`.
+Lives in [delapan](https://github.com/anthonysuherli/delapan). This repo only consumes its REST API (contract in `src/api/client.ts`). For local dev the backend runs on `http://127.0.0.1:8001`; the Vite proxy forwards `/api/*` to it when `VITE_API_BASE=""`.

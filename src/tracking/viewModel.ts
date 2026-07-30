@@ -14,7 +14,7 @@ const STATUS_ORDER: InitiativeStatus[] = [
   "dropped",
 ];
 
-const BACKEND_REPO_URL = "https://github.com/anthonysuherli/delapan-be";
+const BACKEND_REPO_URL = "https://github.com/anthonysuherli/delapan";
 const FRONTEND_REPO_URL = "https://github.com/anthonysuherli/delapan-fe";
 
 const firstParagraph = (markdown: string): string => {
