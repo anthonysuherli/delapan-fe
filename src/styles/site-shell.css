@@ -64,6 +64,7 @@
   gap: var(--p8-space-2);
   text-decoration: none;
   color: var(--p8-ink);
+  min-height: 44px;
 }
 
 .ss-links {
@@ -79,6 +80,11 @@
   color: var(--p8-muted);
   text-decoration: none;
   font-size: var(--p8-text-sm);
+  /* 44px minimum tap target (WCAG 2.5.5). inline-flex + min-height grows
+     the hit box without moving the label. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 .ss-links a:hover {
@@ -101,6 +107,11 @@
   color: var(--p8-ink);
   text-decoration: none;
   font-size: var(--p8-text-sm);
+  /* 44px minimum tap target (WCAG 2.5.5). inline-flex + min-height grows
+     the hit box without moving the label. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 .ss-signin:hover {
@@ -119,6 +130,11 @@
   color: var(--p8-ink);
   font-size: var(--p8-text-sm);
   list-style: none;
+  /* 44px floor. This is the sole navigation affordance on a phone, so a
+     22px-tall toggle was the highest-severity target miss in the shell. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 .ss-menu summary::-webkit-details-marker {
@@ -145,6 +161,11 @@
   color: var(--p8-ink);
   text-decoration: none;
   font-size: var(--p8-text-sm);
+  /* 44px minimum tap target (WCAG 2.5.5). inline-flex + min-height grows
+     the hit box without moving the label. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 /* ---- cta — the one ink pill, accent-free ------------------------------------ */
@@ -215,6 +236,11 @@
   text-decoration: none;
   text-decoration-color: var(--p8-accent-d);
   font-size: var(--p8-text-sm);
+  /* 44px minimum tap target (WCAG 2.5.5). inline-flex + min-height grows
+     the hit box without moving the label. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 .ss-footer-col a:hover {

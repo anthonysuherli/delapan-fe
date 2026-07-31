@@ -197,3 +197,20 @@
     animation: none;
   }
 }
+
+/* Global reduced-motion backstop. The block above gates the named boot and
+   stagger classes; everything else in the tree (base.css button press,
+   canvas.css node hover, the site/landing transitions) was unguarded.
+   Deliberately NOT a blanket transition kill: colour and opacity changes are
+   not motion and stay, while transform/size transitions and all keyframe
+   animation are neutralised. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property: color, background-color, border-color, box-shadow, opacity !important;
+    scroll-behavior: auto !important;
+  }
+}
