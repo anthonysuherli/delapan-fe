@@ -157,6 +157,12 @@
   font-family: var(--dlpv2-font-mono);
   font-size: var(--dlpv2-text-sm);
   letter-spacing: 0.05em;
+  /* 44px minimum tap target (WCAG 2.5.5 / iOS HIG). These links render at
+     16px tall on their own, which is a real miss on the auth entry point.
+     inline-flex + min-height grows the hit box without moving the label. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 /* "sign in" reads as the quieter half of the account pair — same weight as a
@@ -657,13 +663,18 @@
 .lpv2-footer-links {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 0 24px;
   flex-wrap: wrap;
 }
 
 .lpv2-footer-links a {
   font-family: var(--dlpv2-font-mono);
   font-size: var(--dlpv2-text-sm);
+  /* Same 44px floor. Seven 16px-tall links wrapping across two rows on a
+     phone is the densest tap cluster on the page. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 /* SiteShell's .ss-footer-bottom, in v2 clothing. Sits below the row so the
