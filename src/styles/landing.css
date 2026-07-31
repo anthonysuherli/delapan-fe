@@ -59,12 +59,52 @@
 
 .lpv2-header-row,
 .lpv2-footer-row,
+.lpv2-footer-bottom,
 .lpv2-hero,
 .lpv2-close {
   max-width: 1180px;
   margin: 0 auto;
   padding-left: 32px;
   padding-right: 32px;
+}
+
+/* --- skip link ----------------------------------------------------------- */
+
+/* Same visually-hidden-until-focused recipe as .ss-skip (site-shell.css),
+   resolved through the v2 tokens. Absolute, not the app's default, so it
+   can't reserve a strip above the sticky header while hidden. */
+.lpv2-skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  font-family: var(--dlpv2-font-mono);
+  font-size: var(--dlpv2-text-sm);
+  letter-spacing: 0.05em;
+}
+
+.lpv2-skip:focus {
+  position: fixed;
+  top: var(--dlpv2-space-4);
+  left: var(--dlpv2-space-4);
+  z-index: calc(var(--dlpv2-z-nav) + 1);
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  padding: var(--dlpv2-space-3) var(--dlpv2-space-6);
+  background: var(--dlpv2-bg0);
+  color: var(--dlpv2-text);
+  border: 1px solid var(--dlpv2-accent);
+  border-radius: var(--dlpv2-radius);
+}
+
+/* The skip target must not land under the 60px sticky header. */
+.lpv2 #main {
+  scroll-margin-top: 76px;
 }
 
 /* --- header ---------------------------------------------------------------- */
@@ -105,16 +145,27 @@
   color: var(--dlpv2-text);
 }
 
+/* 20px, not the prototype's 26px: the restored account pair puts five items
+   in a 60px bar, and 26px overflowed the 1180px measure at tablet widths. */
 .lpv2-nav {
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: 20px;
 }
 
 .lpv2-nav a {
   font-family: var(--dlpv2-font-mono);
   font-size: var(--dlpv2-text-sm);
   letter-spacing: 0.05em;
+}
+
+/* "sign in" reads as the quieter half of the account pair — same weight as a
+   nav link, but full ink so it doesn't disappear next to the amber pill.
+   nowrap: at 375px the two words otherwise break across lines and blow the
+   60px bar out of shape. */
+.lpv2-signin {
+  color: var(--dlpv2-text);
+  white-space: nowrap;
 }
 
 /* --- hero ------------------------------------------------------------------ */
@@ -584,7 +635,8 @@
 }
 
 .lpv2-footer-row {
-  padding: 30px 32px;
+  /* 14px bottom, not 30: .lpv2-footer-bottom now carries the 30px floor. */
+  padding: 30px 32px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -607,11 +659,25 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .lpv2-footer-links a {
   font-family: var(--dlpv2-font-mono);
   font-size: var(--dlpv2-text-sm);
+}
+
+/* SiteShell's .ss-footer-bottom, in v2 clothing. Sits below the row so the
+   mark/link line keeps the prototype's single-row balance. text-dim, not the
+   mark's text-faint: a copyright notice is informative copy, and faint fails
+   the AA floor on bg1 (see contrast.test.ts). */
+.lpv2-footer-bottom {
+  padding-bottom: 30px;
+  font-family: var(--dlpv2-font-mono);
+  font-size: var(--dlpv2-text-xs);
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: var(--dlpv2-text-dim);
 }
 
 /* --- responsive -------------------------------------------------------------- */
@@ -626,11 +692,17 @@
   }
 }
 
-/* Spec Deviation 4: below 480px the header nav keeps only the CTA — "how it
-   works"/"faq" links are still reachable via scroll, they just don't cost
-   header width on the narrowest screens. */
-@media (max-width: 480px) {
+/* Spec Deviation 4: on narrow screens the header nav keeps only the account
+   pair — "how it works"/"faq" are still reachable via scroll and "docs" via
+   the hero CTA, so none of them need to cost header width. The breakpoint is
+   600px rather than the original 480px because the restored sign-in link and
+   the wider "create account" pill run out of room sooner. */
+@media (max-width: 600px) {
   .lpv2-nav-link {
     display: none;
+  }
+
+  .lpv2-nav {
+    gap: 14px;
   }
 }
