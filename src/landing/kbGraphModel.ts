@@ -40,3 +40,17 @@ export function diameter(degree: number): number {
 export function isLit(id: string, sel: string | null, neighbors: Set<string>): boolean {
   return !sel || id === sel || neighbors.has(id);
 }
+
+// Labels render in IBM Plex Mono at 10px (--dlpv2-text-xs), whose fixed glyph
+// advance is 0.6em = 6px, plus 0.02em letter-spacing → 6.2px per character.
+export const LABEL_CHAR_W = 6.2;
+export const LABEL_EDGE_PAD = 4;
+
+/** Horizontal px offset that keeps a centered label inside [0, canvasW]. */
+export function labelShift(centerPx: number, label: string, canvasW: number): number {
+  if (canvasW <= 0) return 0;
+  const half = (label.length * LABEL_CHAR_W) / 2;
+  if (centerPx - half < LABEL_EDGE_PAD) return LABEL_EDGE_PAD - (centerPx - half);
+  if (centerPx + half > canvasW - LABEL_EDGE_PAD) return canvasW - LABEL_EDGE_PAD - (centerPx + half);
+  return 0;
+}

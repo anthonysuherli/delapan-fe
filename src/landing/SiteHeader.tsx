@@ -1,17 +1,17 @@
 /**
  * v2 sticky header. Prototype lines 30-42: 60px, blurred veil, hairline
- * bottom border, logo lockup (dark Logomark + wordmark) left, nav + docs CTA
+ * bottom border, logo lockup (pixel-8 Logomark + wordmark) left, nav + docs CTA
  * right. Always there — no scroll-state change, no shrink.
  */
+import { Logomark } from "../panels/Logomark";
 import { DsButton } from "./ds/Button";
-import { Logomark } from "./ds/Logomark";
 
 export function SiteHeader() {
   return (
     <header className="lpv2-header">
       <div className="lpv2-header-row">
         <a href="#top" className="lpv2-brand">
-          <Logomark variant="dark" size={26} title="delapan" />
+          <Logomark size={26} />
           <span className="lpv2-wordmark">delapan</span>
         </a>
         <nav className="lpv2-nav">

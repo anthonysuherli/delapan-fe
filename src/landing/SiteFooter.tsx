@@ -3,7 +3,7 @@
  * links right. Real hrefs per spec Deviation 2 (docs README's own
  * prototype pointed everything at "#top" — a placeholder, not a spec).
  */
-import { Logomark } from "./ds/Logomark";
+import { Logomark } from "../panels/Logomark";
 
 export function SiteFooter() {
   return (

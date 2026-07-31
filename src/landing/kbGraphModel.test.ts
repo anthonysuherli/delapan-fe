@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { EDGES, NODES } from "./graphData";
-import { degrees, diameter, isLit, neighborsOf, visible } from "./kbGraphModel";
+import {
+  LABEL_CHAR_W,
+  LABEL_EDGE_PAD,
+  degrees,
+  diameter,
+  isLit,
+  labelShift,
+  neighborsOf,
+  visible,
+} from "./kbGraphModel";
 
 describe("degrees", () => {
   it("counts j_delapan's edges from the data, not a guessed number", () => {
@@ -101,5 +110,32 @@ describe("isLit", () => {
     const nonNeighbor = NODES.find((n) => n.id !== "c_finding" && !neighbors.has(n.id));
     expect(nonNeighbor).toBeDefined();
     expect(isLit(nonNeighbor!.id, "c_finding", neighbors)).toBe(false);
+  });
+});
+
+describe("labelShift", () => {
+  const label = "Vector embedding"; // 16 chars — the node observed clipping at 375px
+  const half = (label.length * LABEL_CHAR_W) / 2;
+
+  it("returns 0 for a label comfortably inside the canvas", () => {
+    expect(labelShift(187, label, 375)).toBe(0);
+  });
+
+  it("shifts a left-edge label right so its left edge sits at the pad", () => {
+    const center = 20; // half (49.6) overflows the left edge
+    const shift = labelShift(center, label, 375);
+    expect(shift).toBeGreaterThan(0);
+    expect(center - half + shift).toBeCloseTo(LABEL_EDGE_PAD);
+  });
+
+  it("shifts a right-edge label left so its right edge sits at canvasW - pad", () => {
+    const center = 370;
+    const shift = labelShift(center, label, 375);
+    expect(shift).toBeLessThan(0);
+    expect(center + half + shift).toBeCloseTo(375 - LABEL_EDGE_PAD);
+  });
+
+  it("returns 0 before the canvas has been measured (width 0)", () => {
+    expect(labelShift(20, label, 0)).toBe(0);
   });
 });

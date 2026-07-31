@@ -26,7 +26,15 @@ import {
 import { ConfidenceBar } from "./ds/ConfidenceBar";
 import { TypeChip } from "./ds/TypeChip";
 import { FINDINGS, NODES, TYPE_COLORS, VIEW } from "./graphData";
-import { degrees, diameter, isLit, neighborsOf, visible, type Density } from "./kbGraphModel";
+import {
+  degrees,
+  diameter,
+  isLit,
+  labelShift,
+  neighborsOf,
+  visible,
+  type Density,
+} from "./kbGraphModel";
 
 export interface KbGraphProps {
   density?: Density;
@@ -44,7 +52,19 @@ export function KbGraph({ density = "full" }: KbGraphProps): JSX.Element {
   const [hover, setHover] = useState<string | null>(null);
   const [pos, setPos] = useState<Record<string, Pos>>({});
   const [drag, setDrag] = useState<string | null>(null);
+  const [canvasW, setCanvasW] = useState(0);
   const canvasRef = useRef<HTMLDivElement | null>(null);
+
+  // Canvas width feeds the label clamp — labels near the edge would otherwise
+  // clip against the canvas's overflow:hidden (seen at 375px). The canvas is
+  // full-bleed within the page, so a window resize listener covers every way
+  // its width can change.
+  useEffect(() => {
+    const measure = () => setCanvasW(canvasRef.current?.clientWidth ?? 0);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
   // Window-level pointerup is what stops a node sticking to the cursor when
   // the pointer is released outside the canvas (prototype lines 291-294).
@@ -129,6 +149,8 @@ export function KbGraph({ density = "full" }: KbGraphProps): JSX.Element {
             const isNodeLit = lit(n.id);
             const d = diameter(deg[n.id] || 0);
             const showLabel = isNodeLit || hover === n.id;
+            const xPct = ((p.x - VIEW.x) / VIEW.w) * 100;
+            const shift = labelShift((xPct / 100) * canvasW, n.label, canvasW);
             return (
               <button
                 key={n.id}
@@ -143,7 +165,7 @@ export function KbGraph({ density = "full" }: KbGraphProps): JSX.Element {
                 onFocus={() => setHover(n.id)}
                 onBlur={() => setHover(null)}
                 style={{
-                  left: `${((p.x - VIEW.x) / VIEW.w) * 100}%`,
+                  left: `${xPct}%`,
                   top: `${((p.y - VIEW.y) / VIEW.h) * 100}%`,
                   zIndex: isSel ? 14 : 10,
                   opacity: isNodeLit ? 1 : 0.16,
@@ -171,6 +193,7 @@ export function KbGraph({ density = "full" }: KbGraphProps): JSX.Element {
                       top: d + 6,
                       color: isSel ? "var(--dlpv2-text)" : "var(--dlpv2-text-faint)",
                       fontWeight: isSel ? 500 : 400,
+                      transform: shift ? `translateX(calc(-50% + ${shift}px))` : undefined,
                     }}
                   >
                     {n.label}
