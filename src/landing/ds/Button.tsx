@@ -25,12 +25,14 @@ const base: CSSProperties = {
     "color var(--dlpv2-t-fast), border-color var(--dlpv2-t-fast), background var(--dlpv2-t-fast), box-shadow var(--dlpv2-t-fast)",
 };
 
-// variant="active" — the lit/toggled amber pill.
+// variant="active" — the primary pill. Was a lit amber annunciator with a glow;
+// under the delapan-design language elevation is flat and the accent is moss, so
+// the glow is gone and the fill carries the weight instead of a halo. The hex
+// here was the last hardcoded amber on the landing surface.
 const active: CSSProperties = {
-  color: "var(--dlpv2-accent)",
-  background: "var(--dlpv2-accent-dim)",
+  color: "var(--dlpv2-bg0)",
+  background: "var(--dlpv2-accent)",
   borderColor: "var(--dlpv2-accent)",
-  boxShadow: "0 0 14px rgba(180,83,9,0.16), inset 0 0 8px rgba(180,83,9,0.06)",
 };
 
 const navCta: CSSProperties = {

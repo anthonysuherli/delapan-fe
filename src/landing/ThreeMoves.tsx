@@ -43,7 +43,7 @@ grounded_in: 9 urls across 4 domains`;
 export function ThreeMoves(): JSX.Element {
   return (
     <section id="how" className="lpv2-moves">
-      <p className="lpv2-moves-title">three moves, in order</p>
+      <p className="lpv2-moves-title">Three moves, in order.</p>
       <div className="lpv2-moves-grid">
         {MOVES.map((m) => (
           <div key={m.index} className="lpv2-move">

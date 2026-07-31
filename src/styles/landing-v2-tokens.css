@@ -1,4 +1,8 @@
-/* landing-v2 instrument-panel tokens — vendored from the design-system handoff
+/* landing-v2 tokens, recoloured 2026-07-31 to the moss-on-parchment palette
+   under the delapan-design language. The entity-type hues below are a
+   deliberate CARVE-OUT: they are a data encoding, not chrome, and are left
+   on their original ring.
+   Originally: landing-v2 instrument-panel tokens — vendored from the design-system handoff
    at docs/handoff/landing-v2/_ds/delapan-design-system-a684d241-041d-49e4-aa44-45573a1d2cf2/tokens/.
    Every custom property is renamed with a --dlpv2- prefix and scoped under
    .lpv2 (not :root) — scoping, not naming alone, is the isolation mechanism
@@ -8,34 +12,34 @@
 .lpv2 {
   /* ---- tokens/colors.css ---- */
   /* surfaces — cool paper, lightest to deepest */
-  --dlpv2-bg0: #f5f7fa;
-  --dlpv2-bg1: #eef1f6;
-  --dlpv2-bg2: #e6ebf2;
-  --dlpv2-bg3: #dce3ed;
+  --dlpv2-bg0: #FAF8F1;
+  --dlpv2-bg1: #F1EEE3;
+  --dlpv2-bg2: #E4E0D2;
+  --dlpv2-bg3: #CFCBBB;
 
   /* hairline rules */
-  --dlpv2-line: #d3dbe6;
-  --dlpv2-line-bright: #b7c3d4;
+  --dlpv2-line: #E4E0D2;
+  --dlpv2-line-bright: #CFCBBB;
 
   /* ink */
-  --dlpv2-text: #1f2b3a;
-  --dlpv2-text-dim: #55677c;
-  --dlpv2-text-faint: #8595a9;
+  --dlpv2-text: #1B1E18;
+  --dlpv2-text-dim: #5C5F52;
+  --dlpv2-text-faint: #8F927F;
 
   /* annunciators — amber is the single brand accent (chrome only) */
-  --dlpv2-accent: #b45309;
-  --dlpv2-accent-bright: #d97706;
-  --dlpv2-accent-dim: rgba(180, 83, 9, 0.1);
+  --dlpv2-accent: #4C6640;
+  --dlpv2-accent-bright: #3B5233;
+  --dlpv2-accent-dim: rgba(76, 102, 64, 0.1);
 
   /* status hues */
-  --dlpv2-green: #15803d;
-  --dlpv2-red: #dc2626;
-  --dlpv2-cyan: #0e7490;
+  --dlpv2-green: #1F9D6B;
+  --dlpv2-red: #C2453B;
+  --dlpv2-cyan: #3D7BFF;
 
   /* coverage verdicts */
-  --dlpv2-rich: #15803d;
-  --dlpv2-sparse: #846b00;
-  --dlpv2-gap: #dc2626;
+  --dlpv2-rich: #1F9D6B;
+  --dlpv2-sparse: #D98A2B;
+  --dlpv2-gap: #C2453B;
 
   /* entity type hues — consistent across canvas, legend, chips */
   --dlpv2-type-concept: #0284c7;
@@ -46,9 +50,10 @@
 
   /* ---- tokens/typography.css ---- */
   /* families */
-  --dlpv2-font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
-  --dlpv2-font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
-  --dlpv2-font-body: "IBM Plex Sans", "Helvetica Neue", sans-serif;
+  --dlpv2-font-display: "Newsreader", Georgia, serif;
+  --dlpv2-font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --dlpv2-font-body: "Inter", "IBM Plex Sans", system-ui, sans-serif;
+  --dlpv2-font-prose: "Newsreader", Georgia, serif;
 
   /* body scale */
   --dlpv2-text-xs: 10px;
@@ -66,7 +71,7 @@
   --dlpv2-weight-regular: 400;
   --dlpv2-weight-medium: 500;
   --dlpv2-weight-semibold: 600;
-  --dlpv2-weight-bold: 700;
+  --dlpv2-weight-bold: 600;
 
   /* line heights */
   --dlpv2-leading-tight: 1.1;
@@ -107,25 +112,26 @@
   --dlpv2-ease-out: cubic-bezier(0.2, 0.9, 0.3, 1);
 
   /* elevation */
-  --dlpv2-shadow-pop: 0 10px 30px rgba(31, 43, 58, 0.16);
-  --dlpv2-shadow-modal: 0 24px 80px rgba(31, 43, 58, 0.24);
-  --dlpv2-glow-accent: 0 0 14px rgba(180, 83, 9, 0.16);
+  /* FLAT. Depth is a paper-stock change; only a floating overlay may cast. */
+  --dlpv2-shadow-pop: none;
+  --dlpv2-shadow-modal: 0 18px 50px rgba(27, 30, 24, 0.18);
+  --dlpv2-glow-accent: none;
 
   /* frame — sticky header surface (README §1) */
-  --dlpv2-header-veil: rgba(245, 247, 250, 0.82);
-  --dlpv2-header-line: rgba(211, 219, 230, 0.7);
-  --dlpv2-selection: rgba(180, 83, 9, 0.14);
+  --dlpv2-header-veil: rgba(250, 248, 241, 0.82);
+  --dlpv2-header-line: rgba(228, 224, 210, 0.7);
+  --dlpv2-selection: rgba(76, 102, 64, 0.14);
   --dlpv2-z-nav: 40;
 
   /* graph island (README §3) — hero proof canvas: vignette, node shadow/halo,
      edge strokes, frame shadow. Not reused elsewhere, so kept distinct from
      the shadow-pop/glow-accent tokens above rather than overloading them. */
-  --dlpv2-graph-vignette: radial-gradient(ellipse 70% 60% at 50% 46%, #ffffff, rgba(255, 255, 255, 0) 72%);
-  --dlpv2-graph-frame-shadow: 0 1px 2px rgba(31, 43, 58, 0.04);
-  --dlpv2-graph-node-shadow: 0 1px 3px rgba(31, 43, 58, 0.14);
-  --dlpv2-graph-node-halo: 0 0 0 5px rgba(180, 83, 9, 0.16), 0 1px 3px rgba(31, 43, 58, 0.2);
-  --dlpv2-graph-edge-lit: #c4cedb;
-  --dlpv2-graph-edge-dim: #e9edf3;
+  --dlpv2-graph-vignette: radial-gradient(ellipse 70% 60% at 50% 46%, #FFFDF7, rgba(255, 253, 247, 0) 72%);
+  --dlpv2-graph-frame-shadow: none;
+  --dlpv2-graph-node-shadow: none;
+  --dlpv2-graph-node-halo: 0 0 0 5px rgba(76, 102, 64, 0.18);
+  --dlpv2-graph-edge-lit: #CFCBBB;
+  --dlpv2-graph-edge-dim: #EDE9DD;
 
   /* ---- tokens/semantic.css ---- */
   /* text roles */
