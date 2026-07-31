@@ -43,8 +43,14 @@ export function LandingApp() {
 
   return (
     <div className="lpv2">
+      {/* Skip link, restored from SiteShell — the sticky header plus the graph
+          island put a lot of tab stops before the content on the one public
+          page that had no way past them. */}
+      <a className="lpv2-skip" href="#main">
+        skip to content
+      </a>
       <SiteHeader />
-      <main>
+      <main id="main" tabIndex={-1}>
         <Hero />
         <KbGraph density={narrow ? "core" : "full"} />
         {SECTIONS.map((Section, i) => (
