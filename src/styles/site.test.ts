@@ -33,9 +33,31 @@ describe("site.css defines the moss-on-parchment brand", () => {
   });
 
   it("declares the brand type trio", () => {
-    expect(siteCss).toContain('"Space Grotesk"');
+    // Newsreader replaced Space Grotesk 2026-07-31 under the delapan-design
+    // language: one serif announces AND argues, and Inter is demoted to chrome.
+    expect(siteCss).toContain('"Newsreader"');
     expect(siteCss).toContain('"Inter"');
     expect(siteCss).toContain('"JetBrains Mono"');
+  });
+
+  it("gives prose its own family and its own size", () => {
+    // The signature move: body prose is the serif, not the UI grotesque. Prose
+    // also gets 17px rather than a step off the sans ramp, because a serif
+    // reads roughly one step smaller at the same nominal size.
+    expect(siteCss).toMatch(/--p8-font-prose:\s*"Newsreader"/);
+    expect(siteCss).toMatch(/--p8-text-prose:\s*17px/);
+    expect(siteCss).toMatch(/:where\(\.site\) :where\(p\)/);
+  });
+
+  it("is flat: no anchored element casts a shadow", () => {
+    // Depth is a paper-stock change. Only --p8-shadow-lg survives, and it
+    // belongs to floating overlays (menus, modals, toasts) exclusively.
+    expect(siteCss).toMatch(/--p8-shadow-sm:\s*none/);
+    expect(siteCss).toMatch(/--p8-shadow:\s*none/);
+  });
+
+  it("never paints a card pure white", () => {
+    expect(siteCss).not.toMatch(/--p8-panel:\s*#FFFFFF/i);
   });
 
   it("keeps accent out of body text color declarations", () => {
@@ -44,7 +66,10 @@ describe("site.css defines the moss-on-parchment brand", () => {
   });
 
   it("declares the serif accent register", () => {
-    expect(siteCss).toContain('"Lora"');
+    // Was Lora, annotated "never body". Newsreader now carries both prose and
+    // the italic statement register, so Lora is gone rather than demoted.
+    expect(siteCss).toMatch(/--p8-font-serif:\s*"Newsreader"/);
+    expect(siteCss).not.toContain('"Lora"');
   });
 
   it("carries no coral tokens after the moss rebrand", () => {

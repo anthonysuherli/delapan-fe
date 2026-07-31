@@ -10,9 +10,9 @@ import { DsButton } from "./ds/Button";
 export function ClosingCta() {
   return (
     <section className="lpv2-close">
-      <p className="lpv2-close-title">ground it once</p>
+      <p className="lpv2-close-title">Ground it once.</p>
       <p className="lpv2-close-support">
-        one clone puts a knowledge base on your machine. nothing to provision.
+        One clone puts a knowledge base on your machine. Nothing to provision.
       </p>
       <div className="lpv2-cta-row">
         <DsButton href="/docs" kind="hero">

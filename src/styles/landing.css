@@ -190,19 +190,19 @@
   margin: 26px 0 0;
   max-width: 17ch;
   font-family: var(--dlpv2-font-display);
-  font-weight: var(--dlpv2-weight-bold);
-  font-size: clamp(60px, 7.8vw, 108px);
-  line-height: 0.86;
-  letter-spacing: 0.008em;
-  text-transform: uppercase;
+  font-weight: var(--dlpv2-weight-medium);
+  font-size: clamp(44px, 5.6vw, 76px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
   color: var(--dlpv2-text);
 }
 
 .lpv2-subhead {
   margin: 32px 0 0;
   max-width: 53ch;
-  font-size: 17px;
-  line-height: 1.72;
+  font-family: var(--dlpv2-font-prose);
+  font-size: 19px;
+  line-height: 1.6;
   color: var(--dlpv2-text-dim);
 }
 
@@ -414,10 +414,10 @@
   text-align: center;
   font-family: var(--dlpv2-font-display);
   font-size: var(--dlpv2-display-lg);
-  font-weight: var(--dlpv2-weight-bold);
-  line-height: 1.02;
+  font-weight: var(--dlpv2-weight-medium);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   letter-spacing: 0.01em;
-  text-transform: uppercase;
   color: var(--dlpv2-text);
 }
 
@@ -608,10 +608,9 @@
   max-width: 20ch;
   font-family: var(--dlpv2-font-display);
   font-size: 52px;
-  font-weight: var(--dlpv2-weight-bold);
-  line-height: 0.98;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
+  font-weight: var(--dlpv2-weight-medium);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   color: var(--dlpv2-text);
 }
 

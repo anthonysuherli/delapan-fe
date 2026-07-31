@@ -23,10 +23,10 @@ export function Hero() {
   return (
     <section id="top" className="lpv2-hero">
       <span className="lpv2-eyebrow">grounding engine</span>
-      <h1 className="lpv2-headline">design an agent memory you can audit</h1>
+      <h1 className="lpv2-headline">Design an agent memory you can audit.</h1>
       <p className="lpv2-subhead">
-        delapan grounds a domain once and keeps every fact with the source it came from. when
-        something is missing it goes and gets it. every answer arrives cited.
+        delapan grounds a domain once and keeps every fact with the source it came from. When
+        something is missing, it goes and gets it. Every answer arrives cited.
       </p>
       <div className="lpv2-cta-row">
         <DsButton href="/docs" kind="hero">

@@ -24,8 +24,8 @@
   --p8-muted-2:    #8F927F; /* tertiary text, disabled                         */
   --p8-line:       rgba(27,30,24,0.12);  /* hairline / border on light         */
   --p8-line-2:     rgba(27,30,24,0.06);  /* faint rule, the mark's grid        */
-  --p8-panel:      #FFFFFF; /* card on bone                                    */
-  --p8-panel-2:    #F1EEE3; /* recessed panel on bone                          */
+  --p8-panel:      #F1EEE3; /* card on bone. NOT pure white: paper, not screen  */
+  --p8-panel-2:    #E4E0D2; /* recessed panel on bone                          */
 
   /* ---- Neutral ramp (on ink) ---- */
   --p8-line-d:     rgba(250,248,241,0.14);
@@ -39,15 +39,21 @@
   --p8-info:       #3D7BFF; /* neutral information                             */
 
   /* ---- Type ---- */
-  --p8-font-display: "Space Grotesk", "Söhne", system-ui, sans-serif; /* headings, wordmark */
-  --p8-font-body:    "Inter", "IBM Plex Sans", system-ui, sans-serif; /* body, UI           */
-  --p8-font-mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace; /* code, ids, labels */
-  --p8-font-serif:   "Lora", Georgia, serif; /* italic statement register — never body */
+  /* Four jobs, three families. Newsreader announces AND argues; Inter is
+     demoted to chrome; JetBrains Mono reports. The register test decides
+     which one a given string takes: did a machine produce this value? */
+  --p8-font-display: "Newsreader", Georgia, serif; /* headings, wordmark        */
+  --p8-font-prose:   "Newsreader", Georgia, serif; /* body prose, long-form     */
+  --p8-font-body:    "Inter", "IBM Plex Sans", system-ui, sans-serif; /* UI chrome only */
+  --p8-font-mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace; /* code, ids, readouts */
+  --p8-font-serif:   "Newsreader", Georgia, serif; /* italic statement register */
 
   /* ---- Type scale (1.25 major-third, 16px base) ---- */
   --p8-text-xs:   12px;
   --p8-text-sm:   14px;
   --p8-text-base: 16px;
+  --p8-text-prose: 17px; /* serif prose only. Off-ramp on purpose:
+                            a serif reads a step smaller than a sans. */
   --p8-text-lg:   20px;
   --p8-text-xl:   25px;
   --p8-text-2xl:  31px;
@@ -70,13 +76,16 @@
   /* ---- Radii ---- */
   --p8-radius-sm:  8px;
   --p8-radius:     12px;  /* default card / control                            */
-  --p8-radius-lg:  18px;
+  --p8-radius-lg:  12px;  /* capped: nothing between 12 and the 24px section band */
   --p8-radius-pill: 999px;
   --p8-radius-icon: 22px; /* app-icon / mark tile corner (on 100-unit grid)    */
 
-  /* ---- Elevation ---- */
-  --p8-shadow-sm: 0 1px 2px rgba(27,30,24,0.08);
-  --p8-shadow:    0 6px 24px rgba(27,30,24,0.10);
+  /* ---- Elevation: FLAT ----
+     Depth is a change of paper stock, never a shadow. Cards move up the
+     surface ramp instead. The one survivor is --p8-shadow-lg, which belongs
+     to floating overlays (menus, modals, toasts) and nothing anchored. */
+  --p8-shadow-sm: none;
+  --p8-shadow:    none;
   --p8-shadow-lg: 0 18px 50px rgba(27,30,24,0.18);
 
   /* ---- Stacking ----
@@ -128,7 +137,7 @@
 
 :where(.site) :where(h1, h2, h3) {
   font-family: var(--p8-font-display);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--p8-ink);
 }
@@ -142,6 +151,13 @@
 
 :where(.site) :where(a):hover {
   color: var(--p8-accent-deep);
+}
+
+:where(.site) :where(p) {
+  font-family: var(--p8-font-prose);
+  font-size: var(--p8-text-prose);
+  line-height: 1.55;
+  text-wrap: pretty;
 }
 
 :where(.site) :where(code, pre) {
